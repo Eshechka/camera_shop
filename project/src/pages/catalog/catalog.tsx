@@ -1,12 +1,27 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import Aside from '../../components/aside/aside';
 import Banner from '../../components/banner/banner';
 import CardList from '../../components/card-list/card-list';
 import Footer from '../../components/footer/footer';
 import Header from '../../components/header/header';
+import Spinner from '../../components/spinner/spinner';
 import Svgs from '../../components/svgs/svgs';
+import { useAppDispatch, useAppSelector } from '../../hooks';
+import { fetchProductsAction } from '../../store/api-actions';
+import { getLoadingDataStatus, getProducts } from '../../store/data-catalog/selectors';
+// import { Product } from '../../types/product';
+
 
 function Catalog(): JSX.Element {
+  const dispatch = useAppDispatch();
+
+  const products = useAppSelector(getProducts);
+  const isDataLoading = useAppSelector(getLoadingDataStatus);
+
+  useEffect(() => {
+    dispatch(fetchProductsAction());
+  }, []);
+
   return (
     <React.Fragment>
       <div className="visually-hidden">
@@ -73,7 +88,9 @@ function Catalog(): JSX.Element {
                         </div>
                       </form>
                     </div>
-                    <CardList/>
+                    {isDataLoading
+                      ? <Spinner/>
+                      : <CardList products={products} />}
                     <div className="pagination">
                       <ul className="pagination__list">
                         <li className="pagination__item"><a className="pagination__link pagination__link--active" href="1">1</a>

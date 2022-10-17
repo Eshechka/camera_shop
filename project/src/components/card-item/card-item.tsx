@@ -1,33 +1,35 @@
 import StarRating from '../star-rating/star-rating';
 
 type CardItemProps = {
-  title: string;
+  name: string;
   rating: number;
-  ratingsAmount: number;
-  price: string;
-  imgSrc: string;
-  imgSrcSet: string;
-  sourceSrcSet: string;
+  reviewCount: number;
+  price: number;
+  previewImg: string;
+  previewImg2x: string;
+  previewImgWebp: string;
+  previewImgWebp2x: string;
 }
 
 function CardItem({
-  title,
+  name,
   rating,
-  ratingsAmount,
+  reviewCount,
   price,
-  imgSrc,
-  imgSrcSet,
-  sourceSrcSet,
+  previewImg,
+  previewImg2x,
+  previewImgWebp,
+  previewImgWebp2x,
 }: CardItemProps): JSX.Element {
   return (
     <div className="product-card">
       <div className="product-card__img">
         <picture>
-          <source type="image/webp" srcSet="img/content/img1.webp, img/content/img1@2x.webp 2x" />
-          <img src={imgSrc}
-            srcSet={imgSrcSet}
+          <source type="image/webp" srcSet={`${previewImgWebp}, ${previewImgWebp2x} 2x`} />
+          <img src={previewImg}
+            srcSet={previewImg2x}
             width="280" height="240"
-            alt={title}
+            alt={name}
           />
         </picture>
       </div>
@@ -35,9 +37,9 @@ function CardItem({
         <div className="rate product-card__rate">
           <StarRating rating={rating}/>
           <p className="visually-hidden">Рейтинг: {rating}</p>
-          <p className="rate__count"><span className="visually-hidden">Всего оценок:</span>{ratingsAmount}</p>
+          <p className="rate__count"><span className="visually-hidden">Всего оценок:</span>{reviewCount}</p>
         </div>
-        <p className="product-card__title">{title}</p>
+        <p className="product-card__title">{name}</p>
         <p className="product-card__price"><span className="visually-hidden">Цена:</span>{price} ₽</p>
       </div>
       <div className="product-card__buttons">
