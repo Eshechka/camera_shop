@@ -1,10 +1,24 @@
-import React from 'react';
+import React, { useEffect } from 'react';
+import { useParams } from 'react-router-dom';
 import Footer from '../../components/footer/footer';
 import Header from '../../components/header/header';
 import Svgs from '../../components/svgs/svgs';
+import { useAppDispatch, useAppSelector } from '../../hooks';
+import { fetchProductAction } from '../../store/api-actions';
+import { getProduct } from '../../store/data-product/selectors';
 
 
 function Product(): JSX.Element {
+  const { id } = useParams();
+
+  const dispatch = useAppDispatch();
+
+  const product = useAppSelector(getProduct);
+
+  useEffect(() => {
+    dispatch(fetchProductAction(id));
+  }, [id]);
+
   return (
     <React.Fragment>
       <div className="visually-hidden">
@@ -37,16 +51,17 @@ function Product(): JSX.Element {
               </div>
             </div>
             <div className="page-content__section">
+              {product &&
               <section className="product">
                 <div className="container">
                   <div className="product__img">
                     <picture>
                       <source type="image/webp" srcSet="img/content/img1.webp, img/content/img1@2x.webp 2x" />
-                      <img src="img/content/img1.jpg" srcSet="img/content/img1@2x.jpg 2x" width="560" height="480" alt="Ретрокамера Das Auge IV" />
+                      <img src={product.previewImg} srcSet="img/content/img1@2x.jpg 2x" width="560" height="480" alt="Ретрокамера Das Auge IV" />
                     </picture>
                   </div>
                   <div className="product__content">
-                    <h1 className="title title--h3">Ретрокамера «Das Auge IV»</h1>
+                    <h1 className="title title--h3">{product.name}</h1>
                     <div className="rate product__rate">
                       <svg width="17" height="16" aria-hidden="true">
                         <use xlinkHref="#icon-full-star"></use>
@@ -104,7 +119,7 @@ function Product(): JSX.Element {
                     </div>
                   </div>
                 </div>
-              </section>
+              </section>}
             </div>
             <div className="page-content__section">
               <section className="product-similar">

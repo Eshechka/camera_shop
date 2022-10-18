@@ -1,12 +1,13 @@
 import { createSlice } from '@reduxjs/toolkit';
 import { NameSpace } from '../../const';
 import { dataCatalog } from '../../types/state';
-import { fetchProductsAction } from '../api-actions';
+import { fetchProductsAction, fetchPromoAction } from '../api-actions';
 
 
 const initialState: dataCatalog = {
   products: [],
   isDataLoading: false,
+  promo: null,
 };
 
 export const Catalog = createSlice({
@@ -25,6 +26,12 @@ export const Catalog = createSlice({
       .addCase(fetchProductsAction.rejected, (state) => {
         state.products = [];
         state.isDataLoading = false;
+      })
+      .addCase(fetchPromoAction.fulfilled, (state, { payload }) => {
+        state.promo = payload;
+      })
+      .addCase(fetchPromoAction.rejected, (state) => {
+        state.promo = null;
       });
   }
 });

@@ -7,19 +7,20 @@ import Header from '../../components/header/header';
 import Spinner from '../../components/spinner/spinner';
 import Svgs from '../../components/svgs/svgs';
 import { useAppDispatch, useAppSelector } from '../../hooks';
-import { fetchProductsAction } from '../../store/api-actions';
-import { getLoadingDataStatus, getProducts } from '../../store/data-catalog/selectors';
-// import { Product } from '../../types/product';
+import { fetchProductsAction, fetchPromoAction } from '../../store/api-actions';
+import { getLoadingDataStatus, getProducts, getPromo } from '../../store/data-catalog/selectors';
 
 
 function Catalog(): JSX.Element {
   const dispatch = useAppDispatch();
 
   const products = useAppSelector(getProducts);
+  const promo = useAppSelector(getPromo);
   const isDataLoading = useAppSelector(getLoadingDataStatus);
 
   useEffect(() => {
     dispatch(fetchProductsAction());
+    dispatch(fetchPromoAction());
   }, []);
 
   return (
@@ -30,7 +31,7 @@ function Catalog(): JSX.Element {
       <div className="wrapper">
         <Header/>
         <main>
-          <Banner/>
+          <Banner promo={promo}/>
           <div className="page-content">
             <div className="breadcrumbs">
               <div className="container">
