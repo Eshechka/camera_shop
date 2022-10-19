@@ -5,14 +5,14 @@ import { APIRoute } from '../const';
 import { Product } from '../types/product';
 import { Promo } from '../types/promo.js';
 
-export const fetchProductsAction = createAsyncThunk<Product[], undefined, {
+export const fetchProductsAction = createAsyncThunk<Product[], string | undefined, {
   dispatch: AppDispatch;
   state: State;
   extra: AxiosInstance;
 }>(
   'catalog/fetchProducts',
-  async (_arg, { dispatch, extra: api }) => {
-    const { data } = await api.get<Product[]>(APIRoute.Products);
+  async (params, { dispatch, extra: api }) => {
+    const { data } = await api.get<Product[]>(`${APIRoute.Products}${params ? `?${params}` : ''}`);
     return data;
   },
 );
@@ -35,8 +35,20 @@ export const fetchProductAction = createAsyncThunk<Product, string | undefined, 
   extra: AxiosInstance;
 }>(
   'product/fetch',
-  async (_arg, { dispatch, extra: api }) => {
-    const { data } = await api.get<Product>(`${APIRoute.Products}/${_arg}`);
+  async (id, { dispatch, extra: api }) => {
+    const { data } = await api.get<Product>(`${APIRoute.Products}/${id}`);
+    return data;
+  },
+);
+
+export const fetchSimilarProductsAction = createAsyncThunk<Product[], string | undefined, {
+  dispatch: AppDispatch;
+  state: State;
+  extra: AxiosInstance;
+}>(
+  'product/fetchSimilar',
+  async (id, { dispatch, extra: api }) => {
+    const { data } = await api.get<Product[]>(`${APIRoute.Products}/${id}/similar`);
     return data;
   },
 );

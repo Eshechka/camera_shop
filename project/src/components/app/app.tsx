@@ -1,11 +1,11 @@
 import { Route, Routes, BrowserRouter, Navigate } from 'react-router-dom';
 
 import { AppRoute } from '../../const';
-import Basket from '../../pages/basket/basket';
+import BasketPage from '../../pages/basket-page/basket-page';
 
-import Catalog from '../../pages/catalog/catalog';
+import CatalogPage from '../../pages/catalog-page/catalog-page';
 import NotFound from '../../pages/not-found/not-found';
-import Product from '../../pages/product/product';
+import ProductPage from '../../pages/product-page/product-page';
 
 function App(): JSX.Element {
   return (
@@ -13,15 +13,15 @@ function App(): JSX.Element {
       <Routes>
         <Route
           path={AppRoute.Root}
-          element={<Catalog />}
+          element={<CatalogPage />}
         />
         <Route
           path={AppRoute.Basket}
-          element={<Basket />}
+          element={<BasketPage />}
         />
         <Route path={AppRoute.Product} >
           <Route index element={<Navigate to={AppRoute.Root} />} />
-          <Route path=':id' element={<Product />} />
+          <Route path=':id' element={<ProductPage />} />
         </Route>
         <Route
           path={AppRoute.NotFound}

@@ -16,3 +16,6 @@ export enum NameSpace {
   Product = 'PRODUCT',
   Catalog = 'CATALOG',
 }
+
+export const MAX_SLIDER_ELEMS = 3;
+export const MAX_PAGINATION_ELEMS = 9;

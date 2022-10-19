@@ -1,6 +1,9 @@
+import { NavLink } from 'react-router-dom';
+import { AppRoute } from '../../const';
 import StarRating from '../star-rating/star-rating';
 
 type CardItemProps = {
+  id: number;
   name: string;
   rating: number;
   reviewCount: number;
@@ -9,9 +12,11 @@ type CardItemProps = {
   previewImg2x: string;
   previewImgWebp: string;
   previewImgWebp2x: string;
+  classname?: string;
 }
 
 function CardItem({
+  id,
   name,
   rating,
   reviewCount,
@@ -20,9 +25,10 @@ function CardItem({
   previewImg2x,
   previewImgWebp,
   previewImgWebp2x,
+  classname,
 }: CardItemProps): JSX.Element {
   return (
-    <div className="product-card">
+    <div className={['product-card', classname].join(' ')}>
       <div className="product-card__img">
         <picture>
           <source type="image/webp" srcSet={`${previewImgWebp}, ${previewImgWebp2x} 2x`} />
@@ -44,7 +50,7 @@ function CardItem({
       </div>
       <div className="product-card__buttons">
         <button className="btn btn--purple product-card__btn" type="button">Купить</button>
-        <a className="btn btn--transparent" href="#">Подробнее</a>
+        <NavLink className="btn btn--transparent" to={`${AppRoute.Product}/${id}`}>Подробнее</NavLink>
       </div>
     </div>
   );

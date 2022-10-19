@@ -4,6 +4,7 @@ import Banner from '../../components/banner/banner';
 import CardList from '../../components/card-list/card-list';
 import Footer from '../../components/footer/footer';
 import Header from '../../components/header/header';
+import Pagination from '../../components/pagination/pagination';
 import Spinner from '../../components/spinner/spinner';
 import Svgs from '../../components/svgs/svgs';
 import { useAppDispatch, useAppSelector } from '../../hooks';
@@ -11,15 +12,17 @@ import { fetchProductsAction, fetchPromoAction } from '../../store/api-actions';
 import { getLoadingDataStatus, getProducts, getPromo } from '../../store/data-catalog/selectors';
 
 
-function Catalog(): JSX.Element {
+function CatalogPage(): JSX.Element {
   const dispatch = useAppDispatch();
 
   const products = useAppSelector(getProducts);
   const promo = useAppSelector(getPromo);
   const isDataLoading = useAppSelector(getLoadingDataStatus);
 
+  const params = '_start=0&_end=9';
+
   useEffect(() => {
-    dispatch(fetchProductsAction());
+    dispatch(fetchProductsAction(params));
     dispatch(fetchPromoAction());
   }, []);
 
@@ -91,19 +94,13 @@ function Catalog(): JSX.Element {
                     </div>
                     {isDataLoading
                       ? <Spinner/>
-                      : <CardList products={products} />}
-                    <div className="pagination">
-                      <ul className="pagination__list">
-                        <li className="pagination__item"><a className="pagination__link pagination__link--active" href="1">1</a>
-                        </li>
-                        <li className="pagination__item"><a className="pagination__link" href="2">2</a>
-                        </li>
-                        <li className="pagination__item"><a className="pagination__link" href="3">3</a>
-                        </li>
-                        <li className="pagination__item"><a className="pagination__link pagination__link--text" href="2">Далее</a>
-                        </li>
-                      </ul>
-                    </div>
+                      : <CardList classname='cards catalog__cards' products={products} />}
+                    <Pagination
+                      pages={3}
+                      // todo дописать функцию
+                      // eslint-disable-next-line
+                      changePage={() => console.log('Функция для отправки запроса получения данных страницы')}
+                    />
                   </div>
                 </div>
               </div>
@@ -117,4 +114,4 @@ function Catalog(): JSX.Element {
   );
 }
 
-export default Catalog;
+export default CatalogPage;

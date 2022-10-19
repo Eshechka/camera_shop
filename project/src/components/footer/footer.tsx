@@ -1,14 +1,16 @@
+import { NavLink } from 'react-router-dom';
+import { AppRoute } from '../../const';
 
 function Footer(): JSX.Element {
   return (
     <footer className="footer">
       <div className="container">
         <div className="footer__info">
-          <a className="footer__logo" href="index.html" aria-label="Переход на главную">
+          <NavLink className="footer__logo" to={AppRoute.Root} aria-label="Переход на главную">
             <svg width="100" height="36" aria-hidden="true">
               <use xlinkHref="#icon-logo-mono"></use>
             </svg>
-          </a>
+          </NavLink>
           <p className="footer__description">Интернет-магазин фото- и видеотехники</p>
           <ul className="social">
             <li className="social__item">

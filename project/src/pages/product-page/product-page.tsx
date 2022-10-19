@@ -1,23 +1,41 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
+import CardList from '../../components/card-list/card-list';
 import Footer from '../../components/footer/footer';
 import Header from '../../components/header/header';
+import StarRating from '../../components/star-rating/star-rating';
 import Svgs from '../../components/svgs/svgs';
+import Tabs from '../../components/tabs/tabs';
+import { MAX_SLIDER_ELEMS } from '../../const';
 import { useAppDispatch, useAppSelector } from '../../hooks';
-import { fetchProductAction } from '../../store/api-actions';
-import { getProduct } from '../../store/data-product/selectors';
+import { fetchProductAction, fetchSimilarProductsAction } from '../../store/api-actions';
+import { getProduct, getSimilarProducts } from '../../store/data-product/selectors';
+import { Product } from '../../types/product';
 
 
-function Product(): JSX.Element {
+function ProductPage(): JSX.Element {
   const { id } = useParams();
 
   const dispatch = useAppDispatch();
 
   const product = useAppSelector(getProduct);
+  const similarProducts = useAppSelector(getSimilarProducts);
+
+  const [sliderSimilarProducts, setSliderSimilarProducts] = useState<Product[]>([]);
+  const [activeIds, setActiveIds] = useState<number[]>([]);
 
   useEffect(() => {
     dispatch(fetchProductAction(id));
+    dispatch(fetchSimilarProductsAction(id));
   }, [id]);
+
+  useEffect(() => {
+    if (similarProducts && similarProducts.length > 0) {
+      setSliderSimilarProducts(similarProducts);
+      const ids = similarProducts.slice(0, MAX_SLIDER_ELEMS).map((item) => +item.id);
+      setActiveIds(ids);
+    }
+  }, [similarProducts]);
 
   return (
     <React.Fragment>
@@ -56,67 +74,42 @@ function Product(): JSX.Element {
                 <div className="container">
                   <div className="product__img">
                     <picture>
-                      <source type="image/webp" srcSet="img/content/img1.webp, img/content/img1@2x.webp 2x" />
-                      <img src={product.previewImg} srcSet="img/content/img1@2x.jpg 2x" width="560" height="480" alt="Ретрокамера Das Auge IV" />
+                      <source type="image/webp" srcSet={`${product.previewImgWebp}, ${product.previewImgWebp2x} 2x`} />
+                      <img src={product.previewImg} srcSet={`${product.previewImg} 2x`} width="560" height="480" alt={product.name} />
                     </picture>
                   </div>
                   <div className="product__content">
                     <h1 className="title title--h3">{product.name}</h1>
                     <div className="rate product__rate">
-                      <svg width="17" height="16" aria-hidden="true">
-                        <use xlinkHref="#icon-full-star"></use>
-                      </svg>
-                      <svg width="17" height="16" aria-hidden="true">
-                        <use xlinkHref="#icon-full-star"></use>
-                      </svg>
-                      <svg width="17" height="16" aria-hidden="true">
-                        <use xlinkHref="#icon-full-star"></use>
-                      </svg>
-                      <svg width="17" height="16" aria-hidden="true">
-                        <use xlinkHref="#icon-full-star"></use>
-                      </svg>
-                      <svg width="17" height="16" aria-hidden="true">
-                        <use xlinkHref="#icon-star"></use>
-                      </svg>
-                      <p className="visually-hidden">Рейтинг: 4</p>
-                      <p className="rate__count"><span className="visually-hidden">Всего оценок:</span>12</p>
+                      <StarRating rating={product.rating}/>
+                      <p className="visually-hidden">Рейтинг: {product.rating}</p>
+                      <p className="rate__count"><span className="visually-hidden">Всего оценок:</span>{product.reviewCount}</p>
                     </div>
-                    <p className="product__price"><span className="visually-hidden">Цена:</span>73 450 ₽</p>
+                    <p className="product__price"><span className="visually-hidden">Цена:</span>{product.price} ₽</p>
                     <button className="btn btn--purple" type="button">
                       <svg width="24" height="16" aria-hidden="true">
                         <use xlinkHref="#icon-add-basket"></use>
                       </svg>Добавить в корзину
                     </button>
-                    <div className="tabs product__tabs">
-                      <div className="tabs__controls product__tabs-controls">
-                        <button className="tabs__control" type="button">Характеристики</button>
-                        <button className="tabs__control is-active" type="button">Описание</button>
+                    <Tabs tabTitles={['Характеристики', 'Описание']}>
+                      <ul className="product__tabs-list">
+                        <li className="item-list"><span className="item-list__title">Артикул:</span>
+                          <p className="item-list__text">{product.vendorCode}</p>
+                        </li>
+                        <li className="item-list"><span className="item-list__title">Категория:</span>
+                          <p className="item-list__text">{product.category}</p>
+                        </li>
+                        <li className="item-list"><span className="item-list__title">Тип камеры:</span>
+                          <p className="item-list__text">{product.type}</p>
+                        </li>
+                        <li className="item-list"><span className="item-list__title">Уровень:</span>
+                          <p className="item-list__text">{product.level}</p>
+                        </li>
+                      </ul>
+                      <div className="product__tabs-text">
+                        <p>{product.description}</p>
                       </div>
-                      <div className="tabs__content">
-                        <div className="tabs__element">
-                          <ul className="product__tabs-list">
-                            <li className="item-list"><span className="item-list__title">Артикул:</span>
-                              <p className="item-list__text"> DA4IU67AD5</p>
-                            </li>
-                            <li className="item-list"><span className="item-list__title">Категория:</span>
-                              <p className="item-list__text">Видеокамера</p>
-                            </li>
-                            <li className="item-list"><span className="item-list__title">Тип камеры:</span>
-                              <p className="item-list__text">Коллекционная</p>
-                            </li>
-                            <li className="item-list"><span className="item-list__title">Уровень:</span>
-                              <p className="item-list__text">Любительский</p>
-                            </li>
-                          </ul>
-                        </div>
-                        <div className="tabs__element is-active">
-                          <div className="product__tabs-text">
-                            <p>Немецкий концерн BRW разработал видеокамеру Das Auge IV в&nbsp;начале 80-х годов, однако она до&nbsp;сих пор пользуется популярностью среди коллекционеров и&nbsp;яростных почитателей старинной техники.</p>
-                            <p>Вы&nbsp;тоже можете прикоснуться к&nbsp;волшебству аналоговой съёмки, заказав этот чудо-аппарат. Кто знает, может с&nbsp;Das Auge IV&nbsp;начнётся ваш путь к&nbsp;наградам всех престижных кинофестивалей.</p>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
+                    </Tabs>
                   </div>
                 </div>
               </section>}
@@ -126,31 +119,26 @@ function Product(): JSX.Element {
                 <div className="container">
                   <h2 className="title title--h3">Похожие товары</h2>
                   <div className="product-similar__slider">
-                    <div className="product-similar__slider-list">
+                    <CardList
+                      classname='product-similar__slider-list'
+                      products={sliderSimilarProducts}
+                      activeIds={activeIds}
+                    />
+                    {/* <div className="product-similar__slider-list">
                       <div className="product-card is-active">
                         <div className="product-card__img">
                           <picture>
                             <source type="image/webp" srcSet="img/content/img9.webp, img/content/img9@2x.webp 2x" />
-                            <img src="img/content/img9.jpg" srcSet="img/content/img9@2x.jpg 2x" width="280" height="240" alt="Фотоаппарат FastShot MR-5" />
+                            <img src="img/content/img9.jpg"
+                              srcSet="img/content/img9@2x.jpg 2x"
+                              width="280" height="240"
+                              alt="Фотоаппарат FastShot MR-5"
+                            />
                           </picture>
                         </div>
                         <div className="product-card__info">
                           <div className="rate product-card__rate">
-                            <svg width="17" height="16" aria-hidden="true">
-                              <use xlinkHref="#icon-full-star"></use>
-                            </svg>
-                            <svg width="17" height="16" aria-hidden="true">
-                              <use xlinkHref="#icon-full-star"></use>
-                            </svg>
-                            <svg width="17" height="16" aria-hidden="true">
-                              <use xlinkHref="#icon-full-star"></use>
-                            </svg>
-                            <svg width="17" height="16" aria-hidden="true">
-                              <use xlinkHref="#icon-full-star"></use>
-                            </svg>
-                            <svg width="17" height="16" aria-hidden="true">
-                              <use xlinkHref="#icon-star"></use>
-                            </svg>
+                            <StarRating rating={4}/>
                             <p className="visually-hidden">Рейтинг: 4</p>
                             <p className="rate__count"><span className="visually-hidden">Всего оценок:</span>12</p>
                           </div>
@@ -212,21 +200,7 @@ function Product(): JSX.Element {
                         </div>
                         <div className="product-card__info">
                           <div className="rate product-card__rate">
-                            <svg width="17" height="16" aria-hidden="true">
-                              <use xlinkHref="#icon-full-star"></use>
-                            </svg>
-                            <svg width="17" height="16" aria-hidden="true">
-                              <use xlinkHref="#icon-full-star"></use>
-                            </svg>
-                            <svg width="17" height="16" aria-hidden="true">
-                              <use xlinkHref="#icon-full-star"></use>
-                            </svg>
-                            <svg width="17" height="16" aria-hidden="true">
-                              <use xlinkHref="#icon-full-star"></use>
-                            </svg>
-                            <svg width="17" height="16" aria-hidden="true">
-                              <use xlinkHref="#icon-full-star"></use>
-                            </svg>
+                            <StarRating rating={5}/>
                             <p className="visually-hidden">Рейтинг: 5</p>
                             <p className="rate__count"><span className="visually-hidden">Всего оценок:</span>849</p>
                           </div>
@@ -250,21 +224,7 @@ function Product(): JSX.Element {
                         </div>
                         <div className="product-card__info">
                           <div className="rate product-card__rate">
-                            <svg width="17" height="16" aria-hidden="true">
-                              <use xlinkHref="#icon-full-star"></use>
-                            </svg>
-                            <svg width="17" height="16" aria-hidden="true">
-                              <use xlinkHref="#icon-full-star"></use>
-                            </svg>
-                            <svg width="17" height="16" aria-hidden="true">
-                              <use xlinkHref="#icon-full-star"></use>
-                            </svg>
-                            <svg width="17" height="16" aria-hidden="true">
-                              <use xlinkHref="#icon-full-star"></use>
-                            </svg>
-                            <svg width="17" height="16" aria-hidden="true">
-                              <use xlinkHref="#icon-star"></use>
-                            </svg>
+                            <StarRating rating={4} />
                             <p className="visually-hidden">Рейтинг: 4</p>
                             <p className="rate__count"><span className="visually-hidden">Всего оценок:</span>12</p>
                           </div>
@@ -288,21 +248,7 @@ function Product(): JSX.Element {
                         </div>
                         <div className="product-card__info">
                           <div className="rate product-card__rate">
-                            <svg width="17" height="16" aria-hidden="true">
-                              <use xlinkHref="#icon-full-star"></use>
-                            </svg>
-                            <svg width="17" height="16" aria-hidden="true">
-                              <use xlinkHref="#icon-full-star"></use>
-                            </svg>
-                            <svg width="17" height="16" aria-hidden="true">
-                              <use xlinkHref="#icon-full-star"></use>
-                            </svg>
-                            <svg width="17" height="16" aria-hidden="true">
-                              <use xlinkHref="#icon-star"></use>
-                            </svg>
-                            <svg width="17" height="16" aria-hidden="true">
-                              <use xlinkHref="#icon-star"></use>
-                            </svg>
+                            <StarRating rating={3} />
                             <p className="visually-hidden">Рейтинг: 3</p>
                             <p className="rate__count"><span className="visually-hidden">Всего оценок:</span>23</p>
                           </div>
@@ -326,21 +272,7 @@ function Product(): JSX.Element {
                         </div>
                         <div className="product-card__info">
                           <div className="rate product-card__rate">
-                            <svg width="17" height="16" aria-hidden="true">
-                              <use xlinkHref="#icon-full-star"></use>
-                            </svg>
-                            <svg width="17" height="16" aria-hidden="true">
-                              <use xlinkHref="#icon-full-star"></use>
-                            </svg>
-                            <svg width="17" height="16" aria-hidden="true">
-                              <use xlinkHref="#icon-full-star"></use>
-                            </svg>
-                            <svg width="17" height="16" aria-hidden="true">
-                              <use xlinkHref="#icon-full-star"></use>
-                            </svg>
-                            <svg width="17" height="16" aria-hidden="true">
-                              <use xlinkHref="#icon-full-star"></use>
-                            </svg>
+                            <StarRating rating={5} />
                             <p className="visually-hidden">Рейтинг: 5</p>
                             <p className="rate__count"><span className="visually-hidden">Всего оценок:</span>849</p>
                           </div>
@@ -355,7 +287,7 @@ function Product(): JSX.Element {
                           </a>
                         </div>
                       </div>
-                    </div>
+                    </div> */}
                     <button className="slider-controls slider-controls--prev" type="button" aria-label="Предыдущий слайд" disabled>
                       <svg width="7" height="12" aria-hidden="true">
                         <use xlinkHref="#icon-arrow"></use>
@@ -504,4 +436,4 @@ function Product(): JSX.Element {
   );
 }
 
-export default Product;
+export default ProductPage;

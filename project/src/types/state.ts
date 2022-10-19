@@ -11,6 +11,7 @@ export type dataCatalog = {
 export type dataProduct = {
   product: Product | null,
   isDataLoading: boolean,
+  similarProducts: Product[],
 };
 
 export type State = ReturnType<typeof store.getState>;

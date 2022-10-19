@@ -4,7 +4,7 @@ import Header from '../../components/header/header';
 import Svgs from '../../components/svgs/svgs';
 
 
-function Basket(): JSX.Element {
+function BasketPage(): JSX.Element {
   return (
     <React.Fragment>
       <div className="visually-hidden">
@@ -155,4 +155,4 @@ function Basket(): JSX.Element {
   );
 }
 
-export default Basket;
+export default BasketPage;
