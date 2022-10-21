@@ -11,10 +11,10 @@ function App(): JSX.Element {
   return (
     <BrowserRouter>
       <Routes>
-        <Route
-          path={AppRoute.Root}
-          element={<CatalogPage />}
-        />
+        <Route path={AppRoute.Root}>
+          <Route index element={<CatalogPage />} />
+          <Route path=':page' element={<CatalogPage />} />
+        </Route>
         <Route
           path={AppRoute.Basket}
           element={<BasketPage />}

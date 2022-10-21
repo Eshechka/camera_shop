@@ -1,38 +1,44 @@
 import cn from 'classnames';
-import { useState } from 'react';
 
 type paginationProps = {
+  currentPage: number;
   pages: number;
-  changePage: () => void;
+  changePage: (currentPage: number) => void;
 }
 
 function Pagination({
+  currentPage = 1,
   pages,
   changePage,
 }: paginationProps): JSX.Element {
 
-  const [currentPage, setCurrentPage] = useState(1);
-
-  const nextClickHandle = () => {
-    if (currentPage < pages) {
-      setCurrentPage(currentPage + 1);
-      changePage();// + 1
+  const pageClickHandle = (page: number) => {
+    if (page <= pages && page > 0) {
+      changePage(page);
     }
   };
 
   return (
     <div className="pagination">
       <ul className="pagination__list">
+        <li className="pagination__item">
+          <button
+            disabled={currentPage === 1}
+            className="pagination__link pagination__link--text"
+            onClick={() => pageClickHandle(currentPage - 1)}
+          >Назад
+          </button>
+        </li>
         {Array.from({ length: pages })
           .map((_, index) => {
             const key = index;
             return (
               <li key={key} className="pagination__item">
-                <a
+                <button
                   className={cn('pagination__link', {'pagination__link--active': currentPage === index + 1})}
-                  href="1"
+                  onClick={() => pageClickHandle(index + 1)}
                 >{index + 1}
-                </a>
+                </button>
               </li>
             );
           })}
@@ -40,7 +46,7 @@ function Pagination({
           <button
             disabled={currentPage === pages}
             className="pagination__link pagination__link--text"
-            onClick={nextClickHandle}
+            onClick={() => pageClickHandle(currentPage + 1)}
           >Далее
           </button>
         </li>

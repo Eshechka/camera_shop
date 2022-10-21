@@ -12,7 +12,7 @@ function Header(): JSX.Element {
         </NavLink>
         <nav className="main-nav header__main-nav">
           <ul className="main-nav__list">
-            <li className="main-nav__item"><a className="main-nav__link" href="catalog.html">Каталог</a>
+            <li className="main-nav__item"><NavLink className="main-nav__link" to={AppRoute.Root}>Каталог</NavLink>
             </li>
             <li className="main-nav__item"><a className="main-nav__link" href="#">Гарантии</a>
             </li>
@@ -45,11 +45,11 @@ function Header(): JSX.Element {
             <span className="visually-hidden">Сбросить поиск</span>
           </button>
         </div>
-        <a className="header__basket-link" href="#">
+        <NavLink className="header__basket-link" to={AppRoute.Basket}>
           <svg width="16" height="16" aria-hidden="true">
             <use xlinkHref="#icon-basket"></use>
           </svg>
-        </a>
+        </NavLink>
       </div>
     </header>
   );

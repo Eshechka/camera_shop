@@ -2164,6 +2164,11 @@ button {
   background-color: #f8f8f8
 }
 
+.pagination__link:disabled:hover {
+  color: #ddd;
+  background-color: #f8f8f8
+}
+
 .pagination__link:disabled .pagination__link--active {
   background-color: #ddd
 }

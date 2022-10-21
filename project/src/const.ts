@@ -18,4 +18,5 @@ export enum NameSpace {
 }
 
 export const MAX_SLIDER_ELEMS = 3;
+export const MAX_REVIEW_ELEMS = 3;
 export const MAX_PAGINATION_ELEMS = 9;

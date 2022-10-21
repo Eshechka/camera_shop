@@ -2,6 +2,7 @@ import { store } from '../store/index.js';
 
 import { Product } from './product.js';
 import { Promo } from './promo.js';
+import { Review } from './review.js';
 
 export type dataCatalog = {
   products: Product[],
@@ -12,6 +13,7 @@ export type dataProduct = {
   product: Product | null,
   isDataLoading: boolean,
   similarProducts: Product[],
+  productReviews: Review[],
 };
 
 export type State = ReturnType<typeof store.getState>;
