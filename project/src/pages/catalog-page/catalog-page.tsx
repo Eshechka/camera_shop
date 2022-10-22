@@ -154,12 +154,11 @@ function CatalogPage({
                 <use xlinkHref="#icon-success"></use>
               </svg>
               <div className="modal__buttons">
-                <a
+                <button
                   className="btn btn--transparent modal__btn"
-                  href="#"
                   onClick={() => setModalShow(false)}
                 >Продолжить покупки
-                </a>
+                </button>
                 <NavLink className="btn btn--purple modal__btn modal__btn--fit-width" to={AppRoute.Basket}>Перейти в корзину</NavLink>
               </div>
             </Modal>}

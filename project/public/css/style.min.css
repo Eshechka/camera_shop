@@ -3209,7 +3209,6 @@ screen and (min-width:0\0) {
   .slider-controls:active {
     color: #7575e2;
     background-color: #a2a2ff;
-    pointer-events: none
   }
 
   .link:focus,

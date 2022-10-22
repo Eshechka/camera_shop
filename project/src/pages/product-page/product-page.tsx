@@ -3,6 +3,7 @@ import { NavLink, useParams } from 'react-router-dom';
 import CardList from '../../components/card-list/card-list';
 import Footer from '../../components/footer/footer';
 import Header from '../../components/header/header';
+import Modal from '../../components/modal/modal';
 import Reviews from '../../components/reviews/reviews';
 import StarRating from '../../components/star-rating/star-rating';
 import Svgs from '../../components/svgs/svgs';
@@ -25,6 +26,10 @@ function ProductPage(): JSX.Element {
 
   const [sliderSimilarProducts, setSliderSimilarProducts] = useState<Product[]>([]);
   const [activeIds, setActiveIds] = useState<number[]>([]);
+  const [currentSlide, setCurrentSlide] = useState(0);
+  const [maxSlides, setMaxSlides] = useState<number|null>(null);
+
+  const [modalShow, setModalShow] = useState(false);
 
   useEffect(() => {
     dispatch(fetchProductReviewsAction(id));
@@ -34,11 +39,19 @@ function ProductPage(): JSX.Element {
 
   useEffect(() => {
     if (similarProducts && similarProducts.length > 0) {
+      setMaxSlides(similarProducts.length - MAX_SLIDER_ELEMS);
       setSliderSimilarProducts(similarProducts);
-      const ids = similarProducts.slice(0, MAX_SLIDER_ELEMS).map((item) => +item.id);
+      const ids = similarProducts.slice(currentSlide, MAX_SLIDER_ELEMS).map((item) => +item.id);
       setActiveIds(ids);
     }
   }, [similarProducts]);
+
+  useEffect(() => {
+    const start = currentSlide;
+    const end = currentSlide + MAX_SLIDER_ELEMS;
+    const ids = similarProducts.slice(start, end).map((item) => +item.id);
+    setActiveIds(ids);
+  }, [currentSlide]);
 
   return (
     <React.Fragment>
@@ -129,13 +142,34 @@ function ProductPage(): JSX.Element {
                         classname='product-similar__slider-list'
                         products={sliderSimilarProducts}
                         activeIds={activeIds}
+                        onClickBuy={() => setModalShow(true)}
                       />
-                      <button className="slider-controls slider-controls--prev" type="button" aria-label="Предыдущий слайд" disabled>
+                      <button
+                        className="slider-controls slider-controls--prev"
+                        type="button"
+                        aria-label="Предыдущий слайд"
+                        disabled={currentSlide === 0}
+                        onClick={() => {
+                          if (currentSlide !== 0) {
+                            setCurrentSlide(currentSlide - 1);
+                          }
+                        }}
+                      >
                         <svg width="7" height="12" aria-hidden="true">
                           <use xlinkHref="#icon-arrow"></use>
                         </svg>
                       </button>
-                      <button className="slider-controls slider-controls--next" type="button" aria-label="Следующий слайд">
+                      <button
+                        className="slider-controls slider-controls--next"
+                        type="button"
+                        aria-label="Следующий слайд"
+                        disabled={currentSlide === maxSlides}
+                        onClick={() => {
+                          if (maxSlides && currentSlide < maxSlides) {
+                            setCurrentSlide(currentSlide + 1);
+                          }
+                        }}
+                      >
                         <svg width="7" height="12" aria-hidden="true">
                           <use xlinkHref="#icon-arrow"></use>
                         </svg>
@@ -153,6 +187,21 @@ function ProductPage(): JSX.Element {
               </section>
             </div>
           </div>
+          {modalShow &&
+            <Modal onClose={() => setModalShow(false)}>
+              <p className="title title--h4">Товар успешно добавлен в корзину</p>
+              <svg className="modal__icon" width="86" height="80" aria-hidden="true">
+                <use xlinkHref="#icon-success"></use>
+              </svg>
+              <div className="modal__buttons">
+                <button
+                  className="btn btn--transparent modal__btn"
+                  onClick={() => setModalShow(false)}
+                >Продолжить покупки
+                </button>
+                <NavLink className="btn btn--purple modal__btn modal__btn--fit-width" to={AppRoute.Basket}>Перейти в корзину</NavLink>
+              </div>
+            </Modal>}
         </main>
         <a className="up-btn" href="#header">
           <svg width="12" height="18" aria-hidden="true">
