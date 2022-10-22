@@ -1,12 +1,12 @@
 import React from 'react';
 
-type StarRatingProps = {
+type starRatingProps = {
   rating: number;
 }
 
 function StarRating({
   rating
-}: StarRatingProps): JSX.Element {
+}: starRatingProps): JSX.Element {
 
   const MAX_RATE = 5;
 

@@ -3,13 +3,13 @@ import moment from 'moment';
 import { Review } from '../../types/review';
 import StarRating from '../star-rating/star-rating';
 
-type ReviewProps = {
+type reviewProps = {
   review: Review;
 }
 
 function ReviewItem({
   review,
-}: ReviewProps): JSX.Element {
+}: reviewProps): JSX.Element {
   return (
     <li className="review-card">
       <div className="review-card__head">

@@ -1,17 +1,19 @@
 import { Product } from '../../types/product';
 import CardItem from '../card-item/card-item';
 
-type CardListProps = {
+type cardListProps = {
   classname?: string;
   products: Product[];
   activeIds?: number[];
+  onClickBuy?: () => void;
 }
 
 function CardList({
   classname,
   products,
   activeIds,
-}: CardListProps): JSX.Element {
+  onClickBuy,
+}: cardListProps): JSX.Element {
   return (
     <div className={classname}>
       {products.map((product) => (
@@ -27,6 +29,7 @@ function CardList({
           previewImgWebp={product.previewImgWebp}
           previewImgWebp2x={product.previewImgWebp2x}
           classname={activeIds && activeIds.includes(product.id) ? 'is-active' : ''}
+          onClickBuy={onClickBuy ? onClickBuy : undefined}
         />))}
 
     </div>

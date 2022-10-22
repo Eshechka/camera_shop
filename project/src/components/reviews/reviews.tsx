@@ -2,13 +2,13 @@ import React from 'react';
 import { Review } from '../../types/review';
 import ReviewItem from '../review-item/review-item';
 
-type ReviewsProps = {
+type reviewsProps = {
   reviews: Review[];
 }
 
 function Reviews({
   reviews,
-}: ReviewsProps): JSX.Element {
+}: reviewsProps): JSX.Element {
   return (
     <React.Fragment>
       <div className="page-content__headed">

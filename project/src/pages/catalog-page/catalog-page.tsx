@@ -5,6 +5,7 @@ import Banner from '../../components/banner/banner';
 import CardList from '../../components/card-list/card-list';
 import Footer from '../../components/footer/footer';
 import Header from '../../components/header/header';
+import Modal from '../../components/modal/modal';
 import Pagination from '../../components/pagination/pagination';
 import Spinner from '../../components/spinner/spinner';
 import Svgs from '../../components/svgs/svgs';
@@ -13,12 +14,19 @@ import { useAppDispatch, useAppSelector } from '../../hooks';
 import { fetchProductsAction, fetchPromoAction } from '../../store/api-actions';
 import { getLoadingDataStatus, getProducts, getPromo } from '../../store/data-catalog/selectors';
 
-const maxPages = 3;
 
-function CatalogPage(): JSX.Element {
+type catalogPageProps = {
+  maxPages: number|null;
+}
+
+function CatalogPage({
+  maxPages,
+}: catalogPageProps): JSX.Element {
   const dispatch = useAppDispatch();
   const location = useLocation();
   const navigate = useNavigate();
+
+  const [modalShow, setModalShow] = useState(false);
 
   const products = useAppSelector(getProducts);
   const promo = useAppSelector(getPromo);
@@ -27,26 +35,27 @@ function CatalogPage(): JSX.Element {
   const [currentPage, setCurrentPage] = useState(1);
 
   const changePageHandle = (page: number) => {
-    const start = 10 * (page - 1);
+    const start = MAX_PAGINATION_ELEMS * (page - 1);
     const end = start + MAX_PAGINATION_ELEMS;
     dispatch(fetchProductsAction(`_start=${start}&_end=${end}`));
     navigate(`/page_${page}`);
   };
 
   useEffect(() => {
-    if (location.pathname === '/') {
-      navigate('/page_1');
-    }
-    if (location.pathname.startsWith('/page_')) {
-      const pageNumber = parseInt(location.pathname.slice(6), 10);
+    if (maxPages) {
+      if (location.pathname === '/') {
+        navigate('/page_1');
+      }
+      if (location.pathname.startsWith('/page_')) {
+        const pageNumber = parseInt(location.pathname.slice(6), 10);
 
-      if (pageNumber && pageNumber <= maxPages) {
-        changePageHandle(pageNumber);
-        setCurrentPage(pageNumber);
+        if (pageNumber && pageNumber <= maxPages) {
+          changePageHandle(pageNumber);
+          setCurrentPage(pageNumber);
+        }
       }
     }
-
-  }, [location.pathname]);
+  }, [location.pathname, maxPages]);
 
   useEffect(() => {
     dispatch(fetchPromoAction());
@@ -121,17 +130,39 @@ function CatalogPage(): JSX.Element {
                     </div>
                     {isDataLoading
                       ? <Spinner/>
-                      : <CardList classname='cards catalog__cards' products={products} />}
-                    <Pagination
-                      currentPage={currentPage}
-                      pages={maxPages}
-                      changePage={changePageHandle}
-                    />
+                      :
+                      <CardList
+                        classname='cards catalog__cards'
+                        products={products}
+                        onClickBuy={() => setModalShow(true)}
+                      />}
+                    {maxPages &&
+                      <Pagination
+                        currentPage={currentPage}
+                        pages={maxPages}
+                        changePage={changePageHandle}
+                      />}
                   </div>
                 </div>
               </div>
             </section>
           </div>
+          {modalShow &&
+            <Modal onClose={() => setModalShow(false)}>
+              <p className="title title--h4">Товар успешно добавлен в корзину</p>
+              <svg className="modal__icon" width="86" height="80" aria-hidden="true">
+                <use xlinkHref="#icon-success"></use>
+              </svg>
+              <div className="modal__buttons">
+                <a
+                  className="btn btn--transparent modal__btn"
+                  href="#"
+                  onClick={() => setModalShow(false)}
+                >Продолжить покупки
+                </a>
+                <NavLink className="btn btn--purple modal__btn modal__btn--fit-width" to={AppRoute.Basket}>Перейти в корзину</NavLink>
+              </div>
+            </Modal>}
         </main>
         <Footer/>
       </div>

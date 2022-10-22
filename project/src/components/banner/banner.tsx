@@ -3,13 +3,13 @@ import { NavLink } from 'react-router-dom';
 import { AppRoute } from '../../const';
 import { Promo } from '../../types/promo';
 
-type BannerProps = {
+type bannerProps = {
   promo: Promo|null;
 }
 
 function Banner({
   promo,
-}: BannerProps): JSX.Element {
+}: bannerProps): JSX.Element {
   return (
     <div className="banner">
       {promo && (

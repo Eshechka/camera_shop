@@ -6,6 +6,18 @@ import { Product } from '../types/product';
 import { Promo } from '../types/promo.js';
 import { Review } from '../types/review.js';
 
+export const fetchProductsLengthAction = createAsyncThunk<Product[], undefined, {
+  dispatch: AppDispatch;
+  state: State;
+  extra: AxiosInstance;
+}>(
+  'catalog/fetchProductsLength',
+  async (_arg, { dispatch, extra: api }) => {
+    const { data } = await api.get<Product[]>(APIRoute.Products);
+    return data;
+  },
+);
+
 export const fetchProductsAction = createAsyncThunk<Product[], string | undefined, {
   dispatch: AppDispatch;
   state: State;

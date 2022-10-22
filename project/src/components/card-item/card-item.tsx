@@ -2,7 +2,7 @@ import { NavLink } from 'react-router-dom';
 import { AppRoute } from '../../const';
 import StarRating from '../star-rating/star-rating';
 
-type CardItemProps = {
+type cardItemProps = {
   id: number;
   name: string;
   rating: number;
@@ -13,6 +13,7 @@ type CardItemProps = {
   previewImgWebp: string;
   previewImgWebp2x: string;
   classname?: string;
+  onClickBuy: (() => void) | undefined;
 }
 
 function CardItem({
@@ -26,7 +27,8 @@ function CardItem({
   previewImgWebp,
   previewImgWebp2x,
   classname,
-}: CardItemProps): JSX.Element {
+  onClickBuy,
+}: cardItemProps): JSX.Element {
   return (
     <div className={['product-card', classname].join(' ')}>
       <div className="product-card__img">
@@ -49,7 +51,12 @@ function CardItem({
         <p className="product-card__price"><span className="visually-hidden">Цена:</span>{price} ₽</p>
       </div>
       <div className="product-card__buttons">
-        <button className="btn btn--purple product-card__btn" type="button">Купить</button>
+        <button
+          className="btn btn--purple product-card__btn"
+          type="button"
+          onClick={onClickBuy ? onClickBuy : undefined}
+        >Купить
+        </button>
         <NavLink className="btn btn--transparent" to={`${AppRoute.Product}/${id}`}>Подробнее</NavLink>
       </div>
     </div>
