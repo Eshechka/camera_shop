@@ -4,10 +4,14 @@ import ReviewItem from '../review-item/review-item';
 
 type reviewsProps = {
   reviews: Review[];
+  showMore: () => void;
+  disableBtn: boolean;
 }
 
 function Reviews({
   reviews,
+  showMore,
+  disableBtn,
 }: reviewsProps): JSX.Element {
   return (
     <React.Fragment>
@@ -24,7 +28,12 @@ function Reviews({
       </ul>
 
       <div className="review-block__buttons">
-        <button className="btn btn--purple" type="button">Показать больше отзывов
+        <button
+          className="btn btn--purple"
+          type="button"
+          onClick={showMore}
+          disabled={disableBtn}
+        >Показать больше отзывов
         </button>
       </div>
     </React.Fragment>

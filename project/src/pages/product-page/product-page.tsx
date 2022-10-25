@@ -8,11 +8,12 @@ import Reviews from '../../components/reviews/reviews';
 import StarRating from '../../components/star-rating/star-rating';
 import Svgs from '../../components/svgs/svgs';
 import Tabs from '../../components/tabs/tabs';
-import { AppRoute, MAX_REVIEW_ELEMS, MAX_SLIDER_ELEMS } from '../../const';
+import { AppRoute, PLUS_REVIEW_ELEMS, MAX_SLIDER_ELEMS } from '../../const';
 import { useAppDispatch, useAppSelector } from '../../hooks';
 import { fetchProductAction, fetchProductReviewsAction, fetchSimilarProductsAction } from '../../store/api-actions';
 import { getProduct, getProductReviews, getSimilarProducts } from '../../store/data-product/selectors';
 import { Product } from '../../types/product';
+import { Review } from '../../types/review';
 
 
 function ProductPage(): JSX.Element {
@@ -29,12 +30,20 @@ function ProductPage(): JSX.Element {
   const [currentSlide, setCurrentSlide] = useState(0);
   const [maxSlides, setMaxSlides] = useState<number|null>(null);
 
+  const [showedReviews, setShowedReviews] = useState<Review[]>([]);
+
   const [modalShow, setModalShow] = useState(false);
+
+  const showMore = () => {
+    const end = showedReviews.length + PLUS_REVIEW_ELEMS;
+    setShowedReviews(productReviews.slice(0, end));
+  };
 
   useEffect(() => {
     dispatch(fetchProductReviewsAction(id));
     dispatch(fetchProductAction(id));
     dispatch(fetchSimilarProductsAction(id));
+    setShowedReviews([]);
   }, [id]);
 
   useEffect(() => {
@@ -52,6 +61,14 @@ function ProductPage(): JSX.Element {
     const ids = similarProducts.slice(start, end).map((item) => +item.id);
     setActiveIds(ids);
   }, [currentSlide]);
+
+  useEffect(() => {
+    if (productReviews && productReviews.length > 0) {
+      if (showedReviews.length === 0) {
+        showMore();
+      }
+    }
+  }, [productReviews]);
 
   return (
     <React.Fragment>
@@ -181,8 +198,11 @@ function ProductPage(): JSX.Element {
             <div className="page-content__section">
               <section className="review-block">
                 <div className="container">
-                  {/* // todo пока прост ослайсим первые 3 элемента */}
-                  <Reviews reviews={productReviews.slice(0, MAX_REVIEW_ELEMS)} />
+                  <Reviews
+                    reviews={showedReviews}
+                    showMore={showMore}
+                    disableBtn={showedReviews.length === productReviews.length}
+                  />
                 </div>
               </section>
             </div>
