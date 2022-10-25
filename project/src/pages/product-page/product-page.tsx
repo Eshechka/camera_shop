@@ -8,7 +8,7 @@ import Reviews from '../../components/reviews/reviews';
 import StarRating from '../../components/star-rating/star-rating';
 import Svgs from '../../components/svgs/svgs';
 import Tabs from '../../components/tabs/tabs';
-import { AppRoute, PLUS_REVIEW_ELEMS, MAX_SLIDER_ELEMS } from '../../const';
+import { AppRoute, PLUS_REVIEW_ELEMS, MAX_SLIDER_ELEMS, sortReviewsDesc } from '../../const';
 import { useAppDispatch, useAppSelector } from '../../hooks';
 import { fetchProductAction, fetchProductReviewsAction, fetchSimilarProductsAction } from '../../store/api-actions';
 import { getProduct, getProductReviews, getSimilarProducts } from '../../store/data-product/selectors';
@@ -36,7 +36,16 @@ function ProductPage(): JSX.Element {
 
   const showMore = () => {
     const end = showedReviews.length + PLUS_REVIEW_ELEMS;
-    setShowedReviews(productReviews.slice(0, end));
+    const sortReviews = [...productReviews].sort(sortReviewsDesc);
+
+    setShowedReviews(sortReviews.slice(0, end));
+  };
+
+  const scrollToTop = () => {
+    window.scrollTo({
+      top: 0,
+      behavior: 'smooth'
+    });
   };
 
   useEffect(() => {
@@ -223,11 +232,14 @@ function ProductPage(): JSX.Element {
               </div>
             </Modal>}
         </main>
-        <a className="up-btn" href="#header">
+        <button
+          className="up-btn"
+          onClick={scrollToTop}
+        >
           <svg width="12" height="18" aria-hidden="true">
             <use xlinkHref="#icon-arrow2"></use>
           </svg>
-        </a>
+        </button>
         <Footer/>
       </div>
     </React.Fragment>

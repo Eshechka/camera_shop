@@ -1,3 +1,5 @@
+import { Review } from './types/review';
+
 export enum AppRoute {
   Root = '/',
   Basket = '/cart',
@@ -20,3 +22,5 @@ export enum NameSpace {
 export const MAX_SLIDER_ELEMS = 3;
 export const PLUS_REVIEW_ELEMS = 3;
 export const MAX_PAGINATION_ELEMS = 9;
+
+export const sortReviewsDesc = (reviewA: Review, reviewB: Review) => Date.parse(reviewB.createAt) - Date.parse(reviewA.createAt);
