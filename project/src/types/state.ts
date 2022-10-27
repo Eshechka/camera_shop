@@ -15,6 +15,7 @@ export type dataProduct = {
   isDataLoading: boolean,
   similarProducts: Product[],
   productReviews: Review[],
+  isReviewAdded: boolean | null,
 };
 
 export type State = ReturnType<typeof store.getState>;

@@ -1,18 +1,21 @@
 import React from 'react';
+import cn from 'classnames';
 
 type modalProps = {
   children: JSX.Element[];
   onClose: () => void;
+  classname?: string;
 }
 
 function Modal({
   children,
   onClose,
+  classname,
 }: modalProps): JSX.Element {
   return (
-    <div className="modal is-active modal--narrow">
+    <div className={cn('modal is-active', classname)}>
       <div className="modal__wrapper">
-        <div className="modal__overlay"></div>
+        <div className="modal__overlay" onClick={onClose}></div>
         <div className="modal__content">
           {children}
           <button

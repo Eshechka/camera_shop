@@ -5,6 +5,7 @@ import { APIRoute } from '../const';
 import { Product } from '../types/product';
 import { Promo } from '../types/promo.js';
 import { Review } from '../types/review.js';
+import { ReviewFormData } from '../types/reviewFormData.js';
 
 export const fetchProductsLengthAction = createAsyncThunk<Product[], undefined, {
   dispatch: AppDispatch;
@@ -74,6 +75,18 @@ export const fetchProductReviewsAction = createAsyncThunk<Review[], string | und
   'product/fetchReviews',
   async (id, { dispatch, extra: api }) => {
     const { data } = await api.get<Review[]>(`${APIRoute.Products}/${id}${APIRoute.Reviews}`);
+    return data;
+  },
+);
+
+export const addProductReviewAction = createAsyncThunk<Review, ReviewFormData, {
+  dispatch: AppDispatch;
+  state: State;
+  extra: AxiosInstance;
+}>(
+  'product/addReview',
+  async (formData, { dispatch, extra: api }) => {
+    const { data } = await api.post<Review>(APIRoute.Reviews, formData);
     return data;
   },
 );

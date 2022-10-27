@@ -11,9 +11,10 @@ import Tabs from '../../components/tabs/tabs';
 import { AppRoute, PLUS_REVIEW_ELEMS, MAX_SLIDER_ELEMS, sortReviewsDesc } from '../../const';
 import { useAppDispatch, useAppSelector } from '../../hooks';
 import { fetchProductAction, fetchProductReviewsAction, fetchSimilarProductsAction } from '../../store/api-actions';
-import { getProduct, getProductReviews, getSimilarProducts } from '../../store/data-product/selectors';
+import { getIsReviewAdded, getProduct, getProductReviews, getSimilarProducts } from '../../store/data-product/selectors';
 import { Product } from '../../types/product';
 import { Review } from '../../types/review';
+import AddReviewForm from '../add-review-form/add-review-form';
 
 
 function ProductPage(): JSX.Element {
@@ -24,6 +25,7 @@ function ProductPage(): JSX.Element {
   const product = useAppSelector(getProduct);
   const similarProducts = useAppSelector(getSimilarProducts);
   const productReviews = useAppSelector(getProductReviews);
+  const isReviewAdded = useAppSelector(getIsReviewAdded);
 
   const [sliderSimilarProducts, setSliderSimilarProducts] = useState<Product[]>([]);
   const [activeIds, setActiveIds] = useState<number[]>([]);
@@ -32,7 +34,8 @@ function ProductPage(): JSX.Element {
 
   const [showedReviews, setShowedReviews] = useState<Review[]>([]);
 
-  const [modalShow, setModalShow] = useState(false);
+  const [modalAddToBasketShow, setModalAddToBasketShow] = useState(false);
+  const [modalAddReviewShow, setModalAddReviewShow] = useState(false);
 
   const showMore = () => {
     const end = showedReviews.length + PLUS_REVIEW_ELEMS;
@@ -168,7 +171,7 @@ function ProductPage(): JSX.Element {
                         classname='product-similar__slider-list'
                         products={sliderSimilarProducts}
                         activeIds={activeIds}
-                        onClickBuy={() => setModalShow(true)}
+                        onClickBuy={() => setModalAddToBasketShow(true)}
                       />
                       <button
                         className="slider-controls slider-controls--prev"
@@ -210,14 +213,19 @@ function ProductPage(): JSX.Element {
                   <Reviews
                     reviews={showedReviews}
                     showMore={showMore}
+                    addReview={() => setModalAddReviewShow(true)}
                     disableBtn={showedReviews.length === productReviews.length}
                   />
                 </div>
               </section>
             </div>
           </div>
-          {modalShow &&
-            <Modal onClose={() => setModalShow(false)}>
+
+          {modalAddToBasketShow &&
+            <Modal
+              onClose={() => setModalAddToBasketShow(false)}
+              classname="modal--narrow"
+            >
               <p className="title title--h4">Товар успешно добавлен в корзину</p>
               <svg className="modal__icon" width="86" height="80" aria-hidden="true">
                 <use xlinkHref="#icon-success"></use>
@@ -225,12 +233,21 @@ function ProductPage(): JSX.Element {
               <div className="modal__buttons">
                 <button
                   className="btn btn--transparent modal__btn"
-                  onClick={() => setModalShow(false)}
+                  onClick={() => setModalAddToBasketShow(false)}
                 >Продолжить покупки
                 </button>
                 <NavLink className="btn btn--purple modal__btn modal__btn--fit-width" to={AppRoute.Basket}>Перейти в корзину</NavLink>
               </div>
             </Modal>}
+
+          {modalAddReviewShow && id && isReviewAdded !== true &&
+            <Modal onClose={() => setModalAddReviewShow(false)}>
+              <p className="title title--h4">Оставить отзыв</p>
+              <div className="form-review">
+                <AddReviewForm productId={+id} />
+              </div>
+            </Modal>}
+
         </main>
         <button
           className="up-btn"
