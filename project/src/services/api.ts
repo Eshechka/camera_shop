@@ -13,7 +13,6 @@ export const createAPI = (): AxiosInstance => {
     (response) => response,
     (error: AxiosError) => {
       if (error) {
-        // todo сделать оповещение об ошибке
         // eslint-disable-next-line
         console.warn(error);
       }
