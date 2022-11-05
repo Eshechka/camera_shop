@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import cn from 'classnames';
 import { useAppDispatch } from '../../hooks';
 import { addProductReviewAction } from '../../store/api-actions';

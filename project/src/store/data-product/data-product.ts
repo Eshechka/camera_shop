@@ -16,8 +16,8 @@ export const Product = createSlice({
   name: NameSpace.Product,
   initialState,
   reducers: {
-    clearIsReviewAdded: (state, { payload }) => {
-      state.isReviewAdded = payload;
+    clearIsReviewAdded: (state) => {
+      state.isReviewAdded = null;
     },
   },
   extraReducers(builder) {

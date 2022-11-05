@@ -17,7 +17,7 @@ function ReviewItem({
         <time className="review-card__data" dateTime="2022-04-13">{moment(review.createAt).format('DD MMMM')}</time>
       </div>
       <div className="rate review-card__rate">
-        <StarRating rating={5} />
+        <StarRating rating={review.rating} />
         <p className="visually-hidden">Оценка: {review.rating}</p>
       </div>
       <ul className="review-card__list">

@@ -11,6 +11,7 @@ import Tabs from '../../components/tabs/tabs';
 import { AppRoute, PLUS_REVIEW_ELEMS, MAX_SLIDER_ELEMS, sortReviewsDesc } from '../../const';
 import { useAppDispatch, useAppSelector } from '../../hooks';
 import { fetchProductAction, fetchProductReviewsAction, fetchSimilarProductsAction } from '../../store/api-actions';
+import { clearIsReviewAdded } from '../../store/data-product/data-product';
 import { getIsReviewAdded, getProduct, getProductReviews, getSimilarProducts } from '../../store/data-product/selectors';
 import { Product } from '../../types/product';
 import { Review } from '../../types/review';
@@ -33,9 +34,11 @@ function ProductPage(): JSX.Element {
   const [maxSlides, setMaxSlides] = useState<number|null>(null);
 
   const [showedReviews, setShowedReviews] = useState<Review[]>([]);
+  const [reviewsCount, setReviewsCount] = useState<number>(0);
 
   const [modalAddToBasketShow, setModalAddToBasketShow] = useState(false);
   const [modalAddReviewShow, setModalAddReviewShow] = useState(false);
+  const [modalThanxAddReviewShow, setModalThanxAddReviewShow] = useState(false);
 
   const showMore = () => {
     const end = showedReviews.length + PLUS_REVIEW_ELEMS;
@@ -79,8 +82,25 @@ function ProductPage(): JSX.Element {
       if (showedReviews.length === 0) {
         showMore();
       }
+      if (reviewsCount < productReviews.length) {
+        setShowedReviews([]);
+      }
     }
   }, [productReviews]);
+
+  useEffect(() => {
+    if (isReviewAdded === true) {
+      setModalAddReviewShow(false);
+      setModalThanxAddReviewShow(true);
+    }
+  }, [isReviewAdded]);
+
+  useEffect(() => {
+    if (reviewsCount < productReviews.length) {
+      showMore();
+      setReviewsCount(productReviews.length);
+    }
+  }, [showedReviews]);
 
   return (
     <React.Fragment>
@@ -207,6 +227,7 @@ function ProductPage(): JSX.Element {
                   </div>
                 </section>
               </div>}
+
             <div className="page-content__section">
               <section className="review-block">
                 <div className="container">
@@ -245,6 +266,29 @@ function ProductPage(): JSX.Element {
               <p className="title title--h4">Оставить отзыв</p>
               <div className="form-review">
                 <AddReviewForm productId={+id} />
+              </div>
+            </Modal>}
+
+          {modalThanxAddReviewShow &&
+            <Modal
+              onClose={() => setModalThanxAddReviewShow(false)}
+              classname="modal--narrow"
+            >
+              <p className="title title--h4">Спасибо за отзыв</p>
+              <svg className="modal__icon" width="80" height="78" aria-hidden="true">
+                <use xlinkHref="#icon-review-success"></use>
+              </svg>
+              <div className="modal__buttons">
+                <button
+                  className="btn btn--purple modal__btn modal__btn--fit-width"
+                  type="button"
+                  onClick={() => {
+                    dispatch(clearIsReviewAdded());
+                    setModalThanxAddReviewShow(false);
+                  }}
+                >
+                    Вернуться к покупкам
+                </button>
               </div>
             </Modal>}
 
