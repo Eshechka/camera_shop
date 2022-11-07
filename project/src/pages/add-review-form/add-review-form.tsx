@@ -159,7 +159,6 @@ function AddReviewForm({
       <button
         className="btn btn--purple form-review__btn"
         type="submit"
-        // disabled={!isCorrectFormData}
       >
         Отправить отзыв
       </button>
