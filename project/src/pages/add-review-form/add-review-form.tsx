@@ -25,6 +25,14 @@ function AddReviewForm({
 
   const onSubmitAddReview = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    Object.keys(formData)
+      .filter((item) => !['cameraId', 'rating'].includes(item))
+      .forEach((item) => {
+        if (formData[item as keyof ReviewFormData] === null) {
+          setFormData((prev) => ({...prev, [item as keyof ReviewFormData]: ''}));
+        }
+      });
+
     dispatch(addProductReviewAction(formData));
   };
 
@@ -44,14 +52,14 @@ function AddReviewForm({
             <div className="rate__group">
               <input className="visually-hidden" name="rate" type="radio"
                 value="5" id="star-5"
-                onChange={(e) => setFormData({...formData, rating: 5})}
                 checked={+formData.rating === 5}
+                onChange={(e) => setFormData({...formData, rating: 5})}
               />
               <label className="rate__label" htmlFor="star-5" title="Отлично"></label>
               <input className="visually-hidden" name="rate" type="radio"
                 value="4" id="star-4"
-                onChange={(e) => setFormData({...formData, rating: 4})}
                 checked={+formData.rating === 4}
+                onChange={(e) => setFormData({...formData, rating: 4})}
               />
               <label className="rate__label" htmlFor="star-4" title="Хорошо"></label>
               <input className="visually-hidden" name="rate" type="radio"
@@ -93,7 +101,7 @@ function AddReviewForm({
               onChange={(e) => setFormData({...formData, userName: e.target.value})}
             />
           </label>
-          <p className="custom-input__error">Нужно указать имя</p>
+          {formData.userName === '' && <p className="custom-input__error">Нужно указать имя</p>}
         </div>
         <div className={cn('custom-input form-review__item', {'is-invalid': formData.advantage === ''})}>
           <label>
@@ -148,7 +156,13 @@ function AddReviewForm({
           <div className="custom-textarea__error">Нужно добавить комментарий</div>
         </div>
       </div>
-      <button className="btn btn--purple form-review__btn" type="submit">Отправить отзыв</button>
+      <button
+        className="btn btn--purple form-review__btn"
+        type="submit"
+        // disabled={!isCorrectFormData}
+      >
+        Отправить отзыв
+      </button>
     </form>
   );
 }
