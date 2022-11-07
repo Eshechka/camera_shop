@@ -45,8 +45,8 @@ function Footer(): JSX.Element {
                 </NavLink>
               </li>
               <li className="footer__item">
-                <a className="link" href="#">Гарантии
-                </a>
+                <NavLink className="link" to={AppRoute.Warranty}>Гарантии
+                </NavLink>
               </li>
               <li className="footer__item">
                 <a className="link" href="#">Доставка

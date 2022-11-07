@@ -1,13 +1,13 @@
 import {render, screen} from '@testing-library/react';
 import {createMemoryHistory} from 'history';
-import NotFound from './not-found';
+import NotFoundPage from './not-found-page';
 
 describe('Component: NotFoundScreen', () => {
   it('should render correctly', () => {
     const history = createMemoryHistory();
 
     render(
-        <NotFound />
+        <NotFoundPage />
     );
 
     const headerElement = screen.getByText('PAGE NOT FOUND');

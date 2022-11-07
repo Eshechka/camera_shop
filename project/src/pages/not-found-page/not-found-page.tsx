@@ -1,5 +1,5 @@
 
-function NotFound(): JSX.Element {
+function NotFoundPage(): JSX.Element {
   return (
     <div className="wrapper">
       <main>
@@ -14,4 +14,4 @@ function NotFound(): JSX.Element {
     </div>);
 }
 
-export default NotFound;
+export default NotFoundPage;

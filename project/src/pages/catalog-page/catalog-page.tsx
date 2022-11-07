@@ -9,7 +9,7 @@ import Modal from '../../components/modal/modal';
 import Pagination from '../../components/pagination/pagination';
 import Spinner from '../../components/spinner/spinner';
 import Svgs from '../../components/svgs/svgs';
-import { AppRoute, MAX_PAGINATION_ELEMS } from '../../const';
+import { AppRoute, MAX_PAGINATION_ELEMS, pageUrlText } from '../../const';
 import { useAppDispatch, useAppSelector } from '../../hooks';
 import { fetchProductsAction, fetchPromoAction } from '../../store/api-actions';
 import { getLoadingDataStatus, getProducts, getPromo } from '../../store/data-catalog/selectors';
@@ -33,28 +33,29 @@ function CatalogPage({
   const isDataLoading = useAppSelector(getLoadingDataStatus);
 
   const [currentPage, setCurrentPage] = useState(1);
+  const [noPage, setNoPage] = useState(false);
 
   const changePageHandle = (page: number) => {
     const start = MAX_PAGINATION_ELEMS * (page - 1);
     const end = start + MAX_PAGINATION_ELEMS;
     dispatch(fetchProductsAction(`_start=${start}&_end=${end}`));
-    navigate(`/page_${page}`);
+    navigate(`/catalog${pageUrlText}${page}`);
   };
 
   useEffect(() => {
     if (maxPages) {
-      if (location.pathname === '/') {
-        navigate('/page_1');
+      if (location.pathname === '/catalog') {
+        navigate(`/catalog${pageUrlText}1`);
       }
-      if (location.pathname.startsWith('/page_')) {
-        const pageNumber = parseInt(location.pathname.slice(6), 10);
+      if (location.pathname.startsWith('/catalog/page_')) {
+        const pageNumber = parseInt(location.pathname.slice(8 + pageUrlText.length), 10);
 
         if (pageNumber && pageNumber <= maxPages) {
           changePageHandle(pageNumber);
           setCurrentPage(pageNumber);
+        } else {
+          setNoPage(true);
         }
-      } else if (location.pathname !== '/') {
-        navigate(AppRoute.NotFound);
       }
     }
   }, [location.pathname, maxPages]);
@@ -89,65 +90,72 @@ function CatalogPage({
                 </ul>
               </div>
             </div>
-            <section className="catalog">
-              <div className="container">
-                <h1 className="title title--h2">Каталог фото- и видеотехники</h1>
-                <div className="page-content__columns">
-                  <Aside/>
-                  <div className="catalog__content">
-                    <div className="catalog-sort">
-                      <form action="#">
-                        <div className="catalog-sort__inner">
-                          <p className="title title--h5">Сортировать:</p>
-                          <div className="catalog-sort__type">
-                            <div className="catalog-sort__btn-text">
-                              <input type="radio" id="sortPrice" name="sort" />
-                              <label htmlFor="sortPrice">по цене</label>
+            {!noPage &&
+              <section className="catalog">
+                <div className="container">
+                  <h1 className="title title--h2">Каталог фото- и видеотехники</h1>
+                  <div className="page-content__columns">
+                    <Aside/>
+                    <div className="catalog__content">
+                      <div className="catalog-sort">
+                        <form action="#">
+                          <div className="catalog-sort__inner">
+                            <p className="title title--h5">Сортировать:</p>
+                            <div className="catalog-sort__type">
+                              <div className="catalog-sort__btn-text">
+                                <input type="radio" id="sortPrice" name="sort" />
+                                <label htmlFor="sortPrice">по цене</label>
+                              </div>
+                              <div className="catalog-sort__btn-text">
+                                <input type="radio" id="sortPopular" name="sort" />
+                                <label htmlFor="sortPopular">по популярности</label>
+                              </div>
                             </div>
-                            <div className="catalog-sort__btn-text">
-                              <input type="radio" id="sortPopular" name="sort" />
-                              <label htmlFor="sortPopular">по популярности</label>
+                            <div className="catalog-sort__order">
+                              <div className="catalog-sort__btn catalog-sort__btn--up">
+                                <input type="radio" id="up" name="sort-icon" aria-label="По возрастанию" />
+                                <label htmlFor="up">
+                                  <svg width="16" height="14" aria-hidden="true">
+                                    <use xlinkHref="#icon-sort"></use>
+                                  </svg>
+                                </label>
+                              </div>
+                              <div className="catalog-sort__btn catalog-sort__btn--down">
+                                <input type="radio" id="down" name="sort-icon" aria-label="По убыванию" />
+                                <label htmlFor="down">
+                                  <svg width="16" height="14" aria-hidden="true">
+                                    <use xlinkHref="#icon-sort"></use>
+                                  </svg>
+                                </label>
+                              </div>
                             </div>
                           </div>
-                          <div className="catalog-sort__order">
-                            <div className="catalog-sort__btn catalog-sort__btn--up">
-                              <input type="radio" id="up" name="sort-icon" aria-label="По возрастанию" />
-                              <label htmlFor="up">
-                                <svg width="16" height="14" aria-hidden="true">
-                                  <use xlinkHref="#icon-sort"></use>
-                                </svg>
-                              </label>
-                            </div>
-                            <div className="catalog-sort__btn catalog-sort__btn--down">
-                              <input type="radio" id="down" name="sort-icon" aria-label="По убыванию" />
-                              <label htmlFor="down">
-                                <svg width="16" height="14" aria-hidden="true">
-                                  <use xlinkHref="#icon-sort"></use>
-                                </svg>
-                              </label>
-                            </div>
-                          </div>
-                        </div>
-                      </form>
+                        </form>
+                      </div>
+                      {isDataLoading
+                        ? <Spinner/>
+                        :
+                        <CardList
+                          classname='cards catalog__cards'
+                          products={products}
+                          onClickBuy={() => setModalShow(true)}
+                        />}
+                      {maxPages &&
+                        <Pagination
+                          currentPage={currentPage}
+                          pages={maxPages}
+                          changePage={changePageHandle}
+                        />}
                     </div>
-                    {isDataLoading
-                      ? <Spinner/>
-                      :
-                      <CardList
-                        classname='cards catalog__cards'
-                        products={products}
-                        onClickBuy={() => setModalShow(true)}
-                      />}
-                    {maxPages &&
-                      <Pagination
-                        currentPage={currentPage}
-                        pages={maxPages}
-                        changePage={changePageHandle}
-                      />}
                   </div>
                 </div>
-              </div>
-            </section>
+              </section>}
+            {noPage &&
+              <section className="catalog">
+                <div className="container">
+                  <h2 className="title title--h2">Такой страницы не существует</h2>
+                </div>
+              </section>}
           </div>
           {modalShow &&
             <Modal onClose={() => setModalShow(false)}>

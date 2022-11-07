@@ -1,11 +1,11 @@
 import {render, screen} from '@testing-library/react';
-import {createMemoryHistory} from 'history';
 import {Provider} from 'react-redux';
 import {configureMockStore} from '@jedmao/redux-mock-store';
 import thunk from 'redux-thunk'
 import App from './app';
 import { AppRoute } from '../../const';
 import { makeFakeProducts } from '../../utils/mocks';
+import { MemoryRouter } from 'react-router-dom'
 
 const middlewares = [thunk]
 const mockStore = configureMockStore(middlewares);
@@ -29,20 +29,69 @@ const store = mockStore({
   },
 });
 
-const history = createMemoryHistory();
-
-const fakeApp = (
-  <Provider store={store}>
-      <App />
-  </Provider>
-);
-
 describe('Application Routing', () => {
-  it('should render "CatalogPage" when user navigate to "/"', () => {
-    history.push(AppRoute.Root);
+  it('should redirect and render "CatalogPage" when user navigate to "/"', () => {
 
-    render(fakeApp);
+    render(
+      <Provider store={store}>
+        <MemoryRouter initialEntries={[AppRoute.Root]}>
+          <App />
+        </MemoryRouter>
+      </Provider>,
+    )
 
     expect(screen.getByText(/Каталог фото- и видеотехники/i)).toBeInTheDocument();
+  });
+
+  it('should render "CatalogPage" when user navigate to "/catalog"', () => {
+
+    render(
+      <Provider store={store}>
+        <MemoryRouter initialEntries={[AppRoute.Catalog]}>
+          <App />
+        </MemoryRouter>
+      </Provider>,
+    )
+
+    expect(screen.getByText(/Каталог фото- и видеотехники/i)).toBeInTheDocument();
+  });
+
+  it('should render "BasketPage" when user navigate to "/cart"', () => {
+
+    render(
+      <Provider store={store}>
+        <MemoryRouter initialEntries={[AppRoute.Basket]}>
+          <App />
+        </MemoryRouter>
+      </Provider>,
+    )
+
+    expect(screen.getAllByText(/Корзина/i)[0]).toBeInTheDocument();
+  });
+
+  it('should render "ProductPage" when user navigate to "/product/id"', () => {
+
+    render(
+      <Provider store={store}>
+        <MemoryRouter initialEntries={[`${AppRoute.Product}/${mockProduct.id}`]}>
+          <App />
+        </MemoryRouter>
+      </Provider>,
+    )
+
+    expect(screen.getByText(/Добавить в корзину/i)).toBeInTheDocument();
+  });
+
+  it('should render "NotFound" when user navigate to non-existent route', () => {
+
+    render(
+      <Provider store={store}>
+        <MemoryRouter initialEntries={['/non-existent-route']}>
+          <App />
+        </MemoryRouter>
+      </Provider>,
+    )
+
+    expect(screen.getByText('PAGE NOT FOUND')).toBeInTheDocument();
   });
 });
