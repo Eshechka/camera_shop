@@ -64,6 +64,14 @@ function CatalogPage({
     dispatch(fetchPromoAction());
   }, []);
 
+  useEffect(() => {
+    if (modalShow) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = 'unset';
+    }
+  }, [modalShow]);
+
   return (
     <React.Fragment>
       <div className="visually-hidden">

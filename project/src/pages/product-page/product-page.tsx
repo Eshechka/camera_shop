@@ -104,6 +104,14 @@ function ProductPage(): JSX.Element {
     }
   }, [showedReviews]);
 
+  useEffect(() => {
+    if (modalAddToBasketShow || modalAddReviewShow || modalThanxAddReviewShow) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = 'unset';
+    }
+  }, [modalAddToBasketShow, modalAddReviewShow, modalThanxAddReviewShow]);
+
   return (
     <React.Fragment>
       <div className="visually-hidden">

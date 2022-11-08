@@ -1,7 +1,7 @@
 import {render, screen} from '@testing-library/react';
 import {Provider} from 'react-redux';
 import {configureMockStore} from '@jedmao/redux-mock-store';
-import thunk from 'redux-thunk'
+import thunk from 'redux-thunk';
 import App from './app';
 import { AppRoute } from '../../const';
 import { makeFakeProducts } from '../../utils/mocks';
@@ -54,6 +54,19 @@ describe('Application Routing', () => {
     )
 
     expect(screen.getByText(/Каталог фото- и видеотехники/i)).toBeInTheDocument();
+  });
+
+  it('should render "CatalogPage" with notice text when user navigate to "/catalog/page_no_existing"', async () => {
+
+    render(
+      <Provider store={store}>
+        <MemoryRouter initialEntries={[`${AppRoute.Catalog}/page_100000`]}>
+          <App />
+        </MemoryRouter>
+      </Provider>,
+    )
+
+    expect(await screen.findByText(/Такой страницы не существует/i)).toBeInTheDocument();
   });
 
   it('should render "BasketPage" when user navigate to "/cart"', () => {
