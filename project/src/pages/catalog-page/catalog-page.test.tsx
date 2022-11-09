@@ -12,7 +12,7 @@ import ProductPage from '../product-page/product-page';
 
 const history = createMemoryHistory();
 
-const middlewares = [thunk]
+const middlewares = [thunk];
 const mockStore = configureMockStore(middlewares);
 
 const mockProducts = makeFakeProducts(10);
@@ -94,9 +94,9 @@ describe('Component: CatalogPage', () => {
       </Provider>);
 
     expect(screen.getAllByText(/Купить/i)[0]).toBeInTheDocument();
-    expect(screen.queryByText(`Товар успешно добавлен в корзину`)).not.toBeInTheDocument();
+    expect(screen.queryByText('Товар успешно добавлен в корзину')).not.toBeInTheDocument();
     await userEvent.click(screen.getAllByText(/Купить/i)[0]);
-    expect(screen.getByText(`Товар успешно добавлен в корзину`)).toBeInTheDocument();
+    expect(screen.getByText('Товар успешно добавлен в корзину')).toBeInTheDocument();
   });
 
   it('should redirect to ProductPage when user clicked to button "Подробнее"', async () => {

@@ -23,28 +23,22 @@ function Tabs({ tabTitles, children }: tabsProps): JSX.Element {
         className="tabs__controls product__tabs-controls"
         onClick={tabClickHandle}
       >
-        {tabTitles.map((tabName, index) => {
-          const key = index;
-          return (
-            <button
-              key={key}
-              className={cn('tabs__control', {'is-active': activeTab === `tab-${index + 1}`})}
-              type="button"
-              id={`tab-${index + 1}`}
-            >{tabName}
-            </button>
-          );
-        })}
+        {tabTitles.map((tabName, index) => (
+          <button
+            key={tabName}
+            className={cn('tabs__control', {'is-active': activeTab === `tab-${index + 1}`})}
+            type="button"
+            id={`tab-${index + 1}`}
+          >{tabName}
+          </button>
+        ))}
       </div>
       <div className="tabs__content">
-        {tabTitles.map((_, index) => {
-          const key = index;
-          return (
-            <div key={key} className={cn('tabs__element', {'is-active': activeTab === `tab-${index + 1}`})}>
-              {children[index]}
-            </div>
-          );
-        })}
+        {tabTitles.map((tabName, index) => (
+          <div key={tabName} className={cn('tabs__element', {'is-active': activeTab === `tab-${index + 1}`})}>
+            {children[index]}
+          </div>
+        ))}
       </div>
     </div>
   );

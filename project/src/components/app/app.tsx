@@ -19,7 +19,7 @@ function App(): JSX.Element {
 
   useEffect(() => {
     dispatch(fetchProductsLengthAction());
-  }, []);
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
     if (productLength) {

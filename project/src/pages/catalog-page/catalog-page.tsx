@@ -39,16 +39,16 @@ function CatalogPage({
     const start = MAX_PAGINATION_ELEMS * (page - 1);
     const end = start + MAX_PAGINATION_ELEMS;
     dispatch(fetchProductsAction(`_start=${start}&_end=${end}`));
-    navigate(`/catalog${pageUrlText}${page}`);
+    navigate(`${AppRoute.Catalog}${pageUrlText}${page}`);
   };
 
   useEffect(() => {
     if (maxPages) {
-      if (location.pathname === '/catalog') {
-        navigate(`/catalog${pageUrlText}1`);
+      if (location.pathname === AppRoute.Catalog) {
+        navigate(`${AppRoute.Catalog}${pageUrlText}1`);
       }
-      if (location.pathname.startsWith('/catalog/page_')) {
-        const pageNumber = parseInt(location.pathname.slice(8 + pageUrlText.length), 10);
+      if (location.pathname.startsWith(`${AppRoute.Catalog}${pageUrlText}`)) {
+        const pageNumber = parseInt(location.pathname.slice(AppRoute.Catalog.length + pageUrlText.length), 10);
 
         if (pageNumber && pageNumber <= maxPages) {
           changePageHandle(pageNumber);
@@ -58,11 +58,11 @@ function CatalogPage({
         }
       }
     }
-  }, [location.pathname, maxPages]);
+  }, [location.pathname, maxPages]); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
     dispatch(fetchPromoAction());
-  }, []);
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
     if (modalShow) {

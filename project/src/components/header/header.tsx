@@ -16,9 +16,9 @@ function Header(): JSX.Element {
             </li>
             <li className="main-nav__item"><NavLink className="main-nav__link" to={AppRoute.Warranty}>Гарантии</NavLink>
             </li>
-            <li className="main-nav__item"><a className="main-nav__link" href="#">Доставка</a>
+            <li className="main-nav__item"><NavLink className="main-nav__link" to={AppRoute.Delivery}>Доставка</NavLink>
             </li>
-            <li className="main-nav__item"><a className="main-nav__link" href="#">О компании</a>
+            <li className="main-nav__item"><NavLink className="main-nav__link" to={AppRoute.About}>О компании</NavLink>
             </li>
           </ul>
         </nav>

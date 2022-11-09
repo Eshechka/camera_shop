@@ -9,7 +9,7 @@ import App from '../../components/app/app';
 
 const history = createMemoryHistory();
 
-const middlewares = [thunk]
+const middlewares = [thunk];
 const mockStore = configureMockStore(middlewares);
 
 const store = mockStore({

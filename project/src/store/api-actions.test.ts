@@ -14,125 +14,124 @@ describe('Async actions', () => {
   const middlewares = [thunk.withExtraArgument(api)];
 
   const mockStore = configureMockStore<
-      State,
-      Action,
-      ThunkDispatch<State, typeof api, Action>
-    >(middlewares);
+    State,
+    Action,
+    ThunkDispatch<State, typeof api, Action>
+  >(middlewares);
 
-    it('should dispatch fetchProductsAction when GET /cameras', async () => {
-      const mockProducts = makeFakeProducts();
-      mockAPI
-        .onGet(APIRoute.Products)
-        .reply(200, mockProducts);
+  it('should dispatch fetchProductsAction when GET /cameras', async () => {
+    const mockProducts = makeFakeProducts();
+    mockAPI
+      .onGet(APIRoute.Products)
+      .reply(200, mockProducts);
 
-      const store = mockStore();
+    const store = mockStore();
 
-      await store.dispatch(fetchProductsAction());
+    await store.dispatch(fetchProductsAction());
 
-      const actions = store.getActions().map(({type}) => type);
+    const actions:string[] = store.getActions().map(({type}) => type as string);
 
-      expect(actions).toEqual([
-        fetchProductsAction.pending.type,
-        fetchProductsAction.fulfilled.type
-      ]);
-    });
+    expect(actions).toEqual([
+      fetchProductsAction.pending.type,
+      fetchProductsAction.fulfilled.type
+    ]);
+  });
 
-    it('should dispatch fetchPromoAction when GET /promo', async () => {
-      const mockPromo = makeFakePromo();
-      mockAPI
-        .onGet(APIRoute.Promo)
-        .reply(200, mockPromo);
+  it('should dispatch fetchPromoAction when GET /promo', async () => {
+    const mockPromo = makeFakePromo();
+    mockAPI
+      .onGet(APIRoute.Promo)
+      .reply(200, mockPromo);
 
-      const store = mockStore();
+    const store = mockStore();
 
-      await store.dispatch(fetchPromoAction());
+    await store.dispatch(fetchPromoAction());
 
-      const actions = store.getActions().map(({type}) => type);
+    const actions:string[] = store.getActions().map(({type}) => type as string);
 
-      expect(actions).toEqual([
-        fetchPromoAction.pending.type,
-        fetchPromoAction.fulfilled.type
-      ]);
-    });
+    expect(actions).toEqual([
+      fetchPromoAction.pending.type,
+      fetchPromoAction.fulfilled.type
+    ]);
+  });
 
-    it('should dispatch fetchProductAction when GET /cameras/id', async () => {
-      const mockProduct = makeFakeProduct();
+  it('should dispatch fetchProductAction when GET /cameras/id', async () => {
+    const mockProduct = makeFakeProduct();
 
-      mockAPI
-        .onGet(`${APIRoute.Products}/${mockProduct.id}`)
-        .reply(200, mockProduct);
+    mockAPI
+      .onGet(`${APIRoute.Products}/${mockProduct.id}`)
+      .reply(200, mockProduct);
 
-      const store = mockStore();
+    const store = mockStore();
 
-      await store.dispatch(fetchProductAction(`${mockProduct.id}`));
+    await store.dispatch(fetchProductAction(`${mockProduct.id}`));
 
-      const actions = store.getActions().map(({type}) => type);
+    const actions:string[] = store.getActions().map(({type}) => type as string);
 
-      expect(actions).toEqual([
-        fetchProductAction.pending.type,
-        fetchProductAction.fulfilled.type
-      ]);
-    });
+    expect(actions).toEqual([
+      fetchProductAction.pending.type,
+      fetchProductAction.fulfilled.type
+    ]);
+  });
 
-    it('should dispatch fetchSimilarProductsAction when GET /cameras/id/similar', async () => {
-      const mockSimilarProducts = makeFakeProducts();
-      const mockProductId = makeFakeProduct().id;
+  it('should dispatch fetchSimilarProductsAction when GET /cameras/id/similar', async () => {
+    const mockSimilarProducts = makeFakeProducts();
+    const mockProductId = makeFakeProduct().id;
 
-      mockAPI
-        .onGet(`${APIRoute.Products}/${mockProductId}${APIRoute.Similar}`)
-        .reply(200, mockSimilarProducts);
+    mockAPI
+      .onGet(`${APIRoute.Products}/${mockProductId}${APIRoute.Similar}`)
+      .reply(200, mockSimilarProducts);
 
-      const store = mockStore();
+    const store = mockStore();
 
-      await store.dispatch(fetchSimilarProductsAction(`${mockProductId}`));
+    await store.dispatch(fetchSimilarProductsAction(`${mockProductId}`));
 
-      const actions = store.getActions().map(({type}) => type);
+    const actions:string[] = store.getActions().map(({type}) => type as string);
 
-      expect(actions).toEqual([
-        fetchSimilarProductsAction.pending.type,
-        fetchSimilarProductsAction.fulfilled.type
-      ]);
-    });
+    expect(actions).toEqual([
+      fetchSimilarProductsAction.pending.type,
+      fetchSimilarProductsAction.fulfilled.type
+    ]);
+  });
 
-    it('should dispatch fetchProductReviewsAction when GET /cameras/id/reviews', async () => {
-      const mockProductReviews = makeFakeProducts();
-      const mockProductId = makeFakeProduct().id;
+  it('should dispatch fetchProductReviewsAction when GET /cameras/id/reviews', async () => {
+    const mockProductReviews = makeFakeProducts();
+    const mockProductId = makeFakeProduct().id;
 
-      mockAPI
-        .onGet(`${APIRoute.Products}/${mockProductId}${APIRoute.Reviews}`)
-        .reply(200, mockProductReviews);
+    mockAPI
+      .onGet(`${APIRoute.Products}/${mockProductId}${APIRoute.Reviews}`)
+      .reply(200, mockProductReviews);
 
-      const store = mockStore();
+    const store = mockStore();
 
-      await store.dispatch(fetchProductReviewsAction(`${mockProductId}`));
+    await store.dispatch(fetchProductReviewsAction(`${mockProductId}`));
 
-      const actions = store.getActions().map(({type}) => type);
+    const actions:string[] = store.getActions().map(({type}) => type as string);
 
-      expect(actions).toEqual([
-        fetchProductReviewsAction.pending.type,
-        fetchProductReviewsAction.fulfilled.type
-      ]);
-    });
+    expect(actions).toEqual([
+      fetchProductReviewsAction.pending.type,
+      fetchProductReviewsAction.fulfilled.type
+    ]);
+  });
 
+  it('should dispatch addProductReviewAction when POST /reviews', async () => {
+    const mockNewProductReview = makeFakeProductReview();
+    const mockProductReviewFormData = makeFakeProductReviewFormData(mockNewProductReview);
 
-    it('should dispatch addProductReviewAction when POST /reviews', async () => {
-      const mockNewProductReview = makeFakeProductReview();
-      const mockProductReviewFormData = makeFakeProductReviewFormData(mockNewProductReview);
+    mockAPI
+      .onPost(APIRoute.Reviews, mockProductReviewFormData)
+      .reply(200, mockNewProductReview);
 
-      mockAPI
-        .onPost(APIRoute.Reviews, mockProductReviewFormData)
-        .reply(200, mockNewProductReview);
+    const store = mockStore();
 
-      const store = mockStore();
+    await store.dispatch(addProductReviewAction(mockProductReviewFormData));
 
-      await store.dispatch(addProductReviewAction(mockProductReviewFormData));
+    const actions:string[] = store.getActions().map(({type}) => type as string);
 
-      const actions = store.getActions().map(({type}) => type);
-
-      expect(actions).toEqual([
-        addProductReviewAction.pending.type,
-        addProductReviewAction.fulfilled.type
-      ]);
-    });
+    expect(actions).toEqual([
+      addProductReviewAction.pending.type,
+      addProductReviewAction.fulfilled.type
+    ]);
+  });
 
 });

@@ -23,8 +23,10 @@ export const makeFakeProduct = (): Product => (
       reviewCount: datatype.number(20),
     } as Product);
 
-export const makeFakeProducts = (amount: number = 5): Product[] =>
-  new Array(amount).fill(null).map(() => makeFakeProduct() as Product);
+export const makeFakeProducts = (amount?: number): Product[] => {
+  const productAmount = amount ? amount : 5;
+  return new Array(productAmount).fill(null).map(() => makeFakeProduct());
+};
 
 export const makeFakePromo = (): Promo => (
   {
@@ -36,27 +38,27 @@ export const makeFakePromo = (): Promo => (
     previewImgWebp2x: image.imageUrl(),
   } as Promo);
 
+export const makeFakeProductReview = (): Review => ({
+  id: datatype.number(1000),
+  userName: name.firstName(),
+  advantage: random.words(),
+  disadvantage: random.words(),
+  review: random.words(),
+  rating: datatype.number({min: 1, max: 5, precision: 1}),
+  cameraId: datatype.number(10),
+  createAt: random.word(),
+} as Review);
 
-  export const makeFakeProductReview = (): Review => (
-    {
-      id: datatype.number(1000),
-      userName: name.firstName(),
-      advantage: random.words(),
-      disadvantage: random.words(),
-      review: random.words(),
-      rating: datatype.number({min: 1, max: 5, precision: 1}),
-      cameraId: datatype.number(10),
-      createAt: random.word(),
-    } as Review);
-
-export const makeFakeProductReviews = (amount: number = 5): Review[] =>
-  new Array(amount).fill(null).map(() => makeFakeProductReview() as Review);
+export const makeFakeProductReviews = (amount?: number): Review[] => {
+  const productReviewAmount = amount ? amount : 10;
+  return new Array(productReviewAmount).fill(null).map(() => makeFakeProductReview());
+};
 
 export const makeFakeProductReviewFormData = (reviewData?: Review): ReviewFormData => ({
-    userName: reviewData?.userName || name.firstName(),
-    advantage: reviewData?.advantage || random.words(),
-    disadvantage: reviewData?.disadvantage || random.words(),
-    review: reviewData?.review || random.words(),
-    rating: reviewData?.rating || datatype.number({min: 1, max: 5, precision: 1}),
-    cameraId: reviewData?.cameraId || datatype.number(10),
+  userName: reviewData?.userName || name.firstName(),
+  advantage: reviewData?.advantage || random.words(),
+  disadvantage: reviewData?.disadvantage || random.words(),
+  review: reviewData?.review || random.words(),
+  rating: reviewData?.rating || datatype.number({min: 1, max: 5, precision: 1}),
+  cameraId: reviewData?.cameraId || datatype.number(10),
 } as ReviewFormData);

@@ -5,9 +5,9 @@ import thunk from 'redux-thunk';
 import App from './app';
 import { AppRoute } from '../../const';
 import { makeFakeProducts } from '../../utils/mocks';
-import { MemoryRouter } from 'react-router-dom'
+import { MemoryRouter } from 'react-router-dom';
 
-const middlewares = [thunk]
+const middlewares = [thunk];
 const mockStore = configureMockStore(middlewares);
 
 const mockProducts = makeFakeProducts(5);
@@ -38,7 +38,7 @@ describe('Application Routing', () => {
           <App />
         </MemoryRouter>
       </Provider>,
-    )
+    );
 
     expect(screen.getByText(/Каталог фото- и видеотехники/i)).toBeInTheDocument();
   });
@@ -51,7 +51,7 @@ describe('Application Routing', () => {
           <App />
         </MemoryRouter>
       </Provider>,
-    )
+    );
 
     expect(screen.getByText(/Каталог фото- и видеотехники/i)).toBeInTheDocument();
   });
@@ -64,7 +64,7 @@ describe('Application Routing', () => {
           <App />
         </MemoryRouter>
       </Provider>,
-    )
+    );
 
     expect(await screen.findByText(/Такой страницы не существует/i)).toBeInTheDocument();
   });
@@ -77,7 +77,7 @@ describe('Application Routing', () => {
           <App />
         </MemoryRouter>
       </Provider>,
-    )
+    );
 
     expect(screen.getAllByText(/Корзина/i)[0]).toBeInTheDocument();
   });
@@ -90,7 +90,7 @@ describe('Application Routing', () => {
           <App />
         </MemoryRouter>
       </Provider>,
-    )
+    );
 
     expect(screen.getByText(/Добавить в корзину/i)).toBeInTheDocument();
   });
@@ -103,7 +103,7 @@ describe('Application Routing', () => {
           <App />
         </MemoryRouter>
       </Provider>,
-    )
+    );
 
     expect(screen.getByText('PAGE NOT FOUND')).toBeInTheDocument();
   });

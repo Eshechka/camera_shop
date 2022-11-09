@@ -82,7 +82,6 @@ describe('Reducer: Product', () => {
   });
   it('should update promo to null if load promo product rejected', () => {
     const state = initialState;
-    const promo = makeFakePromo();
 
     expect(Catalog.reducer(state, {type: fetchPromoAction.rejected.type}))
       .toEqual({

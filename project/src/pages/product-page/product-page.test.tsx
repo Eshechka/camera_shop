@@ -11,7 +11,7 @@ import { makeFakeProductReviews, makeFakeProducts } from '../../utils/mocks';
 
 const history = createMemoryHistory();
 
-const middlewares = [thunk]
+const middlewares = [thunk];
 const mockStore = configureMockStore(middlewares);
 
 const mockProducts = makeFakeProducts(5);
@@ -64,9 +64,9 @@ describe('Component: ProductPage', () => {
 
 
     expect(screen.getByText(/Оставить свой отзыв/i)).toBeInTheDocument();
-    expect(screen.queryByText(`Оставить отзыв`)).not.toBeInTheDocument();
+    expect(screen.queryByText('Оставить отзыв')).not.toBeInTheDocument();
     await userEvent.click(screen.getByText(/Оставить свой отзыв/i));
-    expect(screen.getByText(`Оставить отзыв`)).toBeInTheDocument();
+    expect(screen.getByText('Оставить отзыв')).toBeInTheDocument();
   });
 
 });

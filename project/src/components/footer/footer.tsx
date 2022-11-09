@@ -14,21 +14,21 @@ function Footer(): JSX.Element {
           <p className="footer__description">Интернет-магазин фото- и видеотехники</p>
           <ul className="social">
             <li className="social__item">
-              <a className="link" href="#" aria-label="Переход на страницу вконтатке">
+              <a className="link" href="https://vk.com/" aria-label="Переход на страницу вконтатке">
                 <svg width="20" height="20" aria-hidden="true">
                   <use xlinkHref="#icon-vk"></use>
                 </svg>
               </a>
             </li>
             <li className="social__item">
-              <a className="link" href="#" aria-label="Переход на страницу pinterest">
+              <a className="link" href="https://pinterest.com/" aria-label="Переход на страницу pinterest">
                 <svg width="20" height="20" aria-hidden="true">
                   <use xlinkHref="#icon-pinterest"></use>
                 </svg>
               </a>
             </li>
             <li className="social__item">
-              <a className="link" href="#" aria-label="Переход на страницу reddit">
+              <a className="link" href="https://reddit.com/" aria-label="Переход на страницу reddit">
                 <svg width="20" height="20" aria-hidden="true">
                   <use xlinkHref="#icon-reddit"></use>
                 </svg>
@@ -49,12 +49,12 @@ function Footer(): JSX.Element {
                 </NavLink>
               </li>
               <li className="footer__item">
-                <a className="link" href="#">Доставка
-                </a>
+                <NavLink className="link" to={AppRoute.Delivery}>Доставка
+                </NavLink>
               </li>
               <li className="footer__item">
-                <a className="link" href="#">О компании
-                </a>
+                <NavLink className="link" to={AppRoute.About}>О компании
+                </NavLink>
               </li>
             </ul>
           </li>
@@ -62,16 +62,16 @@ function Footer(): JSX.Element {
             <p className="footer__title">Ресурсы</p>
             <ul className="footer__list">
               <li className="footer__item">
-                <a className="link" href="#">Курсы операторов
-                </a>
+                <NavLink className="link" to={AppRoute.Root}>Курсы операторов
+                </NavLink>
               </li>
               <li className="footer__item">
-                <a className="link" href="#">Блог
-                </a>
+                <NavLink className="link" to={AppRoute.Root}>Блог
+                </NavLink>
               </li>
               <li className="footer__item">
-                <a className="link" href="#">Сообщество
-                </a>
+                <NavLink className="link" to={AppRoute.Root}>Сообщество
+                </NavLink>
               </li>
             </ul>
           </li>
@@ -79,12 +79,12 @@ function Footer(): JSX.Element {
             <p className="footer__title">Поддержка</p>
             <ul className="footer__list">
               <li className="footer__item">
-                <a className="link" href="#">FAQ
-                </a>
+                <NavLink className="link" to={AppRoute.Root}>FAQ
+                </NavLink>
               </li>
               <li className="footer__item">
-                <a className="link" href="#">Задать вопрос
-                </a>
+                <NavLink className="link" to={AppRoute.Root}>Задать вопрос
+                </NavLink>
               </li>
             </ul>
           </li>

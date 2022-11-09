@@ -15,7 +15,7 @@ describe('Reducer: Product', () => {
       });
   });
 
-  it('should increment current step by a given value', () => {
+  it('should clear isReviewAdded state prop', () => {
     const state = {
       product: null,
       isDataLoading: false,
@@ -135,7 +135,7 @@ describe('Reducer: Product', () => {
 
   const review = makeFakeProductReview();
 
-  it('should update product and isDataLoading by load product', () => {
+  it('should upd product and isDataLoading by load product', () => {
     const state = initialState;
 
     expect(Product.reducer(state, {type: addProductReviewAction.fulfilled.type, payload: review}))
@@ -147,7 +147,7 @@ describe('Reducer: Product', () => {
         productReviews: [...state.productReviews, review],
       });
   });
-  it('should update product to null and isDataLoading to false if load products rejected', () => {
+  it('should set product to null and isDataLoading to false if load products rejected', () => {
     const state = initialState;
 
     expect(Product.reducer(state, {type: addProductReviewAction.rejected.type}))

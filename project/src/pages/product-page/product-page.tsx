@@ -57,11 +57,13 @@ function ProductPage(): JSX.Element {
   };
 
   useEffect(() => {
-    dispatch(fetchProductReviewsAction(id));
-    dispatch(fetchProductAction(id));
-    dispatch(fetchSimilarProductsAction(id));
-    setShowedReviews([]);
-  }, [id]);
+    if (id) {
+      dispatch(fetchProductReviewsAction(id));
+      dispatch(fetchProductAction(id));
+      dispatch(fetchSimilarProductsAction(id));
+      setShowedReviews([]);
+    }
+  }, [id]); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
     if (similarProducts && similarProducts.length > 0) {
@@ -70,14 +72,14 @@ function ProductPage(): JSX.Element {
       const ids = similarProducts.slice(currentSlide, MAX_SLIDER_ELEMS).map((item) => +item.id);
       setActiveIds(ids);
     }
-  }, [similarProducts]);
+  }, [similarProducts]); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
     const start = currentSlide;
     const end = currentSlide + MAX_SLIDER_ELEMS;
     const ids = similarProducts.slice(start, end).map((item) => +item.id);
     setActiveIds(ids);
-  }, [currentSlide]);
+  }, [currentSlide]); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
     if (productReviews && productReviews.length > 0) {
@@ -88,7 +90,7 @@ function ProductPage(): JSX.Element {
         setShowedReviews([]);
       }
     }
-  }, [productReviews]);
+  }, [productReviews]); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
     if (isReviewAdded === true) {
@@ -102,7 +104,7 @@ function ProductPage(): JSX.Element {
       showMore();
       setReviewsCount(productReviews.length);
     }
-  }, [showedReviews]);
+  }, [showedReviews]); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
     if (modalAddToBasketShow || modalAddReviewShow || modalThanxAddReviewShow) {
@@ -120,7 +122,7 @@ function ProductPage(): JSX.Element {
       <div className="wrapper">
         <Header/>
         <main>
-          {product && isDataProductLoading === false &&
+          {product && !isDataProductLoading &&
             <div className="page-content">
               <div className="breadcrumbs">
                 <div className="container">
@@ -253,7 +255,7 @@ function ProductPage(): JSX.Element {
                   </section>
                 </div>}
             </div>}
-          {!product && isDataProductLoading === false &&
+          {!product && !isDataProductLoading &&
             <div className="page-content">
               <div className="breadcrumbs">
                 <div className="container">

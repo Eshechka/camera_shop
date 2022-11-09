@@ -43,7 +43,7 @@ export const fetchPromoAction = createAsyncThunk<Promo, undefined, {
   },
 );
 
-export const fetchProductAction = createAsyncThunk<Product, string | undefined, {
+export const fetchProductAction = createAsyncThunk<Product, string, {
   dispatch: AppDispatch;
   state: State;
   extra: AxiosInstance;
@@ -55,7 +55,7 @@ export const fetchProductAction = createAsyncThunk<Product, string | undefined, 
   },
 );
 
-export const fetchSimilarProductsAction = createAsyncThunk<Product[], string | undefined, {
+export const fetchSimilarProductsAction = createAsyncThunk<Product[], string, {
   dispatch: AppDispatch;
   state: State;
   extra: AxiosInstance;
@@ -67,7 +67,7 @@ export const fetchSimilarProductsAction = createAsyncThunk<Product[], string | u
   },
 );
 
-export const fetchProductReviewsAction = createAsyncThunk<Review[], string | undefined, {
+export const fetchProductReviewsAction = createAsyncThunk<Review[], string, {
   dispatch: AppDispatch;
   state: State;
   extra: AxiosInstance;

@@ -12,6 +12,9 @@ function Pagination({
   changePage,
 }: paginationProps): JSX.Element {
 
+  const allPages = Array.from({ length: pages })
+    .map((item, index) => ({item: item, key: `page${index}`}));
+
   const pageClickHandle = (page: number) => {
     if (page <= pages && page > 0) {
       changePage(page);
@@ -29,19 +32,15 @@ function Pagination({
           >Назад
           </button>
         </li>
-        {Array.from({ length: pages })
-          .map((_, index) => {
-            const key = index;
-            return (
-              <li key={key} className="pagination__item">
-                <button
-                  className={cn('pagination__link', {'pagination__link--active': currentPage === index + 1})}
-                  onClick={() => pageClickHandle(index + 1)}
-                >{index + 1}
-                </button>
-              </li>
-            );
-          })}
+        {allPages.map((page, index) => (
+          <li key={page.key} className="pagination__item">
+            <button
+              className={cn('pagination__link', {'pagination__link--active': currentPage === index + 1})}
+              onClick={() => pageClickHandle(index + 1)}
+            >{index + 1}
+            </button>
+          </li>)
+        )}
         <li className="pagination__item">
           <button
             disabled={currentPage === pages}
