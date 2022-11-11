@@ -148,7 +148,7 @@ function CatalogPage({
                           products={products}
                           onClickBuy={() => setModalShow(true)}
                         />}
-                      {maxPages &&
+                      {maxPages && maxPages > 1 &&
                         <Pagination
                           currentPage={currentPage}
                           pages={maxPages}

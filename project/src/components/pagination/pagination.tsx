@@ -26,7 +26,7 @@ function Pagination({
       <ul className="pagination__list">
         <li className="pagination__item">
           <button
-            disabled={currentPage === 1}
+            style={currentPage === 1 ? {display: 'none'} : undefined}
             className="pagination__link pagination__link--text"
             onClick={() => pageClickHandle(currentPage - 1)}
           >Назад
@@ -43,7 +43,7 @@ function Pagination({
         )}
         <li className="pagination__item">
           <button
-            disabled={currentPage === pages}
+            style={currentPage === pages ? {display: 'none'} : undefined}
             className="pagination__link pagination__link--text"
             onClick={() => pageClickHandle(currentPage + 1)}
           >Далее

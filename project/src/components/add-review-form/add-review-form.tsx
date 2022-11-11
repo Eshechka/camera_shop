@@ -42,7 +42,9 @@ function AddReviewForm({
       onSubmit={onSubmitAddReview}
     >
       <div className="form-review__rate">
-        <fieldset className={cn('rate form-review__item', {'is-invalid': !formData.rating})}>
+        <fieldset
+          className={cn('rate form-review__item', {'is-invalid': !formData.rating})}
+        >
           <legend className="rate__caption">Рейтинг
             <svg width="9" height="9" aria-hidden="true">
               <use xlinkHref="#icon-snowflake"></use>
@@ -52,30 +54,35 @@ function AddReviewForm({
             <div className="rate__group">
               <input className="visually-hidden" name="rate" type="radio"
                 value="5" id="star-5"
+                tabIndex={-1}
                 checked={+formData.rating === 5}
                 onChange={(e) => setFormData({...formData, rating: 5})}
               />
               <label className="rate__label" htmlFor="star-5" title="Отлично"></label>
               <input className="visually-hidden" name="rate" type="radio"
                 value="4" id="star-4"
+                tabIndex={-1}
                 checked={+formData.rating === 4}
                 onChange={(e) => setFormData({...formData, rating: 4})}
               />
               <label className="rate__label" htmlFor="star-4" title="Хорошо"></label>
               <input className="visually-hidden" name="rate" type="radio"
                 value="3" id="star-3"
+                tabIndex={-1}
                 onChange={(e) => setFormData({...formData, rating: 3})}
                 checked={+formData.rating === 3}
               />
               <label className="rate__label" htmlFor="star-3" title="Нормально"></label>
               <input className="visually-hidden" name="rate" type="radio"
                 value="2" id="star-2"
+                tabIndex={-1}
                 onChange={(e) => setFormData({...formData, rating: 2})}
                 checked={+formData.rating === 2}
               />
               <label className="rate__label" htmlFor="star-2" title="Плохо"></label>
               <input className="visually-hidden" name="rate" type="radio"
                 value="1" id="star-1"
+                tabIndex={-1}
                 onChange={(e) => setFormData({...formData, rating: 1})}
                 checked={+formData.rating === 1}
               />
@@ -96,6 +103,7 @@ function AddReviewForm({
             <input
               type="text"
               name="user-name"
+              autoFocus
               placeholder="Введите ваше имя"
               value={formData.userName ? `${formData.userName}` : ''}
               onChange={(e) => setFormData({...formData, userName: e.target.value})}

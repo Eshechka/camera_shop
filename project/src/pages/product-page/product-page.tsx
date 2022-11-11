@@ -114,6 +114,11 @@ function ProductPage(): JSX.Element {
     }
   }, [modalAddToBasketShow, modalAddReviewShow, modalThanxAddReviewShow]);
 
+  const onCloseThanxAddReviev = () => {
+    dispatch(clearIsReviewAdded());
+    setModalThanxAddReviewShow(false);
+  };
+
   return (
     <React.Fragment>
       <div className="visually-hidden">
@@ -312,7 +317,7 @@ function ProductPage(): JSX.Element {
 
           {modalThanxAddReviewShow &&
             <Modal
-              onClose={() => setModalThanxAddReviewShow(false)}
+              onClose={onCloseThanxAddReviev}
               classname="modal--narrow"
             >
               <p className="title title--h4">Спасибо за отзыв</p>
@@ -323,10 +328,7 @@ function ProductPage(): JSX.Element {
                 <button
                   className="btn btn--purple modal__btn modal__btn--fit-width"
                   type="button"
-                  onClick={() => {
-                    dispatch(clearIsReviewAdded());
-                    setModalThanxAddReviewShow(false);
-                  }}
+                  onClick={onCloseThanxAddReviev}
                 >
                     Вернуться к покупкам
                 </button>

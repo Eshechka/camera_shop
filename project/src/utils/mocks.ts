@@ -62,3 +62,4 @@ export const makeFakeProductReviewFormData = (reviewData?: Review): ReviewFormDa
   rating: reviewData?.rating || datatype.number({min: 1, max: 5, precision: 1}),
   cameraId: reviewData?.cameraId || datatype.number(10),
 } as ReviewFormData);
+

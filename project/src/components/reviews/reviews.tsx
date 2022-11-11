@@ -39,7 +39,7 @@ function Reviews({
           className="btn btn--purple"
           type="button"
           onClick={showMore}
-          disabled={disableBtn}
+          style={disableBtn ? {display: 'none'} : undefined}
         >Показать больше отзывов
         </button>
       </div>
