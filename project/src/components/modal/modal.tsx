@@ -39,7 +39,6 @@ function Modal({
               type="button"
               aria-label="Закрыть попап"
               onClick={onClose}
-              tabIndex={-1}
             >
               <svg width="10" height="10" aria-hidden="true">
                 <use xlinkHref="#icon-close"></use>
