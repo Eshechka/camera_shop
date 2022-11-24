@@ -6,6 +6,7 @@ describe('Reducer: Product', () => {
   const products = makeFakeProducts();
   const initialState = {
     products: [],
+    searchingProducts: [],
     productsLength: null,
     isDataLoading: false,
     promo: null,

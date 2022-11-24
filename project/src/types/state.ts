@@ -6,6 +6,7 @@ import { Review } from './review.js';
 
 export type dataCatalog = {
   products: Product[];
+  searchingProducts: Product[];
   productsLength: number | null;
   isDataLoading: boolean;
   promo: Promo | null;

@@ -31,6 +31,18 @@ export const fetchProductsAction = createAsyncThunk<Product[], string | undefine
   },
 );
 
+export const fetchSearchingProductsAction = createAsyncThunk<Product[], string | undefined, {
+  dispatch: AppDispatch;
+  state: State;
+  extra: AxiosInstance;
+}>(
+  'catalog/fetchSearchingProducts',
+  async (params, { dispatch, extra: api }) => {
+    const { data } = await api.get<Product[]>(`${APIRoute.Products}${params ? `?${params}` : ''}`);
+    return data;
+  },
+);
+
 export const fetchPromoAction = createAsyncThunk<Promo, undefined, {
   dispatch: AppDispatch;
   state: State;
