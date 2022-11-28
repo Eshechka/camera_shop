@@ -23,6 +23,16 @@ export enum NameSpace {
   Catalog = 'CATALOG',
 }
 
+export enum SortTypes {
+  Price = 'price',
+  Popular = 'rating',
+}
+
+export enum SortOrders {
+  Asc = 'asc',
+  Desc = 'desc',
+}
+
 export const MAX_SLIDER_ELEMS = 3;
 export const PLUS_REVIEW_ELEMS = 3;
 export const MAX_PAGINATION_ELEMS = 9;
@@ -30,3 +40,6 @@ export const MAX_PAGINATION_ELEMS = 9;
 export const sortReviewsDesc = (reviewA: Review, reviewB: Review) => Date.parse(reviewB.createAt) - Date.parse(reviewA.createAt);
 
 export const pageUrlText = '/page_';
+export const sortTypeUrlText = '&sort_';
+export const sortOrderUrlText = '&order_';
+
