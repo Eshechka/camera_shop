@@ -39,7 +39,7 @@ export const MAX_PAGINATION_ELEMS = 9;
 
 export const sortReviewsDesc = (reviewA: Review, reviewB: Review) => Date.parse(reviewB.createAt) - Date.parse(reviewA.createAt);
 
-export const pageUrlText = '/page_';
-export const sortTypeUrlText = '&sort_';
-export const sortOrderUrlText = '&order_';
+export const pageUrlText = '/?page=';
+export const sortTypeUrlText = '&sort=';
+export const sortOrderUrlText = '&order=';
 

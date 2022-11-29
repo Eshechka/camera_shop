@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import queryString from 'query-string';
 import { NavLink, useLocation, useNavigate } from 'react-router-dom';
 import Aside from '../../components/aside/aside';
 import Banner from '../../components/banner/banner';
@@ -58,10 +59,21 @@ function CatalogPage({
   };
 
   useEffect(() => {
+    const search = queryString.parse(location.search);
+
+    if (search.order && typeof search.order === 'string') {
+      changeSortOrder(search.order);
+    }
+    if (search.type && typeof search.type === 'string') {
+      changeSortType(search.type);
+    }
+
     if (maxPages) {
+      // Редирект на 1 страницу, если зашли без ее указания
       if (location.pathname === AppRoute.Catalog) {
         navigate(`${AppRoute.Catalog}${pageUrlText}1`);
       }
+      // Проверяем указанный номер страницы, если он больше максимально возможного - показываем уведомление
       if (location.pathname.startsWith(`${AppRoute.Catalog}${pageUrlText}`)) {
         const pageNumber = parseInt(location.pathname.slice(AppRoute.Catalog.length + pageUrlText.length), 10);
 
@@ -168,7 +180,7 @@ function CatalogPage({
                                   type="radio" id="down" checked={sortOrder === SortOrders.Desc}
                                   name="sort-icon"
                                   aria-label="По убыванию"
-                                  onChange={() => setSortOrder(SortOrders.Desc)}
+                                  onChange={() => changeSortOrder(SortOrders.Desc)}
                                 />
                                 <label htmlFor="down">
                                   <svg width="16" height="14" aria-hidden="true">
