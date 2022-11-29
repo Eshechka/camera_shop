@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import queryString from 'query-string';
 import { NavLink, useLocation, useNavigate } from 'react-router-dom';
 import Aside from '../../components/aside/aside';
 import Banner from '../../components/banner/banner';
@@ -9,7 +10,7 @@ import Modal from '../../components/modal/modal';
 import Pagination from '../../components/pagination/pagination';
 import Spinner from '../../components/spinner/spinner';
 import Svgs from '../../components/svgs/svgs';
-import { AppRoute, MAX_PAGINATION_ELEMS, pageUrlText } from '../../const';
+import { AppRoute, MAX_PAGINATION_ELEMS, pageUrlText, SortOrders, sortOrderUrlText, SortTypes, sortTypeUrlText } from '../../const';
 import { useAppDispatch, useAppSelector } from '../../hooks';
 import { fetchProductsAction, fetchPromoAction } from '../../store/api-actions';
 import { getLoadingDataStatus, getProducts, getPromo } from '../../store/data-catalog/selectors';
@@ -27,6 +28,8 @@ function CatalogPage({
   const navigate = useNavigate();
 
   const [modalShow, setModalShow] = useState(false);
+  const [sortType, setSortType] = useState('');
+  const [sortOrder, setSortOrder] = useState('');
 
   const products = useAppSelector(getProducts);
   const promo = useAppSelector(getPromo);
@@ -38,15 +41,39 @@ function CatalogPage({
   const changePageHandle = (page: number) => {
     const start = MAX_PAGINATION_ELEMS * (page - 1);
     const end = start + MAX_PAGINATION_ELEMS;
-    dispatch(fetchProductsAction(`_start=${start}&_end=${end}`));
-    navigate(`${AppRoute.Catalog}${pageUrlText}${page}`);
+    dispatch(fetchProductsAction(`_start=${start}&_end=${end}&_sort=${sortType}&_order=${sortOrder}`));
+    navigate(`${AppRoute.Catalog}${pageUrlText}${page}${sortType ? sortTypeUrlText + sortType : ''}${sortOrder ? sortOrderUrlText + sortOrder : ''}`);
+  };
+
+  const changeSortOrder = (order: string) => {
+    if (!sortType) {
+      setSortType(SortTypes.Price);
+    }
+    setSortOrder(order);
+  };
+  const changeSortType = (type: string) => {
+    if (!sortOrder) {
+      setSortOrder(SortOrders.Asc);
+    }
+    setSortType(type);
   };
 
   useEffect(() => {
+    const search = queryString.parse(location.search);
+
+    if (search.order && typeof search.order === 'string') {
+      changeSortOrder(search.order);
+    }
+    if (search.type && typeof search.type === 'string') {
+      changeSortType(search.type);
+    }
+
     if (maxPages) {
+      // Редирект на 1 страницу, если зашли без ее указания
       if (location.pathname === AppRoute.Catalog) {
         navigate(`${AppRoute.Catalog}${pageUrlText}1`);
       }
+      // Проверяем указанный номер страницы, если он больше максимально возможного - показываем уведомление
       if (location.pathname.startsWith(`${AppRoute.Catalog}${pageUrlText}`)) {
         const pageNumber = parseInt(location.pathname.slice(AppRoute.Catalog.length + pageUrlText.length), 10);
 
@@ -71,6 +98,10 @@ function CatalogPage({
       document.body.style.overflow = 'unset';
     }
   }, [modalShow]);
+
+  useEffect(() => {
+    changePageHandle(1);
+  }, [sortType, sortOrder]);
 
   return (
     <React.Fragment>
@@ -111,17 +142,33 @@ function CatalogPage({
                             <p className="title title--h5">Сортировать:</p>
                             <div className="catalog-sort__type">
                               <div className="catalog-sort__btn-text">
-                                <input type="radio" id="sortPrice" name="sort" />
-                                <label htmlFor="sortPrice">по цене</label>
+                                <input
+                                  type="radio" checked={sortType === SortTypes.Price}
+                                  id="sortPrice" name="sort"
+                                  onChange={() => changeSortType(SortTypes.Price)}
+                                />
+                                <label htmlFor="sortPrice">
+                                  по цене
+                                </label>
                               </div>
                               <div className="catalog-sort__btn-text">
-                                <input type="radio" id="sortPopular" name="sort" />
-                                <label htmlFor="sortPopular">по популярности</label>
+                                <input type="radio" checked={sortType === SortTypes.Popular}
+                                  id="sortPopular" name="sort"
+                                  onChange={() => changeSortType(SortTypes.Popular)}
+                                />
+                                <label htmlFor="sortPopular">
+                                  по популярности
+                                </label>
                               </div>
                             </div>
                             <div className="catalog-sort__order">
                               <div className="catalog-sort__btn catalog-sort__btn--up">
-                                <input type="radio" id="up" name="sort-icon" aria-label="По возрастанию" />
+                                <input
+                                  type="radio" id="up" checked={sortOrder === SortOrders.Asc}
+                                  name="sort-icon"
+                                  aria-label="По возрастанию"
+                                  onChange={() => changeSortOrder(SortOrders.Asc)}
+                                />
                                 <label htmlFor="up">
                                   <svg width="16" height="14" aria-hidden="true">
                                     <use xlinkHref="#icon-sort"></use>
@@ -129,7 +176,12 @@ function CatalogPage({
                                 </label>
                               </div>
                               <div className="catalog-sort__btn catalog-sort__btn--down">
-                                <input type="radio" id="down" name="sort-icon" aria-label="По убыванию" />
+                                <input
+                                  type="radio" id="down" checked={sortOrder === SortOrders.Desc}
+                                  name="sort-icon"
+                                  aria-label="По убыванию"
+                                  onChange={() => changeSortOrder(SortOrders.Desc)}
+                                />
                                 <label htmlFor="down">
                                   <svg width="16" height="14" aria-hidden="true">
                                     <use xlinkHref="#icon-sort"></use>

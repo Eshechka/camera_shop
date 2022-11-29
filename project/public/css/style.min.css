@@ -1682,6 +1682,11 @@ button {
   margin-right: 7px
 }
 
+.catalog-sort__btn-text input[type=radio]:focus+label {
+  color: #7575e2;
+  background-color: #e8e8fa
+}
+
 .catalog-sort__btn-text input[type=radio]:checked+label {
   color: #fff;
   background-color: #7575e2;
@@ -1697,11 +1702,6 @@ button {
 .catalog-sort__btn-text input[type=radio]:checked:disabled+label {
   color: #f8f8f8;
   background-color: #ddd
-}
-
-.catalog-sort__btn-text input[type=radio]:focus+label {
-  color: #7575e2;
-  background-color: #e8e8fa
 }
 
 .catalog-sort__btn--up svg {
@@ -1746,6 +1746,11 @@ button {
   height: 14px
 }
 
+.catalog-sort__btn input[type=radio]:focus+label {
+  color: #7575e2;
+  background-color: #e8e8fa
+}
+
 .catalog-sort__btn input[type=radio]:checked+label {
   color: #fff;
   background-color: #7575e2;
@@ -1763,11 +1768,6 @@ button {
   color: #f8f8f8;
   background-color: #ddd;
   pointer-events: none
-}
-
-.catalog-sort__btn input[type=radio]:focus+label {
-  color: #7575e2;
-  background-color: #e8e8fa
 }
 
 .form-checkbox,
