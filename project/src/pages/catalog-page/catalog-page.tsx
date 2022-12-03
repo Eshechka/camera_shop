@@ -10,39 +10,50 @@ import Modal from '../../components/modal/modal';
 import Pagination from '../../components/pagination/pagination';
 import Spinner from '../../components/spinner/spinner';
 import Svgs from '../../components/svgs/svgs';
-import { AppRoute, MAX_PAGINATION_ELEMS, pageUrlText, SortOrders, sortOrderUrlText, SortTypes, sortTypeUrlText } from '../../const';
+import { AppRoute, filterCategoryText, MAX_PAGINATION_ELEMS, pageUrlText, SortOrders, sortOrderUrlText, SortTypes, sortTypeUrlText } from '../../const';
 import { useAppDispatch, useAppSelector } from '../../hooks';
 import { fetchProductsAction, fetchPromoAction } from '../../store/api-actions';
 import { getLoadingDataStatus, getProducts, getPromo } from '../../store/data-catalog/selectors';
+import { Product } from '../../types/product';
 
 
 type catalogPageProps = {
   maxPages: number|null;
+  setParams: (params: string) => void;
 }
 
 function CatalogPage({
   maxPages,
+  setParams,
 }: catalogPageProps): JSX.Element {
   const dispatch = useAppDispatch();
   const location = useLocation();
   const navigate = useNavigate();
 
   const [modalShow, setModalShow] = useState(false);
-  const [sortType, setSortType] = useState('');
-  const [sortOrder, setSortOrder] = useState('');
+  const [sortType, setSortType] = useState<string>('');
+  const [sortOrder, setSortOrder] = useState<string>('');
+  const [filterCategory, setFilterCategory] = useState<string[]>([]);
 
-  const products = useAppSelector(getProducts);
+  const fetchedProducts = useAppSelector(getProducts);
   const promo = useAppSelector(getPromo);
   const isDataLoading = useAppSelector(getLoadingDataStatus);
 
   const [currentPage, setCurrentPage] = useState(1);
   const [noPage, setNoPage] = useState(false);
+  const [products, setProducts] = useState<Product[]>([]);
 
   const changePageHandle = (page: number) => {
     const start = MAX_PAGINATION_ELEMS * (page - 1);
     const end = start + MAX_PAGINATION_ELEMS;
-    dispatch(fetchProductsAction(`_start=${start}&_end=${end}&_sort=${sortType}&_order=${sortOrder}`));
-    navigate(`${AppRoute.Catalog}${pageUrlText}${page}${sortType ? sortTypeUrlText + sortType : ''}${sortOrder ? sortOrderUrlText + sortOrder : ''}`);
+    const fetchUrl = `_start=${start}&_end=${end}&_sort=${sortType}&_order=${sortOrder}${filterCategory.length > 0 ? filterCategory.map((cat) => `&category=${cat}`).join('') : ''}`;
+    dispatch(fetchProductsAction(fetchUrl));
+    const navUrl = AppRoute.Catalog + pageUrlText + String(page) +
+      (sortType ? sortTypeUrlText + sortType : '') +
+      (sortOrder ? sortOrderUrlText + sortOrder : '') +
+      (filterCategory.length > 0 ? filterCategoryText + filterCategory.join(',') : '');
+    navigate(navUrl);
+    setCurrentPage(page);
   };
 
   const changeSortOrder = (order: string) => {
@@ -58,6 +69,12 @@ function CatalogPage({
     setSortType(type);
   };
 
+
+  useEffect(() => {
+    setParams(`${filterCategory.length > 0 ? filterCategory.map((cat) => `&category=${cat}`).join('') : ''}`);
+    changePageHandle(1);
+  }, [filterCategory]); // eslint-disable-line react-hooks/exhaustive-deps
+
   useEffect(() => {
     const search = queryString.parse(location.search);
 
@@ -68,24 +85,32 @@ function CatalogPage({
       changeSortType(search.type);
     }
 
+
     if (maxPages) {
       // Редирект на 1 страницу, если зашли без ее указания
-      if (location.pathname === AppRoute.Catalog) {
+      if ((location.pathname === AppRoute.Catalog || location.pathname === `${AppRoute.Catalog}/`)
+        && !location.search.startsWith(`${pageUrlText.slice(1)}`)) {
         navigate(`${AppRoute.Catalog}${pageUrlText}1`);
       }
       // Проверяем указанный номер страницы, если он больше максимально возможного - показываем уведомление
-      if (location.pathname.startsWith(`${AppRoute.Catalog}${pageUrlText}`)) {
-        const pageNumber = parseInt(location.pathname.slice(AppRoute.Catalog.length + pageUrlText.length), 10);
+      // if (location.search.startsWith(`${pageUrlText.slice(1)}`)) {
+      if (search.page) {
+        const pageNumber = typeof search.page === 'string' ? parseInt(search.page, 10) : 1;
 
         if (pageNumber && pageNumber <= maxPages) {
           changePageHandle(pageNumber);
-          setCurrentPage(pageNumber);
         } else {
           setNoPage(true);
         }
       }
     }
   }, [location.pathname, maxPages]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  useEffect(() => {
+    if (fetchedProducts) {
+      setProducts(fetchedProducts);
+    }
+  }, [fetchedProducts]); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
     dispatch(fetchPromoAction());
@@ -101,7 +126,7 @@ function CatalogPage({
 
   useEffect(() => {
     changePageHandle(1);
-  }, [sortType, sortOrder]);
+  }, [sortType, sortOrder]); // eslint-disable-line react-hooks/exhaustive-deps
 
   return (
     <React.Fragment>
@@ -134,7 +159,7 @@ function CatalogPage({
                 <div className="container">
                   <h1 className="title title--h2">Каталог фото- и видеотехники</h1>
                   <div className="page-content__columns">
-                    <Aside/>
+                    <Aside setFilterCategory={setFilterCategory}/>
                     <div className="catalog__content">
                       <div className="catalog-sort">
                         <form action="#">

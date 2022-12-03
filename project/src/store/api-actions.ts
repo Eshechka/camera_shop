@@ -7,14 +7,14 @@ import { Promo } from '../types/promo.js';
 import { Review } from '../types/review.js';
 import { ReviewFormData } from '../types/reviewFormData.js';
 
-export const fetchProductsLengthAction = createAsyncThunk<Product[], undefined, {
+export const fetchProductsLengthAction = createAsyncThunk<Product[], string | undefined, {
   dispatch: AppDispatch;
   state: State;
   extra: AxiosInstance;
 }>(
   'catalog/fetchProductsLength',
-  async (_arg, { dispatch, extra: api }) => {
-    const { data } = await api.get<Product[]>(APIRoute.Products);
+  async (params, { dispatch, extra: api }) => {
+    const { data } = await api.get<Product[]>(`${APIRoute.Products}${params ? `?${params}` : ''}`);
     return data;
   },
 );

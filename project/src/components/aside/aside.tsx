@@ -1,5 +1,28 @@
+import { useState } from 'react';
 
-function Aside(): JSX.Element {
+type asidePageProps = {
+  setFilterCategory: (categories: string[]) => void;
+}
+
+function Aside({
+  setFilterCategory
+}: asidePageProps): JSX.Element {
+  const [categories, setCategories] = useState<string[]>([]);
+
+  const changeCategory = (cameraCategory: string) => {
+    const copyCategories = [...categories];
+    if (copyCategories.includes(cameraCategory)) {
+      const index = copyCategories.indexOf(cameraCategory);
+      if (index !== -1) {
+        copyCategories.splice(index, 1);
+      }
+    } else {
+      copyCategories.push(cameraCategory);
+    }
+    setCategories(copyCategories);
+    setFilterCategory(copyCategories);
+  };
+
   return (
     <div className="catalog__aside">
       <div className="catalog-filter">
@@ -24,14 +47,20 @@ function Aside(): JSX.Element {
             <legend className="title title--h5">Категория</legend>
             <div className="custom-checkbox catalog-filter__item">
               <label>
-                <input type="checkbox" name="photocamera" />
+                <input type="checkbox" name="photocamera"
+                  checked={categories.includes('Фотоаппарат')}
+                  onChange={() => changeCategory('Фотоаппарат')}
+                />
                 <span className="custom-checkbox__icon"></span>
                 <span className="custom-checkbox__label">Фотокамера</span>
               </label>
             </div>
             <div className="custom-checkbox catalog-filter__item">
               <label>
-                <input type="checkbox" name="videocamera" />
+                <input type="checkbox" name="videocamera"
+                  checked={categories.includes('Видеокамера')}
+                  onChange={() => changeCategory('Видеокамера')}
+                />
                 <span className="custom-checkbox__icon"></span>
                 <span className="custom-checkbox__label">Видеокамера</span>
               </label>

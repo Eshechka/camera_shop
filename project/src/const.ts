@@ -42,4 +42,5 @@ export const sortReviewsDesc = (reviewA: Review, reviewB: Review) => Date.parse(
 export const pageUrlText = '/?page=';
 export const sortTypeUrlText = '&sort=';
 export const sortOrderUrlText = '&order=';
+export const filterCategoryText = '&category=';
 

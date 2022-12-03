@@ -16,10 +16,11 @@ function App(): JSX.Element {
   const productLength = useAppSelector(getProductsLength);
 
   const [maxPages, setMaxPages] = useState<number|null>(null);
+  const [params, setParams] = useState('');
 
   useEffect(() => {
-    dispatch(fetchProductsLengthAction());
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+    dispatch(fetchProductsLengthAction(params));
+  }, [params]); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
     if (productLength) {
@@ -33,8 +34,8 @@ function App(): JSX.Element {
         <Route index element={<Navigate to={AppRoute.Catalog} />} />
       </Route>
       <Route path={AppRoute.Catalog}>
-        <Route index element={<CatalogPage maxPages={maxPages} />} />
-        <Route path=':page' element={<CatalogPage maxPages={maxPages} />} />
+        <Route index element={<CatalogPage setParams={setParams} maxPages={maxPages} />} />
+        <Route path=':page' element={<CatalogPage setParams={setParams} maxPages={maxPages} />} />
       </Route>
       <Route
         path={AppRoute.Basket}
