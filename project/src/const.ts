@@ -43,4 +43,13 @@ export const pageUrlText = '/?page=';
 export const sortTypeUrlText = '&sort=';
 export const sortOrderUrlText = '&order=';
 export const filterCategoryText = '&category=';
+export const filterLevelText = '&level=';
+export const filterTypeText = '&type=';
+
+export const removeElemFromArray = (array: string[], elem: string) => {
+  const index = array.indexOf(elem);
+  if (index !== -1) {
+    array.splice(index, 1);
+  }
+};
 

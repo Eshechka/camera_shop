@@ -1,26 +1,68 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import { removeElemFromArray } from '../../const';
 
 type asidePageProps = {
-  setFilterCategory: (categories: string[]) => void;
+  defaultCategories: string[];
+  defaultLevels: string[];
+  defaultTypes: string[];
+  changeFilterCategory: (categories: string[]) => void;
+  changeFilterLevel: (levels: string[]) => void;
+  changeFilterType: (types: string[]) => void;
 }
 
 function Aside({
-  setFilterCategory
+  defaultCategories,
+  defaultLevels,
+  defaultTypes,
+  changeFilterCategory,
+  changeFilterLevel,
+  changeFilterType,
 }: asidePageProps): JSX.Element {
   const [categories, setCategories] = useState<string[]>([]);
+  const [levels, setLevels] = useState<string[]>([]);
+  const [types, setTypes] = useState<string[]>([]);
+
+  useEffect(() => {
+    if (defaultCategories && defaultCategories.length) {
+      setCategories(defaultCategories);
+    }
+    if (defaultLevels && defaultLevels.length) {
+      setLevels(defaultLevels);
+    }
+    if (defaultTypes && defaultTypes.length) {
+      setTypes(defaultTypes);
+    }
+  }, [defaultCategories, defaultLevels, defaultTypes]);
 
   const changeCategory = (cameraCategory: string) => {
     const copyCategories = [...categories];
     if (copyCategories.includes(cameraCategory)) {
-      const index = copyCategories.indexOf(cameraCategory);
-      if (index !== -1) {
-        copyCategories.splice(index, 1);
-      }
+      removeElemFromArray(copyCategories, cameraCategory);
     } else {
       copyCategories.push(cameraCategory);
     }
     setCategories(copyCategories);
-    setFilterCategory(copyCategories);
+    changeFilterCategory(copyCategories);
+  };
+  const changeLevel = (cameraLevel: string) => {
+    const copyLevels = [...levels];
+    if (copyLevels.includes(cameraLevel)) {
+      removeElemFromArray(copyLevels, cameraLevel);
+    } else {
+      copyLevels.push(cameraLevel);
+    }
+    setLevels(copyLevels);
+    changeFilterLevel(copyLevels);
+  };
+  const changeType = (cameraType: string) => {
+    const copyTypes = [...types];
+    if (copyTypes.includes(cameraType)) {
+      removeElemFromArray(copyTypes, cameraType);
+    } else {
+      copyTypes.push(cameraType);
+    }
+    setTypes(copyTypes);
+    changeFilterType(copyTypes);
   };
 
   return (
@@ -70,28 +112,42 @@ function Aside({
             <legend className="title title--h5">Тип камеры</legend>
             <div className="custom-checkbox catalog-filter__item">
               <label>
-                <input type="checkbox" name="digital" />
+                <input type="checkbox" name="digital"
+                  checked={types.includes('Цифровая')}
+                  onChange={() => changeType('Цифровая')}
+                />
                 <span className="custom-checkbox__icon"></span>
                 <span className="custom-checkbox__label">Цифровая</span>
               </label>
             </div>
             <div className="custom-checkbox catalog-filter__item">
               <label>
-                <input type="checkbox" name="film" disabled />
+                <input type="checkbox" name="film"
+                  disabled={categories.length === 1 && categories[0] === 'Видеокамера'}
+                  checked={types.includes('Плёночная')}
+                  onChange={() => changeType('Плёночная')}
+                />
                 <span className="custom-checkbox__icon"></span>
                 <span className="custom-checkbox__label">Плёночная</span>
               </label>
             </div>
             <div className="custom-checkbox catalog-filter__item">
               <label>
-                <input type="checkbox" name="snapshot" />
+                <input type="checkbox" name="snapshot"
+                  disabled={categories.length === 1 && categories[0] === 'Видеокамера'}
+                  checked={types.includes('Моментальная')}
+                  onChange={() => changeType('Моментальная')}
+                />
                 <span className="custom-checkbox__icon"></span>
                 <span className="custom-checkbox__label">Моментальная</span>
               </label>
             </div>
             <div className="custom-checkbox catalog-filter__item">
               <label>
-                <input type="checkbox" name="collection" disabled />
+                <input type="checkbox" name="collection"
+                  checked={types.includes('Коллекционная')}
+                  onChange={() => changeType('Коллекционная')}
+                />
                 <span className="custom-checkbox__icon"></span>
                 <span className="custom-checkbox__label">Коллекционная</span>
               </label>
@@ -101,21 +157,30 @@ function Aside({
             <legend className="title title--h5">Уровень</legend>
             <div className="custom-checkbox catalog-filter__item">
               <label>
-                <input type="checkbox" name="zero" />
+                <input type="checkbox" name="zero"
+                  checked={levels.includes('Нулевой')}
+                  onChange={() => changeLevel('Нулевой')}
+                />
                 <span className="custom-checkbox__icon"></span>
                 <span className="custom-checkbox__label">Нулевой</span>
               </label>
             </div>
             <div className="custom-checkbox catalog-filter__item">
               <label>
-                <input type="checkbox" name="non-professional" />
+                <input type="checkbox" name="non-professional"
+                  checked={levels.includes('Любительский')}
+                  onChange={() => changeLevel('Любительский')}
+                />
                 <span className="custom-checkbox__icon"></span>
                 <span className="custom-checkbox__label">Любительский</span>
               </label>
             </div>
             <div className="custom-checkbox catalog-filter__item">
               <label>
-                <input type="checkbox" name="professional" />
+                <input type="checkbox" name="professional"
+                  checked={levels.includes('Профессиональный')}
+                  onChange={() => changeLevel('Профессиональный')}
+                />
                 <span className="custom-checkbox__icon"></span>
                 <span className="custom-checkbox__label">Профессиональный</span>
               </label>
