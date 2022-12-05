@@ -10,16 +10,18 @@ import Modal from '../../components/modal/modal';
 import Pagination from '../../components/pagination/pagination';
 import Spinner from '../../components/spinner/spinner';
 import Svgs from '../../components/svgs/svgs';
-import { AppRoute, filterCategoryText, filterLevelText, filterTypeText, MAX_PAGINATION_ELEMS, pageUrlText, SortOrders, sortOrderUrlText, SortTypes, sortTypeUrlText } from '../../const';
+import { AppRoute, filterCategoryText, filterLevelText, filterMinPriceText, filterTypeText, MAX_PAGINATION_ELEMS, pageUrlText, SortOrders, sortOrderUrlText, SortTypes, sortTypeUrlText } from '../../const';
 import { useAppDispatch, useAppSelector } from '../../hooks';
 import { fetchProductsAction, fetchPromoAction } from '../../store/api-actions';
-import { getLoadingDataStatus, getProducts, getPromo } from '../../store/data-catalog/selectors';
+import { getLoadingDataStatus, getProducts, getPromo,
+  // getProductsMaxPrice, getProductsMinPrice
+} from '../../store/data-catalog/selectors';
 import { Product } from '../../types/product';
 
 
 type catalogPageProps = {
   maxPages: number|null;
-  setParams: (params: string) => void;
+  setParams: (params: string | null) => void;
 }
 
 function CatalogPage({
@@ -36,13 +38,20 @@ function CatalogPage({
   const [filterCategory, setFilterCategory] = useState<string[]>([]);
   const [filterLevel, setFilterLevel] = useState<string[]>([]);
   const [filterType, setFilterType] = useState<string[]>([]);
-  const [defaultFilterCategory, setDefaultFilterCategory] = useState<string[]>([]);
-  const [defaultFilterLevel, setDefaultFilterLevel] = useState<string[]>([]);
-  const [defaultFilterType, setDefaultFilterType] = useState<string[]>([]);
+  const [filterMinPrice, setFilterMinPrice] = useState<''|number>('');
+
+  const [fromUrlFilterCategory, setFromUrlFilterCategory] = useState<string[]>([]);
+  const [fromUrlFilterLevel, setFromUrlFilterLevel] = useState<string[]>([]);
+  const [fromUrlFilterType, setFromUrlFilterType] = useState<string[]>([]);
+  const [fromUrlFilterMinPrice, setFromUrlFilterMinPrice] = useState<number|''>('');
+  // const [defaultProductsMinPice, setDefaultProductsMinPice] = useState<null|number>(0);
+  // const [defaultProductsMaxPice, setDefaultProductsMaxPice] = useState<null|number>(0);
 
   const fetchedProducts = useAppSelector(getProducts);
   const promo = useAppSelector(getPromo);
   const isDataLoading = useAppSelector(getLoadingDataStatus);
+  // const productsMinPice = useAppSelector(getProductsMinPrice);
+  // const productsMaxPice = useAppSelector(getProductsMaxPrice);
 
   const [currentPage, setCurrentPage] = useState(1);
   const [noPage, setNoPage] = useState(false);
@@ -55,7 +64,8 @@ function CatalogPage({
     const fCategory = filterCategory.length > 0 ? filterCategory.map((cat) => `&category=${cat}`).join('') : '';
     const fLevel = filterLevel.length > 0 ? filterLevel.map((cat) => `&level=${cat}`).join('') : '';
     const fType = filterType.length > 0 ? filterType.map((cat) => `&type=${cat}`).join('') : '';
-    const fetchUrl = `_start=${start}&_end=${end}&_sort=${sortType}&_order=${sortOrder}${fCategory}${fLevel}${fType}`;
+    const fMinPrice = filterMinPrice ? `&price_gte=${filterMinPrice}` : '';
+    const fetchUrl = `_start=${start}&_end=${end}&_sort=${sortType}&_order=${sortOrder}${fCategory}${fLevel}${fType}${fMinPrice}`;
     dispatch(fetchProductsAction(fetchUrl));
 
     const navUrl = AppRoute.Catalog + pageUrlText + String(page) +
@@ -63,7 +73,8 @@ function CatalogPage({
       (sortOrder ? sortOrderUrlText + sortOrder : '') +
       (filterCategory.length > 0 ? filterCategoryText + filterCategory.join(',') : '') +
       (filterLevel.length > 0 ? filterLevelText + filterLevel.join(',') : '') +
-      (filterType.length > 0 ? filterTypeText + filterType.join(',') : '');
+      (filterType.length > 0 ? filterTypeText + filterType.join(',') : '') +
+      (filterMinPrice ? `${filterMinPriceText}${filterMinPrice}` : '');
     navigate(navUrl);
 
     setCurrentPage(page);
@@ -106,6 +117,22 @@ function CatalogPage({
       setChangeSearchParamsByClick(true);
     }
   };
+  const changeFilterMinPrice = (minPrice: number|'') => {
+    setFilterMinPrice(minPrice);
+    if (!changeSearchParamsByClick) {
+      setChangeSearchParamsByClick(true);
+    }
+  };
+
+  const resetFilterAll = () => {
+    setFilterCategory([]);
+    setFilterLevel([]);
+    setFilterType([]);
+    setFilterMinPrice('');
+    if (!changeSearchParamsByClick) {
+      setChangeSearchParamsByClick(true);
+    }
+  };
 
 
   useEffect(() => {
@@ -113,16 +140,25 @@ function CatalogPage({
     const fCategory = filterCategory.length > 0 ? filterCategory.map((cat) => `&category=${cat}`).join('') : '';
     const fLevel = filterLevel.length > 0 ? filterLevel.map((cat) => `&level=${cat}`).join('') : '';
     const fType = filterType.length > 0 ? filterType.map((cat) => `&type=${cat}`).join('') : '';
-    setParams(`${fCategory}${fLevel}${fType}`);
+    const fMinPrice = filterMinPrice ? `&price_gte=${filterMinPrice}` : '';
+    setParams(`${fCategory}${fLevel}${fType}${fMinPrice}`);
 
     if (changeSearchParamsByClick) {
       changePageHandle(1);
     } else {
-      setDefaultFilterCategory(filterCategory);
-      setDefaultFilterLevel(filterLevel);
-      setDefaultFilterType(filterType);
+      setFromUrlFilterCategory(filterCategory);
+      setFromUrlFilterLevel(filterLevel);
+      setFromUrlFilterType(filterType);
+      setFromUrlFilterMinPrice(filterMinPrice);
     }
-  }, [filterCategory, filterLevel, filterType]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [filterCategory, filterLevel, filterType, filterMinPrice]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // useEffect(() => {
+  //   setDefaultProductsMinPice(productsMinPice);
+  // }, [productsMinPice]);
+  // useEffect(() => {
+  //   setDefaultProductsMaxPice(productsMaxPice);
+  // }, [productsMaxPice]);
 
   useEffect(() => {
     const search = queryString.parse(location.search);
@@ -149,6 +185,10 @@ function CatalogPage({
     }
     if (search.type && typeof search.type === 'string') {
       setFilterType(search.type.split(','));
+    }
+    if (search.price_gte && typeof search.price_gte === 'string') {
+      const normalizedPrice = parseInt(search.price_gte, 10);
+      setFilterMinPrice(normalizedPrice);
     }
 
     if (maxPages) {
@@ -226,9 +266,13 @@ function CatalogPage({
                   <h1 className="title title--h2">Каталог фото- и видеотехники</h1>
                   <div className="page-content__columns">
                     <Aside
-                      defaultCategories={defaultFilterCategory} changeFilterCategory={changeFilterCategory}
-                      defaultLevels={defaultFilterLevel} changeFilterLevel={changeFilterLevel}
-                      defaultTypes={defaultFilterType} changeFilterType={changeFilterType}
+                      fromUrlCategories={fromUrlFilterCategory} changeFilterCategory={changeFilterCategory}
+                      fromUrlLevels={fromUrlFilterLevel} changeFilterLevel={changeFilterLevel}
+                      fromUrlTypes={fromUrlFilterType} changeFilterType={changeFilterType}
+                      fromUrlMinPrice={fromUrlFilterMinPrice} changeFilterMinPrice={changeFilterMinPrice}
+                      resetFilterAll={resetFilterAll}
+                      // defaultProductsMinPice={defaultProductsMinPice}
+                      // defaultProductsMaxPice={defaultProductsMaxPice}
                     />
                     <div className="catalog__content">
                       <div className="catalog-sort">

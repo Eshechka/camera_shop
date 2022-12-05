@@ -7,7 +7,7 @@ import { Promo } from '../types/promo.js';
 import { Review } from '../types/review.js';
 import { ReviewFormData } from '../types/reviewFormData.js';
 
-export const fetchProductsLengthAction = createAsyncThunk<Product[], string | undefined, {
+export const fetchProductsMetaInfoAction = createAsyncThunk<Product[], string | undefined, {
   dispatch: AppDispatch;
   state: State;
   extra: AxiosInstance;

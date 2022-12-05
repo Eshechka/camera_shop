@@ -2,37 +2,65 @@ import { useEffect, useState } from 'react';
 import { removeElemFromArray } from '../../const';
 
 type asidePageProps = {
-  defaultCategories: string[];
-  defaultLevels: string[];
-  defaultTypes: string[];
+  fromUrlCategories: string[];
+  fromUrlLevels: string[];
+  fromUrlTypes: string[];
+  fromUrlMinPrice: number|'';
+  // defaultProductsMinPice: number|null;
+  // defaultProductsMaxPice: number|null;
   changeFilterCategory: (categories: string[]) => void;
   changeFilterLevel: (levels: string[]) => void;
   changeFilterType: (types: string[]) => void;
+  changeFilterMinPrice: (minPrice: number|'') => void;
+  resetFilterAll: () => void;
 }
 
 function Aside({
-  defaultCategories,
-  defaultLevels,
-  defaultTypes,
+  fromUrlCategories,
+  fromUrlLevels,
+  fromUrlTypes,
+  fromUrlMinPrice,
+  // defaultProductsMinPice,
+  // defaultProductsMaxPice,
   changeFilterCategory,
   changeFilterLevel,
   changeFilterType,
+  changeFilterMinPrice,
+  resetFilterAll,
 }: asidePageProps): JSX.Element {
   const [categories, setCategories] = useState<string[]>([]);
   const [levels, setLevels] = useState<string[]>([]);
   const [types, setTypes] = useState<string[]>([]);
+  const [minPrice, setMinPrice] = useState<number|''>('');
+
+  // const [priceFrom, setPriceFrom] = useState<number|''>(0);
+  // const [priceTo, setPriceTo] = useState<number|''>(0);
 
   useEffect(() => {
-    if (defaultCategories && defaultCategories.length) {
-      setCategories(defaultCategories);
+    if (fromUrlCategories && fromUrlCategories.length) {
+      setCategories(fromUrlCategories);
     }
-    if (defaultLevels && defaultLevels.length) {
-      setLevels(defaultLevels);
+    if (fromUrlLevels && fromUrlLevels.length) {
+      setLevels(fromUrlLevels);
     }
-    if (defaultTypes && defaultTypes.length) {
-      setTypes(defaultTypes);
+    if (fromUrlTypes && fromUrlTypes.length) {
+      setTypes(fromUrlTypes);
     }
-  }, [defaultCategories, defaultLevels, defaultTypes]);
+    if (fromUrlMinPrice || fromUrlMinPrice === '') {
+      setMinPrice(fromUrlMinPrice);
+    }
+  }, [fromUrlCategories, fromUrlLevels, fromUrlTypes, fromUrlMinPrice]);
+
+  // useEffect(() => {
+  //   console.log('defaultProductsMinPice, defaultProductsMaxPice', defaultProductsMinPice, defaultProductsMaxPice); // eslint-disable-line
+
+  //   if (defaultProductsMinPice) {
+  //     setPriceFrom(defaultProductsMinPice);
+  //   }
+  //   if (defaultProductsMaxPice) {
+  //     setPriceTo(defaultProductsMaxPice);
+  //   }
+  // }, [defaultProductsMinPice, defaultProductsMaxPice]);
 
   const changeCategory = (cameraCategory: string) => {
     const copyCategories = [...categories];
@@ -65,6 +93,47 @@ function Aside({
     changeFilterType(copyTypes);
   };
 
+  const changeMinPrice = (cameraMinPrice: string) => {
+    const normalizedPrice = cameraMinPrice === '' ? '' : parseInt(cameraMinPrice, 10);
+    setMinPrice(normalizedPrice);
+    changeFilterMinPrice(normalizedPrice);
+  };
+
+
+  // const changePriceFrom = (cameraPriceFrom: string) => {
+  //   let price: number|'' = '';
+  //   // if (cameraPriceFrom === '') {
+  //   //   setPriceFrom(cameraPriceFrom);
+  //   // } else {
+  //   if (cameraPriceFrom !== '') {
+  //     const priceInt = parseInt(cameraPriceFrom, 10);
+  //     if (priceInt || priceInt === 0) {
+  //       price = Math.max(priceInt, 0);
+  //     }
+  //     // setPriceFrom(Math.max(price, 0));
+  //   }
+  //   setPriceFrom(price);
+  //   changeFilterMinPrice(price);
+  // };
+  // const changePriceTo = (cameraPriceTo: string) => {
+  //   if (cameraPriceTo === '') {
+  //     setPriceTo(cameraPriceTo);
+  //   } else {
+  //     const price = parseInt(cameraPriceTo, 10);
+  //     setPriceTo(Math.max(price, 0));
+  //   }
+  // };
+
+  const resetFilters = () => {
+    if (categories.length || levels.length || types.length || minPrice) {
+      setCategories([]);
+      setLevels([]);
+      setTypes([]);
+      setMinPrice('');
+      resetFilterAll();
+    }
+  };
+
   return (
     <div className="catalog__aside">
       <div className="catalog-filter">
@@ -75,12 +144,24 @@ function Aside({
             <div className="catalog-filter__price-range">
               <div className="custom-input">
                 <label>
-                  <input type="number" name="price" placeholder="от" />
+                  <input
+                    type="number" name="price"
+                    placeholder="от"
+                    value={minPrice}
+                    onChange={(e) => changeMinPrice(e.target.value)}
+                    // value={priceFrom}
+                    // onChange={(e) => changePriceFrom(e.target.value)}
+                  />
                 </label>
               </div>
               <div className="custom-input">
                 <label>
-                  <input type="number" name="priceUp" placeholder="до" />
+                  <input
+                    type="number" name="priceUp"
+                    placeholder="до"
+                    // value={priceTo}
+                    // onChange={(e) => changePriceTo(e.target.value)}
+                  />
                 </label>
               </div>
             </div>
@@ -186,7 +267,12 @@ function Aside({
               </label>
             </div>
           </fieldset>
-          <button className="btn catalog-filter__reset-btn" type="reset">Сбросить фильтры
+          <button
+            className="btn catalog-filter__reset-btn"
+            type="reset"
+            onClick={resetFilters}
+          >
+            Сбросить фильтры
           </button>
         </form>
       </div>

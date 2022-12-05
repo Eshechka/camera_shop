@@ -45,6 +45,8 @@ export const sortOrderUrlText = '&order=';
 export const filterCategoryText = '&category=';
 export const filterLevelText = '&level=';
 export const filterTypeText = '&type=';
+export const filterMinPriceText = '&price_gte=';
+export const filterMaxPriceText = '&price_lte=';
 
 export const removeElemFromArray = (array: string[], elem: string) => {
   const index = array.indexOf(elem);

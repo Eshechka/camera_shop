@@ -8,6 +8,8 @@ export type dataCatalog = {
   products: Product[];
   searchingProducts: Product[];
   productsLength: number | null;
+  productsMinPrice: number | null;
+  productsMaxPrice: number | null;
   isDataLoading: boolean;
   promo: Promo | null;
 };
