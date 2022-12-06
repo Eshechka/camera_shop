@@ -44,19 +44,17 @@ function CatalogPage({
   const [fromUrlFilterLevel, setFromUrlFilterLevel] = useState<string[]>([]);
   const [fromUrlFilterType, setFromUrlFilterType] = useState<string[]>([]);
   const [fromUrlFilterMinPrice, setFromUrlFilterMinPrice] = useState<number|''>('');
-  // const [defaultProductsMinPice, setDefaultProductsMinPice] = useState<null|number>(0);
-  // const [defaultProductsMaxPice, setDefaultProductsMaxPice] = useState<null|number>(0);
 
   const fetchedProducts = useAppSelector(getProducts);
   const promo = useAppSelector(getPromo);
   const isDataLoading = useAppSelector(getLoadingDataStatus);
-  // const productsMinPice = useAppSelector(getProductsMinPrice);
-  // const productsMaxPice = useAppSelector(getProductsMaxPrice);
 
   const [currentPage, setCurrentPage] = useState(1);
   const [noPage, setNoPage] = useState(false);
   const [products, setProducts] = useState<Product[]>([]);
   const [changeSearchParamsByClick, setChangeSearchParamsByClick] = useState(false);
+
+  const [noProductsFound, setNoProductsFound] = useState(false);
 
   const changePageHandle = (page: number) => {
     const start = MAX_PAGINATION_ELEMS * (page - 1);
@@ -64,7 +62,7 @@ function CatalogPage({
     const fCategory = filterCategory.length > 0 ? filterCategory.map((cat) => `&category=${cat}`).join('') : '';
     const fLevel = filterLevel.length > 0 ? filterLevel.map((cat) => `&level=${cat}`).join('') : '';
     const fType = filterType.length > 0 ? filterType.map((cat) => `&type=${cat}`).join('') : '';
-    const fMinPrice = filterMinPrice ? `&price_gte=${filterMinPrice}` : '';
+    const fMinPrice = (filterMinPrice || filterMinPrice === 0) ? `&price_gte=${filterMinPrice}` : '';
     const fetchUrl = `_start=${start}&_end=${end}&_sort=${sortType}&_order=${sortOrder}${fCategory}${fLevel}${fType}${fMinPrice}`;
     dispatch(fetchProductsAction(fetchUrl));
 
@@ -74,7 +72,7 @@ function CatalogPage({
       (filterCategory.length > 0 ? filterCategoryText + filterCategory.join(',') : '') +
       (filterLevel.length > 0 ? filterLevelText + filterLevel.join(',') : '') +
       (filterType.length > 0 ? filterTypeText + filterType.join(',') : '') +
-      (filterMinPrice ? `${filterMinPriceText}${filterMinPrice}` : '');
+      ((filterMinPrice || filterMinPrice === 0) ? `${filterMinPriceText}${filterMinPrice}` : '');
     navigate(navUrl);
 
     setCurrentPage(page);
@@ -140,7 +138,7 @@ function CatalogPage({
     const fCategory = filterCategory.length > 0 ? filterCategory.map((cat) => `&category=${cat}`).join('') : '';
     const fLevel = filterLevel.length > 0 ? filterLevel.map((cat) => `&level=${cat}`).join('') : '';
     const fType = filterType.length > 0 ? filterType.map((cat) => `&type=${cat}`).join('') : '';
-    const fMinPrice = filterMinPrice ? `&price_gte=${filterMinPrice}` : '';
+    const fMinPrice = (filterMinPrice || filterMinPrice === 0) ? `&price_gte=${filterMinPrice}` : '';
     setParams(`${fCategory}${fLevel}${fType}${fMinPrice}`);
 
     if (changeSearchParamsByClick) {
@@ -152,13 +150,6 @@ function CatalogPage({
       setFromUrlFilterMinPrice(filterMinPrice);
     }
   }, [filterCategory, filterLevel, filterType, filterMinPrice]); // eslint-disable-line react-hooks/exhaustive-deps
-
-  // useEffect(() => {
-  //   setDefaultProductsMinPice(productsMinPice);
-  // }, [productsMinPice]);
-  // useEffect(() => {
-  //   setDefaultProductsMaxPice(productsMaxPice);
-  // }, [productsMaxPice]);
 
   useEffect(() => {
     const search = queryString.parse(location.search);
@@ -271,80 +262,84 @@ function CatalogPage({
                       fromUrlTypes={fromUrlFilterType} changeFilterType={changeFilterType}
                       fromUrlMinPrice={fromUrlFilterMinPrice} changeFilterMinPrice={changeFilterMinPrice}
                       resetFilterAll={resetFilterAll}
-                      // defaultProductsMinPice={defaultProductsMinPice}
-                      // defaultProductsMaxPice={defaultProductsMaxPice}
+                      setNoProductsFound={setNoProductsFound}
                     />
                     <div className="catalog__content">
-                      <div className="catalog-sort">
-                        <form action="#">
-                          <div className="catalog-sort__inner">
-                            <p className="title title--h5">Сортировать:</p>
-                            <div className="catalog-sort__type">
-                              <div className="catalog-sort__btn-text">
-                                <input
-                                  type="radio" checked={sortType === SortTypes.Price}
-                                  id="sortPrice" name="sort"
-                                  onChange={() => changeSortType(SortTypes.Price)}
-                                />
-                                <label htmlFor="sortPrice">
-                                  по цене
-                                </label>
-                              </div>
-                              <div className="catalog-sort__btn-text">
-                                <input type="radio" checked={sortType === SortTypes.Popular}
-                                  id="sortPopular" name="sort"
-                                  onChange={() => changeSortType(SortTypes.Popular)}
-                                />
-                                <label htmlFor="sortPopular">
-                                  по популярности
-                                </label>
-                              </div>
-                            </div>
-                            <div className="catalog-sort__order">
-                              <div className="catalog-sort__btn catalog-sort__btn--up">
-                                <input
-                                  type="radio" id="up" checked={sortOrder === SortOrders.Asc}
-                                  name="sort-icon"
-                                  aria-label="По возрастанию"
-                                  onChange={() => changeSortOrder(SortOrders.Asc)}
-                                />
-                                <label htmlFor="up">
-                                  <svg width="16" height="14" aria-hidden="true">
-                                    <use xlinkHref="#icon-sort"></use>
-                                  </svg>
-                                </label>
-                              </div>
-                              <div className="catalog-sort__btn catalog-sort__btn--down">
-                                <input
-                                  type="radio" id="down" checked={sortOrder === SortOrders.Desc}
-                                  name="sort-icon"
-                                  aria-label="По убыванию"
-                                  onChange={() => changeSortOrder(SortOrders.Desc)}
-                                />
-                                <label htmlFor="down">
-                                  <svg width="16" height="14" aria-hidden="true">
-                                    <use xlinkHref="#icon-sort"></use>
-                                  </svg>
-                                </label>
-                              </div>
-                            </div>
-                          </div>
-                        </form>
-                      </div>
-                      {isDataLoading
-                        ? <Spinner/>
+                      {noProductsFound
+                        ? 'Нет таких'
                         :
-                        <CardList
-                          classname='cards catalog__cards'
-                          products={products}
-                          onClickBuy={() => setModalShow(true)}
-                        />}
-                      {maxPages && maxPages > 1 &&
-                        <Pagination
-                          currentPage={currentPage}
-                          pages={maxPages}
-                          changePage={changePageHandle}
-                        />}
+                        <>
+                          <div className="catalog-sort">
+                            <form action="#">
+                              <div className="catalog-sort__inner">
+                                <p className="title title--h5">Сортировать:</p>
+                                <div className="catalog-sort__type">
+                                  <div className="catalog-sort__btn-text">
+                                    <input
+                                      type="radio" checked={sortType === SortTypes.Price}
+                                      id="sortPrice" name="sort"
+                                      onChange={() => changeSortType(SortTypes.Price)}
+                                    />
+                                    <label htmlFor="sortPrice">
+                                      по цене
+                                    </label>
+                                  </div>
+                                  <div className="catalog-sort__btn-text">
+                                    <input type="radio" checked={sortType === SortTypes.Popular}
+                                      id="sortPopular" name="sort"
+                                      onChange={() => changeSortType(SortTypes.Popular)}
+                                    />
+                                    <label htmlFor="sortPopular">
+                                      по популярности
+                                    </label>
+                                  </div>
+                                </div>
+                                <div className="catalog-sort__order">
+                                  <div className="catalog-sort__btn catalog-sort__btn--up">
+                                    <input
+                                      type="radio" id="up" checked={sortOrder === SortOrders.Asc}
+                                      name="sort-icon"
+                                      aria-label="По возрастанию"
+                                      onChange={() => changeSortOrder(SortOrders.Asc)}
+                                    />
+                                    <label htmlFor="up">
+                                      <svg width="16" height="14" aria-hidden="true">
+                                        <use xlinkHref="#icon-sort"></use>
+                                      </svg>
+                                    </label>
+                                  </div>
+                                  <div className="catalog-sort__btn catalog-sort__btn--down">
+                                    <input
+                                      type="radio" id="down" checked={sortOrder === SortOrders.Desc}
+                                      name="sort-icon"
+                                      aria-label="По убыванию"
+                                      onChange={() => changeSortOrder(SortOrders.Desc)}
+                                    />
+                                    <label htmlFor="down">
+                                      <svg width="16" height="14" aria-hidden="true">
+                                        <use xlinkHref="#icon-sort"></use>
+                                      </svg>
+                                    </label>
+                                  </div>
+                                </div>
+                              </div>
+                            </form>
+                          </div>
+                          {isDataLoading
+                            ? <Spinner/>
+                            :
+                            <CardList
+                              classname='cards catalog__cards'
+                              products={products}
+                              onClickBuy={() => setModalShow(true)}
+                            />}
+                          {maxPages && maxPages > 1 &&
+                            <Pagination
+                              currentPage={currentPage}
+                              pages={maxPages}
+                              changePage={changePageHandle}
+                            />}
+                        </>}
                     </div>
                   </div>
                 </div>

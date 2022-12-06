@@ -1,10 +1,9 @@
 import { useEffect, useState } from 'react';
 import { removeElemFromArray } from '../../const';
-import { useAppSelector } from '../../hooks';
+import { useAppDispatch, useAppSelector } from '../../hooks';
 import useDebounce from '../../hooks/use-debounce/use-debounce';
-import {
-  // getProductsMaxPrice,
-  getProductsMinPrice, getWholeCatalogMinPrice } from '../../store/data-catalog/selectors';
+import { clearProductsMinPrice } from '../../store/data-catalog/data-catalog';
+import { getProductsMaxPrice, getProductsMinPrice } from '../../store/data-catalog/selectors';
 
 type asidePageProps = {
   fromUrlCategories: string[];
@@ -16,6 +15,7 @@ type asidePageProps = {
   changeFilterType: (types: string[]) => void;
   changeFilterMinPrice: (minPrice: number|'') => void;
   resetFilterAll: () => void;
+  setNoProductsFound: (val: boolean) => void;
 }
 
 function Aside({
@@ -28,37 +28,49 @@ function Aside({
   changeFilterType,
   changeFilterMinPrice,
   resetFilterAll,
+  setNoProductsFound,
 }: asidePageProps): JSX.Element {
+  const dispatch = useAppDispatch();
   const productsMinPrice = useAppSelector(getProductsMinPrice);
-  // const productsMaxPice = useAppSelector(getProductsMaxPrice);
-  const wholeCatalogMinPrice = useAppSelector(getWholeCatalogMinPrice);
+  const productsMaxPice = useAppSelector(getProductsMaxPrice);
 
   const [categories, setCategories] = useState<string[]>([]);
   const [levels, setLevels] = useState<string[]>([]);
   const [types, setTypes] = useState<string[]>([]);
   const [minPriceInput, setMinPriceInput] = useState<string>('');
   const [minPriceToDebounce, setMinPriceToDebounce] = useState<string>('');
-  const [minPrice, setMinPrice] = useState<number|''>('');
-  const [justSetMinPrice, setJustSetMinPrice] = useState(false);
+  const [minPrice, setMinPrice] = useState<number|''|null>(null);
+  const [replacementMinPrice, setReplacementMinPrice] = useState({status: false, value: ''});
+  const [isResetClicked, setIsResetClicked] = useState(false);
+  const [changeFilterParamsByClick, setChangeFilterParamsByClick] = useState(false);
 
   const debouncedMinPrice = useDebounce(minPriceToDebounce, 1500);
 
   useEffect(() => {
     if (fromUrlCategories && fromUrlCategories.length) {
       setCategories(fromUrlCategories);
+      if (!changeFilterParamsByClick) {setChangeFilterParamsByClick(true);}
     }
     if (fromUrlLevels && fromUrlLevels.length) {
       setLevels(fromUrlLevels);
+      if (!changeFilterParamsByClick) {setChangeFilterParamsByClick(true);}
     }
     if (fromUrlTypes && fromUrlTypes.length) {
       setTypes(fromUrlTypes);
+      if (!changeFilterParamsByClick) {setChangeFilterParamsByClick(true);}
     }
     if (fromUrlMinPrice || fromUrlMinPrice === '') {
       setMinPrice(fromUrlMinPrice);
+      if (minPrice === null) {
+        console.log('minPrice === null setMinPriceInput fromUrlMinPrice', fromUrlMinPrice);// eslint-disable-line
+        setMinPriceInput(`${fromUrlMinPrice}`);
+      }
     }
   }, [fromUrlCategories, fromUrlLevels, fromUrlTypes, fromUrlMinPrice]);
 
   const changeCategory = (cameraCategory: string) => {
+    setIsResetClicked(false);
+    if (!changeFilterParamsByClick) {setChangeFilterParamsByClick(true);}
     const copyCategories = [...categories];
     if (copyCategories.includes(cameraCategory)) {
       removeElemFromArray(copyCategories, cameraCategory);
@@ -69,6 +81,8 @@ function Aside({
     changeFilterCategory(copyCategories);
   };
   const changeLevel = (cameraLevel: string) => {
+    setIsResetClicked(false);
+    if (!changeFilterParamsByClick) {setChangeFilterParamsByClick(true);}
     const copyLevels = [...levels];
     if (copyLevels.includes(cameraLevel)) {
       removeElemFromArray(copyLevels, cameraLevel);
@@ -79,6 +93,8 @@ function Aside({
     changeFilterLevel(copyLevels);
   };
   const changeType = (cameraType: string) => {
+    setIsResetClicked(false);
+    if (!changeFilterParamsByClick) {setChangeFilterParamsByClick(true);}
     const copyTypes = [...types];
     if (copyTypes.includes(cameraType)) {
       removeElemFromArray(copyTypes, cameraType);
@@ -90,71 +106,117 @@ function Aside({
   };
 
   const changeMinPrice = (cameraMinPrice: string) => {
-    console.log('--changeMinPrice-- cameraMinPrice', cameraMinPrice);// eslint-disable-line
+    if (!changeFilterParamsByClick) {
+      setChangeFilterParamsByClick(true);
+      if (replacementMinPrice.status) {
+        setReplacementMinPrice({status: false, value: ''});
+      }
+    }
     setMinPriceInput(cameraMinPrice);
   };
 
   useEffect(() => {
-    console.log('useEffect: change debouncedMinPrice. 1debouncedMinPrice', debouncedMinPrice);// eslint-disable-line
-
+    console.log('Изменилась дебаунс цена useEffect: debouncedMinPrice', debouncedMinPrice);// eslint-disable-line
     const normalizedPrice = debouncedMinPrice === '' ? '' : parseInt(debouncedMinPrice, 10);
-    console.log('2normalizedPrice', normalizedPrice);// eslint-disable-line
-    console.log('3wholeCatalogMinPrice: ', wholeCatalogMinPrice);// eslint-disable-line
-    if (normalizedPrice && wholeCatalogMinPrice) {
-      if (normalizedPrice < wholeCatalogMinPrice) {
-        // Введенная цена меньше минимальной во всем каталоге. Меняем цену в инпуте и дебаунсим по новой
-        console.log('normalizedPrice < wholeCatalogMinPrice');// eslint-disable-line
-        setJustSetMinPrice(true);
-        setMinPriceInput(`${wholeCatalogMinPrice}`);
-        setMinPrice(wholeCatalogMinPrice);
-        changeFilterMinPrice(wholeCatalogMinPrice);
-      } else {
-        // setJustSetMinPrice(false);
-        setMinPrice(normalizedPrice);
-        changeFilterMinPrice(normalizedPrice);
-      }
+
+    if ((normalizedPrice || normalizedPrice === 0)) {
+      setMinPriceInput(`${normalizedPrice}`);
+      setMinPrice(normalizedPrice);
+      // Очищаем предыдущую ТЕКУЩУЮ мин.цену
+      dispatch(clearProductsMinPrice());
+      // В запрос и в Url отправляем цену фильтра
+      changeFilterMinPrice(normalizedPrice);
     }
   }, [debouncedMinPrice]); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
-    // Изменилась мин.цена фильтрованных продуктов. Просто меняем мин.цену в инпуте
-    console.log('useEffect: change productsMinPrice', productsMinPrice);// eslint-disable-line
+    // Изменилась ТЕКУЩАЯ макс.цена фильтрованных продуктов. Просто меняем макс.цену в инпуте
+    console.log('useEffect: change productsMaxPice', productsMaxPice);// eslint-disable-line
+  }, [productsMaxPice]);
 
+  useEffect(() => {
+    console.log('Изменилась ТЕКУЩАЯ мин.цена useEffect: productsMinPrice', productsMinPrice);// eslint-disable-line
+    // Изменилась ТЕКУЩАЯ мин.цена фильтрованных продуктов. Просто меняем мин.цену в инпуте
     if (productsMinPrice !== null) {
-      setJustSetMinPrice(true);
-      setMinPriceInput(`${productsMinPrice}`);
-      setMinPrice(productsMinPrice);
+      if (productsMinPrice === '') {
+        // пришел пустой список камер. Нет продуктов под текущие параметры. Показываем уведомление "не найдено"
+        setNoProductsFound(true);
+      } else {
+        setNoProductsFound(false);
+        if (isResetClicked) {
+          // смена по резету
+          // 1) minPriceInput была цена = "" - меняем setMinPrice(''); не меняем setMinPriceInput('');
+          // 2) minPriceInput была цена отличная от "" - меняем setMinPrice(''); setMinPriceInput('');
+          setIsResetClicked(false);
+          setMinPrice('');
+          if (minPriceInput !== '') {
+            setMinPriceInput('');
+          }
+        } else {
+          console.log('----------minPrice', minPrice);// eslint-disable-line
+          console.log('----------changeFilterParamsByClick', changeFilterParamsByClick);// eslint-disable-line
+
+          // смена не по резету
+          // 1) перешли с другой страницы или только зашли перезагрузкой. НЕ КЛИКАЛИ
+          //    Пришла мин цена по всему каталогу. подсовываем setMinPriceInput('');
+          // 2) что-то вбили в инпут с минценой, дебаунс, запрос, пришла новая минцена. КЛИКАЛИ
+          //    Меняем setMinPrice(productsMinPrice); подсовываем setMinPriceInput(`${productsMinPrice}`);
+          if (changeFilterParamsByClick) {
+            setMinPrice(productsMinPrice);
+            setReplacementMinPrice({status: true, value: `${productsMinPrice}`});
+          } else {
+            setReplacementMinPrice({status: true, value: ''});
+          }
+        }
+      }
+    } else {
+      // setNoProductsFound(false); ????
     }
   }, [productsMinPrice]);
 
   useEffect(() => {
     // Изменилась цена в инпуте. Тут решаем, надо ли дальше ее дебаунсить и запускать весь процесс ее обработки или мы просто принудительно ее сменили
-    console.log('useEffect: change minPriceInput', minPriceInput);// eslint-disable-line
-    console.log('useEffect: change minPriceInput justSetMinPrice', justSetMinPrice);// eslint-disable-line
-    if (!justSetMinPrice) {
-      setMinPriceToDebounce(minPriceInput);
+    console.log('Ввод в инпут useeffect minPriceInput = ', minPriceInput);// eslint-disable-line
+    if (replacementMinPrice.status === false) {
+      console.log('Пошел дебаунс');// eslint-disable-line
+      if (minPriceInput === debouncedMinPrice) {
+        console.log('ИЛИ не пошел дебаунс');// eslint-disable-line
+        console.log(`А чему равен productsMinPrice = ${productsMinPrice}`);// eslint-disable-line
+      }
+      if (minPriceInput === debouncedMinPrice && productsMinPrice && (parseInt(minPriceInput, 10) < productsMinPrice)) {
+        console.log('Подсунем в инпут productsMinPrice = ', productsMinPrice);// eslint-disable-line
+        setReplacementMinPrice({status: true, value: `${productsMinPrice}`});
+      } else {
+        setMinPriceToDebounce(minPriceInput);
+      }
     } else {
-      setJustSetMinPrice(false);
+      setReplacementMinPrice({status: false, value: ''});
     }
   }, [minPriceInput]);
 
+
   useEffect(() => {
-    console.log('useEffect: change justSetMinPrice', justSetMinPrice);// eslint-disable-line
-  }, [justSetMinPrice]);
+    console.log('changeFilterParamsByClick', changeFilterParamsByClick);// eslint-disable-line
+    if (changeFilterParamsByClick) {
+      dispatch(clearProductsMinPrice());
+    }
+  }, [changeFilterParamsByClick]);
 
-  //     if (priceInt || priceInt === 0) {
-  //       price = Math.max(priceInt, 0);
-  //     }
-  //     // setPriceFrom(Math.max(price, 0));
-
+  useEffect(() => {
+    console.log('useEffect: change replacementMinPrice', replacementMinPrice);// eslint-disable-line
+    if (replacementMinPrice.status === true) {
+      setMinPriceInput(replacementMinPrice.value);
+    }
+  }, [replacementMinPrice]);
 
   const resetFilters = () => {
     if (categories.length || levels.length || types.length || minPrice) {
       setCategories([]);
       setLevels([]);
       setTypes([]);
-      setJustSetMinPrice(true);
-      setMinPriceInput('');
+      setIsResetClicked(true);
+      setReplacementMinPrice({status: true, value: ''});// вот тут вопросики - надо именно подменить цен при резете? ведь нет, надо сбросить все к херам
+      dispatch(clearProductsMinPrice());
       resetFilterAll();
     }
   };
@@ -204,6 +266,7 @@ function Aside({
             <div className="custom-checkbox catalog-filter__item">
               <label>
                 <input type="checkbox" name="videocamera"
+                  disabled={types.includes('Плёночная') || types.includes('Моментальная')}
                   checked={categories.includes('Видеокамера')}
                   onChange={() => changeCategory('Видеокамера')}
                 />

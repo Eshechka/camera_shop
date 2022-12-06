@@ -9,6 +9,7 @@ export const getSearchingProducts = (state: State): Product[] => state[NameSpace
 export const getProductsLength = (state: State): number | null => state[NameSpace.Catalog].productsLength;
 export const getProductsMinPrice = (state: State): number | '' | null => state[NameSpace.Catalog].productsMinPrice;
 export const getWholeCatalogMinPrice = (state: State): number | null => state[NameSpace.Catalog].wholeCatalogMinPrice;
-export const getProductsMaxPrice = (state: State): number | null => state[NameSpace.Catalog].productsMaxPrice;
+export const getProductsMaxPrice = (state: State): number | '' | null => state[NameSpace.Catalog].productsMaxPrice;
+export const getWholeCatalogMaxPrice = (state: State): number | null => state[NameSpace.Catalog].wholeCatalogMaxPrice;
 export const getPromo = (state: State): Promo | null => state[NameSpace.Catalog].promo;
 export const getLoadingDataStatus = (state: State): boolean => state[NameSpace.Catalog].isDataLoading;
