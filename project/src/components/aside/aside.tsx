@@ -1,13 +1,16 @@
 import { useEffect, useState } from 'react';
 import { removeElemFromArray } from '../../const';
+import { useAppSelector } from '../../hooks';
+import useDebounce from '../../hooks/use-debounce/use-debounce';
+import {
+  // getProductsMaxPrice,
+  getProductsMinPrice, getWholeCatalogMinPrice } from '../../store/data-catalog/selectors';
 
 type asidePageProps = {
   fromUrlCategories: string[];
   fromUrlLevels: string[];
   fromUrlTypes: string[];
   fromUrlMinPrice: number|'';
-  // defaultProductsMinPice: number|null;
-  // defaultProductsMaxPice: number|null;
   changeFilterCategory: (categories: string[]) => void;
   changeFilterLevel: (levels: string[]) => void;
   changeFilterType: (types: string[]) => void;
@@ -20,21 +23,25 @@ function Aside({
   fromUrlLevels,
   fromUrlTypes,
   fromUrlMinPrice,
-  // defaultProductsMinPice,
-  // defaultProductsMaxPice,
   changeFilterCategory,
   changeFilterLevel,
   changeFilterType,
   changeFilterMinPrice,
   resetFilterAll,
 }: asidePageProps): JSX.Element {
+  const productsMinPrice = useAppSelector(getProductsMinPrice);
+  // const productsMaxPice = useAppSelector(getProductsMaxPrice);
+  const wholeCatalogMinPrice = useAppSelector(getWholeCatalogMinPrice);
+
   const [categories, setCategories] = useState<string[]>([]);
   const [levels, setLevels] = useState<string[]>([]);
   const [types, setTypes] = useState<string[]>([]);
+  const [minPriceInput, setMinPriceInput] = useState<string>('');
+  const [minPriceToDebounce, setMinPriceToDebounce] = useState<string>('');
   const [minPrice, setMinPrice] = useState<number|''>('');
+  const [justSetMinPrice, setJustSetMinPrice] = useState(false);
 
-  // const [priceFrom, setPriceFrom] = useState<number|''>(0);
-  // const [priceTo, setPriceTo] = useState<number|''>(0);
+  const debouncedMinPrice = useDebounce(minPriceToDebounce, 1500);
 
   useEffect(() => {
     if (fromUrlCategories && fromUrlCategories.length) {
@@ -50,17 +57,6 @@ function Aside({
       setMinPrice(fromUrlMinPrice);
     }
   }, [fromUrlCategories, fromUrlLevels, fromUrlTypes, fromUrlMinPrice]);
-
-  // useEffect(() => {
-  //   console.log('defaultProductsMinPice, defaultProductsMaxPice', defaultProductsMinPice, defaultProductsMaxPice); // eslint-disable-line
-
-  //   if (defaultProductsMinPice) {
-  //     setPriceFrom(defaultProductsMinPice);
-  //   }
-  //   if (defaultProductsMaxPice) {
-  //     setPriceTo(defaultProductsMaxPice);
-  //   }
-  // }, [defaultProductsMinPice, defaultProductsMaxPice]);
 
   const changeCategory = (cameraCategory: string) => {
     const copyCategories = [...categories];
@@ -94,42 +90,71 @@ function Aside({
   };
 
   const changeMinPrice = (cameraMinPrice: string) => {
-    const normalizedPrice = cameraMinPrice === '' ? '' : parseInt(cameraMinPrice, 10);
-    setMinPrice(normalizedPrice);
-    changeFilterMinPrice(normalizedPrice);
+    console.log('--changeMinPrice-- cameraMinPrice', cameraMinPrice);// eslint-disable-line
+    setMinPriceInput(cameraMinPrice);
   };
 
+  useEffect(() => {
+    console.log('useEffect: change debouncedMinPrice. 1debouncedMinPrice', debouncedMinPrice);// eslint-disable-line
 
-  // const changePriceFrom = (cameraPriceFrom: string) => {
-  //   let price: number|'' = '';
-  //   // if (cameraPriceFrom === '') {
-  //   //   setPriceFrom(cameraPriceFrom);
-  //   // } else {
-  //   if (cameraPriceFrom !== '') {
-  //     const priceInt = parseInt(cameraPriceFrom, 10);
+    const normalizedPrice = debouncedMinPrice === '' ? '' : parseInt(debouncedMinPrice, 10);
+    console.log('2normalizedPrice', normalizedPrice);// eslint-disable-line
+    console.log('3wholeCatalogMinPrice: ', wholeCatalogMinPrice);// eslint-disable-line
+    if (normalizedPrice && wholeCatalogMinPrice) {
+      if (normalizedPrice < wholeCatalogMinPrice) {
+        // Введенная цена меньше минимальной во всем каталоге. Меняем цену в инпуте и дебаунсим по новой
+        console.log('normalizedPrice < wholeCatalogMinPrice');// eslint-disable-line
+        setJustSetMinPrice(true);
+        setMinPriceInput(`${wholeCatalogMinPrice}`);
+        setMinPrice(wholeCatalogMinPrice);
+        changeFilterMinPrice(wholeCatalogMinPrice);
+      } else {
+        // setJustSetMinPrice(false);
+        setMinPrice(normalizedPrice);
+        changeFilterMinPrice(normalizedPrice);
+      }
+    }
+  }, [debouncedMinPrice]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  useEffect(() => {
+    // Изменилась мин.цена фильтрованных продуктов. Просто меняем мин.цену в инпуте
+    console.log('useEffect: change productsMinPrice', productsMinPrice);// eslint-disable-line
+
+    if (productsMinPrice !== null) {
+      setJustSetMinPrice(true);
+      setMinPriceInput(`${productsMinPrice}`);
+      setMinPrice(productsMinPrice);
+    }
+  }, [productsMinPrice]);
+
+  useEffect(() => {
+    // Изменилась цена в инпуте. Тут решаем, надо ли дальше ее дебаунсить и запускать весь процесс ее обработки или мы просто принудительно ее сменили
+    console.log('useEffect: change minPriceInput', minPriceInput);// eslint-disable-line
+    console.log('useEffect: change minPriceInput justSetMinPrice', justSetMinPrice);// eslint-disable-line
+    if (!justSetMinPrice) {
+      setMinPriceToDebounce(minPriceInput);
+    } else {
+      setJustSetMinPrice(false);
+    }
+  }, [minPriceInput]);
+
+  useEffect(() => {
+    console.log('useEffect: change justSetMinPrice', justSetMinPrice);// eslint-disable-line
+  }, [justSetMinPrice]);
+
   //     if (priceInt || priceInt === 0) {
   //       price = Math.max(priceInt, 0);
   //     }
   //     // setPriceFrom(Math.max(price, 0));
-  //   }
-  //   setPriceFrom(price);
-  //   changeFilterMinPrice(price);
-  // };
-  // const changePriceTo = (cameraPriceTo: string) => {
-  //   if (cameraPriceTo === '') {
-  //     setPriceTo(cameraPriceTo);
-  //   } else {
-  //     const price = parseInt(cameraPriceTo, 10);
-  //     setPriceTo(Math.max(price, 0));
-  //   }
-  // };
+
 
   const resetFilters = () => {
     if (categories.length || levels.length || types.length || minPrice) {
       setCategories([]);
       setLevels([]);
       setTypes([]);
-      setMinPrice('');
+      setJustSetMinPrice(true);
+      setMinPriceInput('');
       resetFilterAll();
     }
   };
@@ -147,10 +172,8 @@ function Aside({
                   <input
                     type="number" name="price"
                     placeholder="от"
-                    value={minPrice}
+                    value={minPriceInput}
                     onChange={(e) => changeMinPrice(e.target.value)}
-                    // value={priceFrom}
-                    // onChange={(e) => changePriceFrom(e.target.value)}
                   />
                 </label>
               </div>

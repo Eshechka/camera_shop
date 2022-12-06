@@ -8,6 +8,7 @@ describe('Reducer: Product', () => {
     products: [],
     searchingProducts: [],
     productsLength: null,
+    wholeCatalogMinPrice: null,
     productsMinPrice: null,
     productsMaxPrice: null,
     isDataLoading: false,
@@ -21,6 +22,7 @@ describe('Reducer: Product', () => {
       .toEqual({
         products: products,
         productsLength: null,
+        wholeCatalogMinPrice: null,
         productsMinPrice: null,
         productsMaxPrice: null,
         isDataLoading: false,
@@ -34,6 +36,7 @@ describe('Reducer: Product', () => {
       .toEqual({
         products: [],
         productsLength: null,
+        wholeCatalogMinPrice: null,
         productsMinPrice: null,
         productsMaxPrice: null,
         isDataLoading: true,
@@ -47,6 +50,7 @@ describe('Reducer: Product', () => {
       .toEqual({
         products: [],
         productsLength: null,
+        wholeCatalogMinPrice: null,
         productsMinPrice: null,
         productsMaxPrice: null,
         isDataLoading: false,
@@ -74,6 +78,7 @@ describe('Reducer: Product', () => {
       .toEqual({
         products: [],
         productsLength: null,
+        wholeCatalogMinPrice: null,
         productsMinPrice: null,
         productsMaxPrice: null,
         isDataLoading: false,
@@ -89,6 +94,7 @@ describe('Reducer: Product', () => {
       .toEqual({
         products: [],
         productsLength: null,
+        wholeCatalogMinPrice: null,
         productsMinPrice: null,
         productsMaxPrice: null,
         isDataLoading: false,
@@ -102,6 +108,7 @@ describe('Reducer: Product', () => {
       .toEqual({
         products: [],
         productsLength: null,
+        wholeCatalogMinPrice: null,
         productsMinPrice: null,
         productsMaxPrice: null,
         isDataLoading: false,

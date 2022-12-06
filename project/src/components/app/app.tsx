@@ -8,7 +8,7 @@ import BasketPage from '../../pages/basket-page/basket-page';
 import CatalogPage from '../../pages/catalog-page/catalog-page';
 import NotFoundPage from '../../pages/not-found-page/not-found-page';
 import ProductPage from '../../pages/product-page/product-page';
-import { fetchProductsMetaInfoAction } from '../../store/api-actions';
+import { fetchProductsMetaInfoAction, fetchProductsWholeCatalogPricesAction } from '../../store/api-actions';
 import { getProductsLength } from '../../store/data-catalog/selectors';
 
 function App(): JSX.Element {
@@ -23,6 +23,10 @@ function App(): JSX.Element {
       dispatch(fetchProductsMetaInfoAction(params));
     }
   }, [params]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  useEffect(() => {
+    dispatch(fetchProductsWholeCatalogPricesAction());
+  }, []);
 
   useEffect(() => {
     if (productLength) {

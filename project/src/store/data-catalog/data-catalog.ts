@@ -1,13 +1,14 @@
 import { createSlice } from '@reduxjs/toolkit';
 import { NameSpace } from '../../const';
 import { dataCatalog } from '../../types/state';
-import { fetchProductsAction, fetchSearchingProductsAction, fetchProductsMetaInfoAction, fetchPromoAction } from '../api-actions';
+import { fetchProductsAction, fetchSearchingProductsAction, fetchProductsMetaInfoAction, fetchPromoAction, fetchProductsWholeCatalogPricesAction } from '../api-actions';
 
 
 const initialState: dataCatalog = {
   products: [],
   searchingProducts: [],
   productsLength: null,
+  wholeCatalogMinPrice: null,
   productsMinPrice: null,
   productsMaxPrice: null,
   isDataLoading: false,
@@ -40,12 +41,19 @@ export const Catalog = createSlice({
       .addCase(fetchProductsMetaInfoAction.fulfilled, (state, { payload }) => {
         state.productsLength = payload.length;
         state.productsMinPrice = Math.min(...payload.map((el) => el.price));
+        console.log('state.productsMinPrice: ', state.productsMinPrice); // eslint-disable-line
         state.productsMaxPrice = Math.max(...payload.map((el) => el.price));
       })
       .addCase(fetchProductsMetaInfoAction.rejected, (state) => {
         state.productsLength = null;
         state.productsMinPrice = null;
         state.productsMaxPrice = null;
+      })
+      .addCase(fetchProductsWholeCatalogPricesAction.fulfilled, (state, { payload }) => {
+        state.wholeCatalogMinPrice = Math.min(...payload.map((el) => el.price));
+      })
+      .addCase(fetchProductsWholeCatalogPricesAction.rejected, (state) => {
+        state.wholeCatalogMinPrice = null;
       })
       .addCase(fetchPromoAction.fulfilled, (state, { payload }) => {
         state.promo = payload;

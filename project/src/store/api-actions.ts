@@ -12,9 +12,20 @@ export const fetchProductsMetaInfoAction = createAsyncThunk<Product[], string | 
   state: State;
   extra: AxiosInstance;
 }>(
-  'catalog/fetchProductsLength',
+  'catalog/fetchProductsMetaInfo',
   async (params, { dispatch, extra: api }) => {
     const { data } = await api.get<Product[]>(`${APIRoute.Products}${params ? `?${params}` : ''}`);
+    return data;
+  },
+);
+export const fetchProductsWholeCatalogPricesAction = createAsyncThunk<Product[], string | undefined, {
+  dispatch: AppDispatch;
+  state: State;
+  extra: AxiosInstance;
+}>(
+  'catalog/fetchProductsWholeCatalogPrices',
+  async (_arg, { dispatch, extra: api }) => {
+    const { data } = await api.get<Product[]>(APIRoute.Products);
     return data;
   },
 );
