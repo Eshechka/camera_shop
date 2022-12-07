@@ -3,7 +3,7 @@ import thunk, {ThunkDispatch} from 'redux-thunk';
 import MockAdapter from 'axios-mock-adapter';
 import {configureMockStore} from '@jedmao/redux-mock-store';
 import {createAPI} from '../services/api';
-import {addProductReviewAction, fetchProductAction, fetchProductReviewsAction, fetchProductsAction, fetchPromoAction, fetchSimilarProductsAction} from './api-actions';
+import {addProductReviewAction, fetchProductAction, fetchProductReviewsAction, fetchProductsAction, fetchProductsMetaInfoAction, fetchPromoAction, fetchSearchingProductsAction, fetchSimilarProductsAction} from './api-actions';
 import {APIRoute} from '../const';
 import {State} from '../types/state';
 import { makeFakeProduct, makeFakeProductReview, makeFakeProductReviewFormData, makeFakeProducts, makeFakePromo } from '../utils/mocks';
@@ -34,6 +34,44 @@ describe('Async actions', () => {
     expect(actions).toEqual([
       fetchProductsAction.pending.type,
       fetchProductsAction.fulfilled.type
+    ]);
+  });
+
+  it('should dispatch fetchSearchingProductsAction when GET /cameras?params', async () => {
+    const mockProducts = makeFakeProducts(3);
+    const params = 'name_like=2';
+    mockAPI
+      .onGet(`${APIRoute.Products}${`?${params}`}`)
+      .reply(200, mockProducts);
+
+    const store = mockStore();
+
+    await store.dispatch(fetchSearchingProductsAction(params));
+
+    const actions:string[] = store.getActions().map(({type}) => type as string);
+
+    expect(actions).toEqual([
+      fetchSearchingProductsAction.pending.type,
+      fetchSearchingProductsAction.fulfilled.type
+    ]);
+  });
+
+  it('should dispatch fetchProductsMetaInfoAction when GET /cameras/?params', async () => {
+    const mockProducts = makeFakeProducts(3);
+    const params = 'price_gte=5000';
+    mockAPI
+      .onGet(`${APIRoute.Products}${params}`)
+      .reply(200, mockProducts);
+
+    const store = mockStore();
+
+    await store.dispatch(fetchProductsMetaInfoAction(params));
+
+    const actions:string[] = store.getActions().map(({type}) => type as string);
+
+    expect(actions).toEqual([
+      fetchProductsMetaInfoAction.pending.type,
+      fetchProductsMetaInfoAction.rejected.type,
     ]);
   });
 

@@ -8,8 +8,6 @@ const initialState: dataCatalog = {
   products: [],
   searchingProducts: [],
   productsLength: null,
-  wholeCatalogMinPrice: null,
-  wholeCatalogMaxPrice: null,
   productsMinPrice: null,
   productsMaxPrice: null,
   isDataLoading: false,

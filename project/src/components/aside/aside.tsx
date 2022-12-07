@@ -80,7 +80,7 @@ function Aside({
         setMaxPriceInput(`${fromUrlMaxPrice}`);
       }
     }
-  }, [fromUrlCategories, fromUrlLevels, fromUrlTypes, fromUrlMinPrice, fromUrlMaxPrice]);
+  }, [fromUrlCategories, fromUrlLevels, fromUrlTypes, fromUrlMinPrice, fromUrlMaxPrice]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const changeCategory = (cameraCategory: string) => {
     setIsResetClicked(false);
@@ -195,7 +195,7 @@ function Aside({
         }
       }
     }
-  }, [productsMinPrice]);
+  }, [productsMinPrice]); // eslint-disable-line react-hooks/exhaustive-deps
   useEffect(() => {
     // Изменилась ТЕКУЩАЯ мин.цена фильтрованных продуктов. Просто меняем мин.цену в инпуте
     if (productsMaxPrice !== null) {
@@ -228,7 +228,7 @@ function Aside({
         }
       }
     }
-  }, [productsMaxPrice]);
+  }, [productsMaxPrice]); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
     // Изменилась MIN цена в инпуте. Тут решаем, надо ли дальше ее дебаунсить и запускать весь процесс ее обработки или мы просто принудительно ее сменили
@@ -241,7 +241,7 @@ function Aside({
     } else {
       setReplacementMinPrice({status: false, value: ''});
     }
-  }, [minPriceInput]);
+  }, [minPriceInput]); // eslint-disable-line react-hooks/exhaustive-deps
   useEffect(() => {
     // Изменилась MAX цена в инпуте. Тут решаем, надо ли дальше ее дебаунсить и запускать весь процесс ее обработки или мы просто принудительно ее сменили
     if (replacementMaxPrice.status === false) {
@@ -253,7 +253,7 @@ function Aside({
     } else {
       setReplacementMaxPrice({status: false, value: ''});
     }
-  }, [maxPriceInput]);
+  }, [maxPriceInput]); // eslint-disable-line react-hooks/exhaustive-deps
 
 
   useEffect(() => {
@@ -261,7 +261,7 @@ function Aside({
       dispatch(clearProductsMinPrice());
       dispatch(clearProductsMaxPrice());
     }
-  }, [changeFilterParamsByClick]);
+  }, [changeFilterParamsByClick]); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
     if (replacementMinPrice.status === true) {
@@ -275,7 +275,7 @@ function Aside({
   }, [replacementMaxPrice]);
 
   const resetFilters = () => {
-    if (categories.length || levels.length || types.length || minPrice || maxPrice) {
+    if (categories.length || levels.length || types.length || (minPrice || minPrice === 0) || maxPrice) {
       setCategories([]);
       setLevels([]);
       setTypes([]);

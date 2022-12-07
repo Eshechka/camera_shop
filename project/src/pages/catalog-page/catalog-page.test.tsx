@@ -36,7 +36,8 @@ const store = mockStore({
 });
 
 const maxPages = 2;
-const setParams = () => {};
+let params = '';
+const setParams = (cat: string | null) => {params = '&category=no_such_cat';};
 
 describe('Component: CatalogPage', () => {
   it('should render correctly', () => {
@@ -57,6 +58,22 @@ describe('Component: CatalogPage', () => {
     expect(screen.getByText(/Каталог фото- и видеотехники/i)).toBeInTheDocument();
     expect(screen.getByText(/Сбросить фильтры/i)).toBeInTheDocument();
     expect(screen.getByText(/Сортировать/i)).toBeInTheDocument();
+  });
+
+  it('should setParams work', () => {
+    render(
+      <Provider store={store}>
+        <Router navigator={history} location={history.location}>
+          <Routes>
+            <Route path={AppRoute.Catalog}>
+              <Route index element={<CatalogPage setParams={setParams} maxPages={maxPages} />} />
+              <Route path=':page' element={<CatalogPage setParams={setParams} maxPages={maxPages} />} />
+            </Route>
+          </Routes>
+        </Router>
+      </Provider>);
+
+    expect(params).toEqual('&category=no_such_cat');
   });
 
   it('should pagination work correctly', async () => {

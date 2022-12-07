@@ -56,7 +56,7 @@ describe('Application Routing', () => {
     expect(screen.getByText(/Каталог фото- и видеотехники/i)).toBeInTheDocument();
   });
 
-  it('should render "CatalogPage" with notice text when user navigate to "/catalog/page_no_existing"', async () => {
+  it('should render "NotFoundPage" with notice text when user navigate to "/catalog/page_no_existing"', async () => {
 
     render(
       <Provider store={store}>
@@ -66,7 +66,7 @@ describe('Application Routing', () => {
       </Provider>,
     );
 
-    expect(await screen.findByText(/Такой страницы не существует/i)).toBeInTheDocument();
+    expect(await screen.findByText(/PAGE NOT FOUND/i)).toBeInTheDocument();
   });
 
   it('should render "BasketPage" when user navigate to "/cart"', () => {

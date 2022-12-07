@@ -13,10 +13,7 @@ export const createAPI = (): AxiosInstance => {
   api.interceptors.response.use(
     (response) => response,
     (error: AxiosError) => {
-      console.warn('---AxiosError---', error); // eslint-disable-line
-
       if (error.message) {
-        console.warn('---AxiosError error.message---', error.message); // eslint-disable-line
         toast.warn(error.message);
       }
 
