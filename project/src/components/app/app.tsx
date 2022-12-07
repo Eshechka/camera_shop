@@ -24,10 +24,6 @@ function App(): JSX.Element {
     }
   }, [params]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  // useEffect(() => {
-  //   dispatch(fetchProductsWholeCatalogPricesAction());
-  // }, []);
-
   useEffect(() => {
     if (productLength) {
       setMaxPages(Math.ceil(productLength / MAX_PAGINATION_ELEMS));

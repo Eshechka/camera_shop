@@ -194,6 +194,10 @@ function CatalogPage({
       const normalizedPrice = parseInt(search.price_gte, 10);
       setFilterMinPrice(normalizedPrice);
     }
+    if (search.price_lte && typeof search.price_lte === 'string') {
+      const normalizedPrice = parseInt(search.price_lte, 10);
+      setFilterMaxPrice(normalizedPrice);
+    }
 
     if (maxPages) {
       // Редирект на 1 страницу, если зашли без ее указания
@@ -280,7 +284,7 @@ function CatalogPage({
                     />
                     <div className="catalog__content">
                       {noProductsFound
-                        ? 'Нет таких'
+                        ? 'по вашему запросу ничего не найдено'
                         :
                         <>
                           <div className="catalog-sort">

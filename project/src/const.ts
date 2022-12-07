@@ -36,6 +36,7 @@ export enum SortOrders {
 export const MAX_SLIDER_ELEMS = 3;
 export const PLUS_REVIEW_ELEMS = 3;
 export const MAX_PAGINATION_ELEMS = 9;
+export const TIME_FOR_DEBOUNCE = 1000;
 
 export const sortReviewsDesc = (reviewA: Review, reviewB: Review) => Date.parse(reviewB.createAt) - Date.parse(reviewA.createAt);
 

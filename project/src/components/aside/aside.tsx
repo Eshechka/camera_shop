@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { removeElemFromArray } from '../../const';
+import { removeElemFromArray, TIME_FOR_DEBOUNCE } from '../../const';
 import { useAppDispatch, useAppSelector } from '../../hooks';
 import useDebounce from '../../hooks/use-debounce/use-debounce';
 import { clearProductsMaxPrice, clearProductsMinPrice } from '../../store/data-catalog/data-catalog';
@@ -52,8 +52,8 @@ function Aside({
   const [isResetClicked, setIsResetClicked] = useState(false);
   const [changeFilterParamsByClick, setChangeFilterParamsByClick] = useState(false);
 
-  const debouncedMinPrice = useDebounce(minPriceToDebounce, 1500);
-  const debouncedMaxPrice = useDebounce(maxPriceToDebounce, 1500);// todo
+  const debouncedMinPrice = useDebounce(minPriceToDebounce, TIME_FOR_DEBOUNCE);
+  const debouncedMaxPrice = useDebounce(maxPriceToDebounce, TIME_FOR_DEBOUNCE);
 
   useEffect(() => {
     if (fromUrlCategories && fromUrlCategories.length) {
@@ -71,14 +71,12 @@ function Aside({
     if (fromUrlMinPrice || fromUrlMinPrice === '') {
       setMinPrice(fromUrlMinPrice);
       if (minPrice === null) {
-        console.log('minPrice === null setMinPriceInput fromUrlMinPrice', fromUrlMinPrice);// eslint-disable-line
         setMinPriceInput(`${fromUrlMinPrice}`);
       }
     }
     if (fromUrlMaxPrice || fromUrlMaxPrice === '') {
       setMaxPrice(fromUrlMaxPrice);
       if (maxPrice === null) {
-        console.log('maxPrice === null setMaxPriceInput fromUrlMaxPrice', fromUrlMaxPrice);// eslint-disable-line
         setMaxPriceInput(`${fromUrlMaxPrice}`);
       }
     }
@@ -141,7 +139,6 @@ function Aside({
   };
 
   useEffect(() => {
-    console.log('Изменилась дебаунс MIN цена useEffect: debouncedMinPrice', debouncedMinPrice);// eslint-disable-line
     const normalizedPrice = debouncedMinPrice === '' ? '' : parseInt(debouncedMinPrice, 10);
 
     if ((normalizedPrice || normalizedPrice === 0)) {
@@ -154,7 +151,6 @@ function Aside({
     }
   }, [debouncedMinPrice]); // eslint-disable-line react-hooks/exhaustive-deps
   useEffect(() => {
-    console.log('Изменилась дебаунс MAX цена useEffect: debouncedMaxPrice', debouncedMaxPrice);// eslint-disable-line
     const normalizedPrice = debouncedMaxPrice === '' ? '' : parseInt(debouncedMaxPrice, 10);
 
     if ((normalizedPrice || normalizedPrice === 0)) {
@@ -168,7 +164,6 @@ function Aside({
   }, [debouncedMaxPrice]); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
-    console.log('Изменилась ТЕКУЩАЯ MIN цена useEffect: productsMinPrice', productsMinPrice);// eslint-disable-line
     // Изменилась ТЕКУЩАЯ мин.цена фильтрованных продуктов. Просто меняем мин.цену в инпуте
     if (productsMinPrice !== null) {
       if (productsMinPrice === '') {
@@ -186,9 +181,6 @@ function Aside({
             setMinPriceInput('');
           }
         } else {
-          console.log('----------minPrice', minPrice);// eslint-disable-line
-          console.log('----------changeFilterParamsByClick', changeFilterParamsByClick);// eslint-disable-line
-
           // смена не по резету
           // 1) перешли с другой страницы или только зашли перезагрузкой. НЕ КЛИКАЛИ
           //    Пришла мин цена по всему каталогу. подсовываем setMinPriceInput('');
@@ -202,12 +194,9 @@ function Aside({
           }
         }
       }
-    } else {
-      // setNoProductsFound(false); ????
     }
   }, [productsMinPrice]);
   useEffect(() => {
-    console.log('Изменилась ТЕКУЩАЯ MAX цена useEffect: productsMaxPrice', productsMaxPrice);// eslint-disable-line
     // Изменилась ТЕКУЩАЯ мин.цена фильтрованных продуктов. Просто меняем мин.цену в инпуте
     if (productsMaxPrice !== null) {
       if (productsMaxPrice === '') {
@@ -225,9 +214,6 @@ function Aside({
             setMaxPriceInput('');
           }
         } else {
-          console.log('----------maxPrice', maxPrice);// eslint-disable-line
-          console.log('----------changeFilterParamsByClick', changeFilterParamsByClick);// eslint-disable-line
-
           // смена не по резету
           // 1) перешли с другой страницы или только зашли перезагрузкой. НЕ КЛИКАЛИ
           //    Пришла мин цена по всему каталогу. подсовываем setMaxPriceInput('');
@@ -241,22 +227,13 @@ function Aside({
           }
         }
       }
-    } else {
-      // setNoProductsFound(false); ????
     }
   }, [productsMaxPrice]);
 
   useEffect(() => {
     // Изменилась MIN цена в инпуте. Тут решаем, надо ли дальше ее дебаунсить и запускать весь процесс ее обработки или мы просто принудительно ее сменили
-    console.log('Ввод в инпут useeffect minPriceInput = ', minPriceInput);// eslint-disable-line
     if (replacementMinPrice.status === false) {
-      console.log('Пошел min дебаунс');// eslint-disable-line
-      if (minPriceInput === debouncedMinPrice) {
-        console.log('ИЛИ не пошел дебаунс');// eslint-disable-line
-        console.log(`А чему равен productsMinPrice = ${productsMinPrice}`);// eslint-disable-line
-      }
       if (minPriceInput === debouncedMinPrice && productsMinPrice && (parseInt(minPriceInput, 10) < productsMinPrice)) {
-        console.log('Подсунем в инпут productsMinPrice = ', productsMinPrice);// eslint-disable-line
         setReplacementMinPrice({status: true, value: `${productsMinPrice}`});
       } else {
         setMinPriceToDebounce(minPriceInput);
@@ -267,15 +244,8 @@ function Aside({
   }, [minPriceInput]);
   useEffect(() => {
     // Изменилась MAX цена в инпуте. Тут решаем, надо ли дальше ее дебаунсить и запускать весь процесс ее обработки или мы просто принудительно ее сменили
-    console.log('Ввод в инпут useeffect maxPriceInput = ', maxPriceInput);// eslint-disable-line
     if (replacementMaxPrice.status === false) {
-      console.log('Пошел max дебаунс');// eslint-disable-line
-      if (maxPriceInput === debouncedMaxPrice) {
-        console.log('ИЛИ не пошел дебаунс');// eslint-disable-line
-        console.log(`А чему равен productsMaxPrice = ${productsMaxPrice}`);// eslint-disable-line
-      }
       if (maxPriceInput === debouncedMaxPrice && productsMaxPrice && (parseInt(maxPriceInput, 10) < productsMaxPrice)) {
-        console.log('Подсунем в инпут productsMaxPrice = ', productsMaxPrice);// eslint-disable-line
         setReplacementMaxPrice({status: true, value: `${productsMaxPrice}`});
       } else {
         setMaxPriceToDebounce(maxPriceInput);
@@ -287,7 +257,6 @@ function Aside({
 
 
   useEffect(() => {
-    console.log('changeFilterParamsByClick', changeFilterParamsByClick);// eslint-disable-line
     if (changeFilterParamsByClick) {
       dispatch(clearProductsMinPrice());
       dispatch(clearProductsMaxPrice());
@@ -295,13 +264,11 @@ function Aside({
   }, [changeFilterParamsByClick]);
 
   useEffect(() => {
-    console.log('useEffect: change replacementMinPrice', replacementMinPrice);// eslint-disable-line
     if (replacementMinPrice.status === true) {
       setMinPriceInput(replacementMinPrice.value);
     }
   }, [replacementMinPrice]);
   useEffect(() => {
-    console.log('useEffect: change replacementMaxPrice', replacementMaxPrice);// eslint-disable-line
     if (replacementMaxPrice.status === true) {
       setMaxPriceInput(replacementMaxPrice.value);
     }
