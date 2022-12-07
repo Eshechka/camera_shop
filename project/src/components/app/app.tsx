@@ -37,7 +37,6 @@ function App(): JSX.Element {
       </Route>
       <Route path={AppRoute.Catalog}>
         <Route index element={<CatalogPage setParams={setParams} maxPages={maxPages} />} />
-        <Route path=':page' element={<CatalogPage setParams={setParams} maxPages={maxPages} />} />
       </Route>
       <Route
         path={AppRoute.Basket}

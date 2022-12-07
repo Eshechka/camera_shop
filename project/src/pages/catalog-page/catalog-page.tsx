@@ -201,9 +201,12 @@ function CatalogPage({
 
     if (maxPages) {
       // Редирект на 1 страницу, если зашли без ее указания
-      if ((location.pathname === AppRoute.Catalog || location.pathname === `${AppRoute.Catalog}/`)
+      if ((location.pathname === AppRoute.Catalog)
         && !location.search.startsWith(`${pageUrlText.slice(1)}`)) {
         navigate(`${AppRoute.Catalog}${pageUrlText}1`);
+      }
+      if (location.pathname === `${AppRoute.Catalog}/`) {
+        navigate(`${AppRoute.Catalog}`);
       }
       // Проверяем указанный номер страницы, если он больше максимально возможного - показываем уведомление
       if (search.page) {
