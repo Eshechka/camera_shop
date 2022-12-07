@@ -36,6 +36,7 @@ const store = mockStore({
 });
 
 const maxPages = 2;
+const setParams = () => {};
 
 describe('Component: CatalogPage', () => {
   it('should render correctly', () => {
@@ -47,7 +48,7 @@ describe('Component: CatalogPage', () => {
           <Routes>
             <Route
               path={AppRoute.Catalog}
-              element={<CatalogPage maxPages={maxPages} />}
+              element={<CatalogPage setParams={setParams} maxPages={maxPages} />}
             />
           </Routes>
         </Router>
@@ -64,8 +65,8 @@ describe('Component: CatalogPage', () => {
         <Router navigator={history} location={history.location}>
           <Routes>
             <Route path={AppRoute.Catalog}>
-              <Route index element={<CatalogPage maxPages={maxPages} />} />
-              <Route path=':page' element={<CatalogPage maxPages={maxPages} />} />
+              <Route index element={<CatalogPage setParams={setParams} maxPages={maxPages} />} />
+              <Route path=':page' element={<CatalogPage setParams={setParams} maxPages={maxPages} />} />
             </Route>
           </Routes>
         </Router>
@@ -86,8 +87,8 @@ describe('Component: CatalogPage', () => {
         <Router navigator={history} location={history.location}>
           <Routes>
             <Route path={AppRoute.Catalog}>
-              <Route index element={<CatalogPage maxPages={maxPages} />} />
-              <Route path=':page' element={<CatalogPage maxPages={maxPages} />} />
+              <Route index element={<CatalogPage setParams={setParams} maxPages={maxPages} />} />
+              <Route path=':page' element={<CatalogPage setParams={setParams} maxPages={maxPages} />} />
             </Route>
           </Routes>
         </Router>
@@ -105,8 +106,8 @@ describe('Component: CatalogPage', () => {
         <Router navigator={history} location={history.location}>
           <Routes>
             <Route path={AppRoute.Catalog}>
-              <Route index element={<CatalogPage maxPages={maxPages} />} />
-              <Route path=':page' element={<CatalogPage maxPages={maxPages} />} />
+              <Route index element={<CatalogPage setParams={setParams} maxPages={maxPages} />} />
+              <Route path=':page' element={<CatalogPage setParams={setParams} maxPages={maxPages} />} />
             </Route>
             <Route path={AppRoute.Product} >
               <Route index element={<Navigate to={AppRoute.Root} />} />

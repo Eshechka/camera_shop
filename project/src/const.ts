@@ -36,10 +36,23 @@ export enum SortOrders {
 export const MAX_SLIDER_ELEMS = 3;
 export const PLUS_REVIEW_ELEMS = 3;
 export const MAX_PAGINATION_ELEMS = 9;
+export const TIME_FOR_DEBOUNCE = 1000;
 
 export const sortReviewsDesc = (reviewA: Review, reviewB: Review) => Date.parse(reviewB.createAt) - Date.parse(reviewA.createAt);
 
 export const pageUrlText = '/?page=';
 export const sortTypeUrlText = '&sort=';
 export const sortOrderUrlText = '&order=';
+export const filterCategoryText = '&category=';
+export const filterLevelText = '&level=';
+export const filterTypeText = '&type=';
+export const filterMinPriceText = '&price_gte=';
+export const filterMaxPriceText = '&price_lte=';
+
+export const removeElemFromArray = (array: string[], elem: string) => {
+  const index = array.indexOf(elem);
+  if (index !== -1) {
+    array.splice(index, 1);
+  }
+};
 

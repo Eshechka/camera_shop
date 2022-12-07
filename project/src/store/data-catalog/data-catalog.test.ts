@@ -1,6 +1,6 @@
 import {Catalog} from './data-catalog';
 import {makeFakeProducts, makeFakePromo} from '../../utils/mocks';
-import {fetchProductsAction, fetchProductsLengthAction, fetchPromoAction} from '../api-actions';
+import {fetchProductsAction, fetchProductsMetaInfoAction, fetchPromoAction} from '../api-actions';
 
 describe('Reducer: Product', () => {
   const products = makeFakeProducts();
@@ -8,6 +8,10 @@ describe('Reducer: Product', () => {
     products: [],
     searchingProducts: [],
     productsLength: null,
+    wholeCatalogMinPrice: null,
+    wholeCatalogMaxPrice: null,
+    productsMinPrice: null,
+    productsMaxPrice: null,
     isDataLoading: false,
     promo: null,
   };
@@ -19,6 +23,10 @@ describe('Reducer: Product', () => {
       .toEqual({
         products: products,
         productsLength: null,
+        wholeCatalogMinPrice: null,
+        wholeCatalogMaxPrice: null,
+        productsMinPrice: null,
+        productsMaxPrice: null,
         isDataLoading: false,
         promo: null,
       });
@@ -30,6 +38,10 @@ describe('Reducer: Product', () => {
       .toEqual({
         products: [],
         productsLength: null,
+        wholeCatalogMinPrice: null,
+        wholeCatalogMaxPrice: null,
+        productsMinPrice: null,
+        productsMaxPrice: null,
         isDataLoading: true,
         promo: null,
       });
@@ -41,29 +53,39 @@ describe('Reducer: Product', () => {
       .toEqual({
         products: [],
         productsLength: null,
+        wholeCatalogMinPrice: null,
+        wholeCatalogMaxPrice: null,
+        productsMinPrice: null,
+        productsMaxPrice: null,
         isDataLoading: false,
         promo: null,
       });
   });
 
-  it('should update products length by load products', () => {
+  it('should update products meta info by load products', () => {
     const state = initialState;
 
-    expect(Catalog.reducer(state, {type: fetchProductsLengthAction.fulfilled.type, payload: products}))
+    expect(Catalog.reducer(state, {type: fetchProductsMetaInfoAction.fulfilled.type, payload: products}))
       .toEqual({
         products: [],
         productsLength: products.length,
+        productsMinPrice: Math.min(...products.map((el) => el.price)),
+        productsMaxPrice: Math.max(...products.map((el) => el.price)),
         isDataLoading: false,
         promo: null,
       });
   });
-  it('should update products length to null if load products rejected', () => {
+  it('should update products meta info to null if load products rejected', () => {
     const state = initialState;
 
-    expect(Catalog.reducer(state, {type: fetchProductsLengthAction.rejected.type}))
+    expect(Catalog.reducer(state, {type: fetchProductsMetaInfoAction.rejected.type}))
       .toEqual({
         products: [],
         productsLength: null,
+        wholeCatalogMinPrice: null,
+        wholeCatalogMaxPrice: null,
+        productsMinPrice: null,
+        productsMaxPrice: null,
         isDataLoading: false,
         promo: null,
       });
@@ -77,6 +99,10 @@ describe('Reducer: Product', () => {
       .toEqual({
         products: [],
         productsLength: null,
+        wholeCatalogMinPrice: null,
+        wholeCatalogMaxPrice: null,
+        productsMinPrice: null,
+        productsMaxPrice: null,
         isDataLoading: false,
         promo: promo,
       });
@@ -88,6 +114,10 @@ describe('Reducer: Product', () => {
       .toEqual({
         products: [],
         productsLength: null,
+        wholeCatalogMinPrice: null,
+        wholeCatalogMaxPrice: null,
+        productsMinPrice: null,
+        productsMaxPrice: null,
         isDataLoading: false,
         promo: null,
       });

@@ -1,13 +1,17 @@
 import { createSlice } from '@reduxjs/toolkit';
 import { NameSpace } from '../../const';
 import { dataCatalog } from '../../types/state';
-import { fetchProductsAction, fetchSearchingProductsAction, fetchProductsLengthAction, fetchPromoAction } from '../api-actions';
+import { fetchProductsAction, fetchSearchingProductsAction, fetchProductsMetaInfoAction, fetchPromoAction } from '../api-actions';
 
 
 const initialState: dataCatalog = {
   products: [],
   searchingProducts: [],
   productsLength: null,
+  wholeCatalogMinPrice: null,
+  wholeCatalogMaxPrice: null,
+  productsMinPrice: null,
+  productsMaxPrice: null,
   isDataLoading: false,
   promo: null,
 };
@@ -15,7 +19,14 @@ const initialState: dataCatalog = {
 export const Catalog = createSlice({
   name: NameSpace.Catalog,
   initialState,
-  reducers: {},
+  reducers: {
+    clearProductsMinPrice: (state) => {
+      state.productsMinPrice = null;
+    },
+    clearProductsMaxPrice: (state) => {
+      state.productsMaxPrice = null;
+    },
+  },
   extraReducers(builder) {
     builder
       .addCase(fetchProductsAction.pending, (state) => {
@@ -35,11 +46,15 @@ export const Catalog = createSlice({
       .addCase(fetchSearchingProductsAction.rejected, (state) => {
         state.searchingProducts = [];
       })
-      .addCase(fetchProductsLengthAction.fulfilled, (state, { payload }) => {
+      .addCase(fetchProductsMetaInfoAction.fulfilled, (state, { payload }) => {
         state.productsLength = payload.length;
+        state.productsMinPrice = payload.length ? Math.min(...payload.map((el) => el.price)) : ('');
+        state.productsMaxPrice = payload.length ? Math.max(...payload.map((el) => el.price)) : '';
       })
-      .addCase(fetchProductsLengthAction.rejected, (state) => {
+      .addCase(fetchProductsMetaInfoAction.rejected, (state) => {
         state.productsLength = null;
+        state.productsMinPrice = null;
+        state.productsMaxPrice = null;
       })
       .addCase(fetchPromoAction.fulfilled, (state, { payload }) => {
         state.promo = payload;
@@ -50,3 +65,4 @@ export const Catalog = createSlice({
   }
 });
 
+export const { clearProductsMinPrice, clearProductsMaxPrice } = Catalog.actions;

@@ -10,39 +10,75 @@ import Modal from '../../components/modal/modal';
 import Pagination from '../../components/pagination/pagination';
 import Spinner from '../../components/spinner/spinner';
 import Svgs from '../../components/svgs/svgs';
-import { AppRoute, MAX_PAGINATION_ELEMS, pageUrlText, SortOrders, sortOrderUrlText, SortTypes, sortTypeUrlText } from '../../const';
+import { AppRoute, filterCategoryText, filterLevelText, filterMaxPriceText, filterMinPriceText, filterTypeText, MAX_PAGINATION_ELEMS, pageUrlText, SortOrders, sortOrderUrlText, SortTypes, sortTypeUrlText } from '../../const';
 import { useAppDispatch, useAppSelector } from '../../hooks';
 import { fetchProductsAction, fetchPromoAction } from '../../store/api-actions';
 import { getLoadingDataStatus, getProducts, getPromo } from '../../store/data-catalog/selectors';
+import { Product } from '../../types/product';
 
 
 type catalogPageProps = {
   maxPages: number|null;
+  setParams: (params: string | null) => void;
 }
 
 function CatalogPage({
   maxPages,
+  setParams,
 }: catalogPageProps): JSX.Element {
   const dispatch = useAppDispatch();
   const location = useLocation();
   const navigate = useNavigate();
 
   const [modalShow, setModalShow] = useState(false);
-  const [sortType, setSortType] = useState('');
-  const [sortOrder, setSortOrder] = useState('');
+  const [sortType, setSortType] = useState<string>('');
+  const [sortOrder, setSortOrder] = useState<string>('');
+  const [filterCategory, setFilterCategory] = useState<string[]>([]);
+  const [filterLevel, setFilterLevel] = useState<string[]>([]);
+  const [filterType, setFilterType] = useState<string[]>([]);
+  const [filterMinPrice, setFilterMinPrice] = useState<''|number>('');
+  const [filterMaxPrice, setFilterMaxPrice] = useState<''|number>('');
 
-  const products = useAppSelector(getProducts);
+  const [fromUrlFilterCategory, setFromUrlFilterCategory] = useState<string[]>([]);
+  const [fromUrlFilterLevel, setFromUrlFilterLevel] = useState<string[]>([]);
+  const [fromUrlFilterType, setFromUrlFilterType] = useState<string[]>([]);
+  const [fromUrlFilterMinPrice, setFromUrlFilterMinPrice] = useState<number|''>('');
+  const [fromUrlFilterMaxPrice, setFromUrlFilterMaxPrice] = useState<number|''>('');
+
+  const fetchedProducts = useAppSelector(getProducts);
   const promo = useAppSelector(getPromo);
   const isDataLoading = useAppSelector(getLoadingDataStatus);
 
   const [currentPage, setCurrentPage] = useState(1);
   const [noPage, setNoPage] = useState(false);
+  const [products, setProducts] = useState<Product[]>([]);
+  const [changeSearchParamsByClick, setChangeSearchParamsByClick] = useState(false);
+
+  const [noProductsFound, setNoProductsFound] = useState(false);
 
   const changePageHandle = (page: number) => {
     const start = MAX_PAGINATION_ELEMS * (page - 1);
     const end = start + MAX_PAGINATION_ELEMS;
-    dispatch(fetchProductsAction(`_start=${start}&_end=${end}&_sort=${sortType}&_order=${sortOrder}`));
-    navigate(`${AppRoute.Catalog}${pageUrlText}${page}${sortType ? sortTypeUrlText + sortType : ''}${sortOrder ? sortOrderUrlText + sortOrder : ''}`);
+    const fCategory = filterCategory.length > 0 ? filterCategory.map((cat) => `&category=${cat}`).join('') : '';
+    const fLevel = filterLevel.length > 0 ? filterLevel.map((cat) => `&level=${cat}`).join('') : '';
+    const fType = filterType.length > 0 ? filterType.map((cat) => `&type=${cat}`).join('') : '';
+    const fMinPrice = (filterMinPrice || filterMinPrice === 0) ? `&price_gte=${filterMinPrice}` : '';
+    const fMaxPrice = (filterMaxPrice || filterMaxPrice === 0) ? `&price_lte=${filterMaxPrice}` : '';
+
+    const fetchUrl = `_start=${start}&_end=${end}&_sort=${sortType}&_order=${sortOrder}${fCategory}${fLevel}${fType}${fMinPrice}${fMaxPrice}`;
+    dispatch(fetchProductsAction(fetchUrl));
+
+    const navUrl = AppRoute.Catalog + pageUrlText + String(page) +
+      (sortType ? sortTypeUrlText + sortType : '') +
+      (sortOrder ? sortOrderUrlText + sortOrder : '') +
+      (filterCategory.length > 0 ? filterCategoryText + filterCategory.join(',') : '') +
+      (filterLevel.length > 0 ? filterLevelText + filterLevel.join(',') : '') +
+      (filterType.length > 0 ? filterTypeText + filterType.join(',') : '') +
+      ((filterMinPrice || filterMinPrice === 0) ? `${filterMinPriceText}${filterMinPrice}` : '') +
+      ((filterMaxPrice || filterMaxPrice === 0) ? `${filterMaxPriceText}${filterMaxPrice}` : '');
+    navigate(navUrl);
+
+    setCurrentPage(page);
   };
 
   const changeSortOrder = (order: string) => {
@@ -50,42 +86,143 @@ function CatalogPage({
       setSortType(SortTypes.Price);
     }
     setSortOrder(order);
+    if (!changeSearchParamsByClick) {
+      setChangeSearchParamsByClick(true);
+    }
   };
   const changeSortType = (type: string) => {
     if (!sortOrder) {
       setSortOrder(SortOrders.Asc);
     }
     setSortType(type);
+    if (!changeSearchParamsByClick) {
+      setChangeSearchParamsByClick(true);
+    }
   };
+
+  const changeFilterCategory = (categories: string[]) => {
+    setFilterCategory(categories);
+    if (!changeSearchParamsByClick) {
+      setChangeSearchParamsByClick(true);
+    }
+  };
+  const changeFilterLevel = (levels: string[]) => {
+    setFilterLevel(levels);
+    if (!changeSearchParamsByClick) {
+      setChangeSearchParamsByClick(true);
+    }
+  };
+  const changeFilterType = (types: string[]) => {
+    setFilterType(types);
+    if (!changeSearchParamsByClick) {
+      setChangeSearchParamsByClick(true);
+    }
+  };
+  const changeFilterMinPrice = (minPrice: number|'') => {
+    setFilterMinPrice(minPrice);
+    if (!changeSearchParamsByClick) {
+      setChangeSearchParamsByClick(true);
+    }
+  };
+  const changeFilterMaxPrice = (maxPrice: number|'') => {
+    setFilterMaxPrice(maxPrice);
+    if (!changeSearchParamsByClick) {
+      setChangeSearchParamsByClick(true);
+    }
+  };
+
+  const resetFilterAll = () => {
+    setFilterCategory([]);
+    setFilterLevel([]);
+    setFilterType([]);
+    setFilterMinPrice('');
+    setFilterMaxPrice('');
+    if (!changeSearchParamsByClick) {
+      setChangeSearchParamsByClick(true);
+    }
+  };
+
+
+  useEffect(() => {
+    // устанавливаем новые параметры запроса для получения общего количества продуктов (length)
+    const fCategory = filterCategory.length > 0 ? filterCategory.map((cat) => `&category=${cat}`).join('') : '';
+    const fLevel = filterLevel.length > 0 ? filterLevel.map((cat) => `&level=${cat}`).join('') : '';
+    const fType = filterType.length > 0 ? filterType.map((cat) => `&type=${cat}`).join('') : '';
+    const fMinPrice = (filterMinPrice || filterMinPrice === 0) ? `&price_gte=${filterMinPrice}` : '';
+    const fMaxPrice = (filterMaxPrice || filterMaxPrice === 0) ? `&price_lte=${filterMaxPrice}` : '';
+
+    setParams(`${fCategory}${fLevel}${fType}${fMinPrice}${fMaxPrice}`);
+
+    if (changeSearchParamsByClick) {
+      changePageHandle(1);
+    } else {
+      setFromUrlFilterCategory(filterCategory);
+      setFromUrlFilterLevel(filterLevel);
+      setFromUrlFilterType(filterType);
+      setFromUrlFilterMinPrice(filterMinPrice);
+      setFromUrlFilterMaxPrice(filterMaxPrice);
+    }
+  }, [filterCategory, filterLevel, filterType, filterMinPrice, filterMaxPrice]); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
     const search = queryString.parse(location.search);
 
-    if (search.order && typeof search.order === 'string') {
-      changeSortOrder(search.order);
+    // Если сортировка есть и она изменилась, то меням страницу пагинации на 1 и fetch products
+    // условия && sortOrder !== search.order нужны при смене maxPages - чтобы не переустанавливать значение sortOrder, которое уже установлено и не менялось
+    if (search.order && typeof search.order === 'string' && sortOrder !== search.order) {
+      if (!sortType && !search.sort) {
+        setSortType(SortTypes.Price);
+      }
+      setSortOrder(search.order);
+    }
+    if (search.sort && typeof search.sort === 'string' && sortType !== search.sort) {
+      if (!sortOrder && !search.order) {
+        setSortOrder(SortOrders.Asc);
+      }
+      setSortType(search.sort);
+    }
+    if (search.category && typeof search.category === 'string') {
+      setFilterCategory(search.category.split(','));
+    }
+    if (search.level && typeof search.level === 'string') {
+      setFilterLevel(search.level.split(','));
     }
     if (search.type && typeof search.type === 'string') {
-      changeSortType(search.type);
+      setFilterType(search.type.split(','));
+    }
+    if (search.price_gte && typeof search.price_gte === 'string') {
+      const normalizedPrice = parseInt(search.price_gte, 10);
+      setFilterMinPrice(normalizedPrice);
+    }
+    if (search.price_lte && typeof search.price_lte === 'string') {
+      const normalizedPrice = parseInt(search.price_lte, 10);
+      setFilterMaxPrice(normalizedPrice);
     }
 
     if (maxPages) {
       // Редирект на 1 страницу, если зашли без ее указания
-      if (location.pathname === AppRoute.Catalog) {
+      if ((location.pathname === AppRoute.Catalog || location.pathname === `${AppRoute.Catalog}/`)
+        && !location.search.startsWith(`${pageUrlText.slice(1)}`)) {
         navigate(`${AppRoute.Catalog}${pageUrlText}1`);
       }
       // Проверяем указанный номер страницы, если он больше максимально возможного - показываем уведомление
-      if (location.pathname.startsWith(`${AppRoute.Catalog}${pageUrlText}`)) {
-        const pageNumber = parseInt(location.pathname.slice(AppRoute.Catalog.length + pageUrlText.length), 10);
+      if (search.page) {
+        const pageNumber = typeof search.page === 'string' ? parseInt(search.page, 10) : 1;
 
         if (pageNumber && pageNumber <= maxPages) {
           changePageHandle(pageNumber);
-          setCurrentPage(pageNumber);
         } else {
           setNoPage(true);
         }
       }
     }
   }, [location.pathname, maxPages]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  useEffect(() => {
+    if (fetchedProducts) {
+      setProducts(fetchedProducts);
+    }
+  }, [fetchedProducts]); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
     dispatch(fetchPromoAction());
@@ -100,8 +237,10 @@ function CatalogPage({
   }, [modalShow]);
 
   useEffect(() => {
-    changePageHandle(1);
-  }, [sortType, sortOrder]);
+    if (changeSearchParamsByClick) {
+      changePageHandle(1);
+    }
+  }, [sortType, sortOrder]); // eslint-disable-line react-hooks/exhaustive-deps
 
   return (
     <React.Fragment>
@@ -134,78 +273,91 @@ function CatalogPage({
                 <div className="container">
                   <h1 className="title title--h2">Каталог фото- и видеотехники</h1>
                   <div className="page-content__columns">
-                    <Aside/>
+                    <Aside
+                      fromUrlCategories={fromUrlFilterCategory} changeFilterCategory={changeFilterCategory}
+                      fromUrlLevels={fromUrlFilterLevel} changeFilterLevel={changeFilterLevel}
+                      fromUrlTypes={fromUrlFilterType} changeFilterType={changeFilterType}
+                      fromUrlMinPrice={fromUrlFilterMinPrice} changeFilterMinPrice={changeFilterMinPrice}
+                      fromUrlMaxPrice={fromUrlFilterMaxPrice} changeFilterMaxPrice={changeFilterMaxPrice}
+                      resetFilterAll={resetFilterAll}
+                      setNoProductsFound={setNoProductsFound}
+                    />
                     <div className="catalog__content">
-                      <div className="catalog-sort">
-                        <form action="#">
-                          <div className="catalog-sort__inner">
-                            <p className="title title--h5">Сортировать:</p>
-                            <div className="catalog-sort__type">
-                              <div className="catalog-sort__btn-text">
-                                <input
-                                  type="radio" checked={sortType === SortTypes.Price}
-                                  id="sortPrice" name="sort"
-                                  onChange={() => changeSortType(SortTypes.Price)}
-                                />
-                                <label htmlFor="sortPrice">
-                                  по цене
-                                </label>
-                              </div>
-                              <div className="catalog-sort__btn-text">
-                                <input type="radio" checked={sortType === SortTypes.Popular}
-                                  id="sortPopular" name="sort"
-                                  onChange={() => changeSortType(SortTypes.Popular)}
-                                />
-                                <label htmlFor="sortPopular">
-                                  по популярности
-                                </label>
-                              </div>
-                            </div>
-                            <div className="catalog-sort__order">
-                              <div className="catalog-sort__btn catalog-sort__btn--up">
-                                <input
-                                  type="radio" id="up" checked={sortOrder === SortOrders.Asc}
-                                  name="sort-icon"
-                                  aria-label="По возрастанию"
-                                  onChange={() => changeSortOrder(SortOrders.Asc)}
-                                />
-                                <label htmlFor="up">
-                                  <svg width="16" height="14" aria-hidden="true">
-                                    <use xlinkHref="#icon-sort"></use>
-                                  </svg>
-                                </label>
-                              </div>
-                              <div className="catalog-sort__btn catalog-sort__btn--down">
-                                <input
-                                  type="radio" id="down" checked={sortOrder === SortOrders.Desc}
-                                  name="sort-icon"
-                                  aria-label="По убыванию"
-                                  onChange={() => changeSortOrder(SortOrders.Desc)}
-                                />
-                                <label htmlFor="down">
-                                  <svg width="16" height="14" aria-hidden="true">
-                                    <use xlinkHref="#icon-sort"></use>
-                                  </svg>
-                                </label>
-                              </div>
-                            </div>
-                          </div>
-                        </form>
-                      </div>
-                      {isDataLoading
-                        ? <Spinner/>
+                      {noProductsFound
+                        ? 'по вашему запросу ничего не найдено'
                         :
-                        <CardList
-                          classname='cards catalog__cards'
-                          products={products}
-                          onClickBuy={() => setModalShow(true)}
-                        />}
-                      {maxPages && maxPages > 1 &&
-                        <Pagination
-                          currentPage={currentPage}
-                          pages={maxPages}
-                          changePage={changePageHandle}
-                        />}
+                        <>
+                          <div className="catalog-sort">
+                            <form action="#">
+                              <div className="catalog-sort__inner">
+                                <p className="title title--h5">Сортировать:</p>
+                                <div className="catalog-sort__type">
+                                  <div className="catalog-sort__btn-text">
+                                    <input
+                                      type="radio" checked={sortType === SortTypes.Price}
+                                      id="sortPrice" name="sort"
+                                      onChange={() => changeSortType(SortTypes.Price)}
+                                    />
+                                    <label htmlFor="sortPrice">
+                                      по цене
+                                    </label>
+                                  </div>
+                                  <div className="catalog-sort__btn-text">
+                                    <input type="radio" checked={sortType === SortTypes.Popular}
+                                      id="sortPopular" name="sort"
+                                      onChange={() => changeSortType(SortTypes.Popular)}
+                                    />
+                                    <label htmlFor="sortPopular">
+                                      по популярности
+                                    </label>
+                                  </div>
+                                </div>
+                                <div className="catalog-sort__order">
+                                  <div className="catalog-sort__btn catalog-sort__btn--up">
+                                    <input
+                                      type="radio" id="up" checked={sortOrder === SortOrders.Asc}
+                                      name="sort-icon"
+                                      aria-label="По возрастанию"
+                                      onChange={() => changeSortOrder(SortOrders.Asc)}
+                                    />
+                                    <label htmlFor="up">
+                                      <svg width="16" height="14" aria-hidden="true">
+                                        <use xlinkHref="#icon-sort"></use>
+                                      </svg>
+                                    </label>
+                                  </div>
+                                  <div className="catalog-sort__btn catalog-sort__btn--down">
+                                    <input
+                                      type="radio" id="down" checked={sortOrder === SortOrders.Desc}
+                                      name="sort-icon"
+                                      aria-label="По убыванию"
+                                      onChange={() => changeSortOrder(SortOrders.Desc)}
+                                    />
+                                    <label htmlFor="down">
+                                      <svg width="16" height="14" aria-hidden="true">
+                                        <use xlinkHref="#icon-sort"></use>
+                                      </svg>
+                                    </label>
+                                  </div>
+                                </div>
+                              </div>
+                            </form>
+                          </div>
+                          {isDataLoading
+                            ? <Spinner/>
+                            :
+                            <CardList
+                              classname='cards catalog__cards'
+                              products={products}
+                              onClickBuy={() => setModalShow(true)}
+                            />}
+                          {maxPages && maxPages > 1 &&
+                            <Pagination
+                              currentPage={currentPage}
+                              pages={maxPages}
+                              changePage={changePageHandle}
+                            />}
+                        </>}
                     </div>
                   </div>
                 </div>
