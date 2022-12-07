@@ -23,6 +23,9 @@ export const Catalog = createSlice({
     clearProductsMinPrice: (state) => {
       state.productsMinPrice = null;
     },
+    clearProductsMaxPrice: (state) => {
+      state.productsMaxPrice = null;
+    },
   },
   extraReducers(builder) {
     builder
@@ -45,17 +48,17 @@ export const Catalog = createSlice({
       })
       .addCase(fetchProductsMetaInfoAction.fulfilled, (state, { payload }) => {
         state.productsLength = payload.length;
-        console.log('payload: ', payload.length); // eslint-disable-line
-
         state.productsMinPrice = payload.length ? Math.min(...payload.map((el) => el.price)) : ('');
         console.log('Из стейта пришло state.productsMinPrice: ', state.productsMinPrice); // eslint-disable-line
         state.productsMaxPrice = payload.length ? Math.max(...payload.map((el) => el.price)) : '';
+        console.log('Из стейта пришло state.productsMaxPrice: ', state.productsMaxPrice); // eslint-disable-line
       })
       .addCase(fetchProductsMetaInfoAction.rejected, (state) => {
         state.productsLength = null;
         state.productsMinPrice = null;
-        console.log('Из стейта пришло state.productsMinPrice: ', state.productsMinPrice); // eslint-disable-line
+        console.log('Из стейта rejected state.productsMinPrice: ', state.productsMinPrice); // eslint-disable-line
         state.productsMaxPrice = null;
+        console.log('Из стейта rejected state.productsMaxPrice: ', state.productsMaxPrice); // eslint-disable-line
       })
       .addCase(fetchPromoAction.fulfilled, (state, { payload }) => {
         state.promo = payload;
@@ -66,4 +69,4 @@ export const Catalog = createSlice({
   }
 });
 
-export const { clearProductsMinPrice } = Catalog.actions;
+export const { clearProductsMinPrice, clearProductsMaxPrice } = Catalog.actions;

@@ -18,17 +18,6 @@ export const fetchProductsMetaInfoAction = createAsyncThunk<Product[], string | 
     return data;
   },
 );
-export const fetchProductsWholeCatalogPricesAction = createAsyncThunk<Product[], string | undefined, {
-  dispatch: AppDispatch;
-  state: State;
-  extra: AxiosInstance;
-}>(
-  'catalog/fetchProductsWholeCatalogPrices',
-  async (_arg, { dispatch, extra: api }) => {
-    const { data } = await api.get<Product[]>(APIRoute.Products);
-    return data;
-  },
-);
 
 export const fetchProductsAction = createAsyncThunk<Product[], string | undefined, {
   dispatch: AppDispatch;

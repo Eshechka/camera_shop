@@ -10,12 +10,10 @@ import Modal from '../../components/modal/modal';
 import Pagination from '../../components/pagination/pagination';
 import Spinner from '../../components/spinner/spinner';
 import Svgs from '../../components/svgs/svgs';
-import { AppRoute, filterCategoryText, filterLevelText, filterMinPriceText, filterTypeText, MAX_PAGINATION_ELEMS, pageUrlText, SortOrders, sortOrderUrlText, SortTypes, sortTypeUrlText } from '../../const';
+import { AppRoute, filterCategoryText, filterLevelText, filterMaxPriceText, filterMinPriceText, filterTypeText, MAX_PAGINATION_ELEMS, pageUrlText, SortOrders, sortOrderUrlText, SortTypes, sortTypeUrlText } from '../../const';
 import { useAppDispatch, useAppSelector } from '../../hooks';
 import { fetchProductsAction, fetchPromoAction } from '../../store/api-actions';
-import { getLoadingDataStatus, getProducts, getPromo,
-  // getProductsMaxPrice, getProductsMinPrice
-} from '../../store/data-catalog/selectors';
+import { getLoadingDataStatus, getProducts, getPromo } from '../../store/data-catalog/selectors';
 import { Product } from '../../types/product';
 
 
@@ -39,11 +37,13 @@ function CatalogPage({
   const [filterLevel, setFilterLevel] = useState<string[]>([]);
   const [filterType, setFilterType] = useState<string[]>([]);
   const [filterMinPrice, setFilterMinPrice] = useState<''|number>('');
+  const [filterMaxPrice, setFilterMaxPrice] = useState<''|number>('');
 
   const [fromUrlFilterCategory, setFromUrlFilterCategory] = useState<string[]>([]);
   const [fromUrlFilterLevel, setFromUrlFilterLevel] = useState<string[]>([]);
   const [fromUrlFilterType, setFromUrlFilterType] = useState<string[]>([]);
   const [fromUrlFilterMinPrice, setFromUrlFilterMinPrice] = useState<number|''>('');
+  const [fromUrlFilterMaxPrice, setFromUrlFilterMaxPrice] = useState<number|''>('');
 
   const fetchedProducts = useAppSelector(getProducts);
   const promo = useAppSelector(getPromo);
@@ -63,7 +63,9 @@ function CatalogPage({
     const fLevel = filterLevel.length > 0 ? filterLevel.map((cat) => `&level=${cat}`).join('') : '';
     const fType = filterType.length > 0 ? filterType.map((cat) => `&type=${cat}`).join('') : '';
     const fMinPrice = (filterMinPrice || filterMinPrice === 0) ? `&price_gte=${filterMinPrice}` : '';
-    const fetchUrl = `_start=${start}&_end=${end}&_sort=${sortType}&_order=${sortOrder}${fCategory}${fLevel}${fType}${fMinPrice}`;
+    const fMaxPrice = (filterMaxPrice || filterMaxPrice === 0) ? `&price_lte=${filterMaxPrice}` : '';
+
+    const fetchUrl = `_start=${start}&_end=${end}&_sort=${sortType}&_order=${sortOrder}${fCategory}${fLevel}${fType}${fMinPrice}${fMaxPrice}`;
     dispatch(fetchProductsAction(fetchUrl));
 
     const navUrl = AppRoute.Catalog + pageUrlText + String(page) +
@@ -72,7 +74,8 @@ function CatalogPage({
       (filterCategory.length > 0 ? filterCategoryText + filterCategory.join(',') : '') +
       (filterLevel.length > 0 ? filterLevelText + filterLevel.join(',') : '') +
       (filterType.length > 0 ? filterTypeText + filterType.join(',') : '') +
-      ((filterMinPrice || filterMinPrice === 0) ? `${filterMinPriceText}${filterMinPrice}` : '');
+      ((filterMinPrice || filterMinPrice === 0) ? `${filterMinPriceText}${filterMinPrice}` : '') +
+      ((filterMaxPrice || filterMaxPrice === 0) ? `${filterMaxPriceText}${filterMaxPrice}` : '');
     navigate(navUrl);
 
     setCurrentPage(page);
@@ -121,12 +124,19 @@ function CatalogPage({
       setChangeSearchParamsByClick(true);
     }
   };
+  const changeFilterMaxPrice = (maxPrice: number|'') => {
+    setFilterMaxPrice(maxPrice);
+    if (!changeSearchParamsByClick) {
+      setChangeSearchParamsByClick(true);
+    }
+  };
 
   const resetFilterAll = () => {
     setFilterCategory([]);
     setFilterLevel([]);
     setFilterType([]);
     setFilterMinPrice('');
+    setFilterMaxPrice('');
     if (!changeSearchParamsByClick) {
       setChangeSearchParamsByClick(true);
     }
@@ -139,7 +149,9 @@ function CatalogPage({
     const fLevel = filterLevel.length > 0 ? filterLevel.map((cat) => `&level=${cat}`).join('') : '';
     const fType = filterType.length > 0 ? filterType.map((cat) => `&type=${cat}`).join('') : '';
     const fMinPrice = (filterMinPrice || filterMinPrice === 0) ? `&price_gte=${filterMinPrice}` : '';
-    setParams(`${fCategory}${fLevel}${fType}${fMinPrice}`);
+    const fMaxPrice = (filterMaxPrice || filterMaxPrice === 0) ? `&price_lte=${filterMaxPrice}` : '';
+
+    setParams(`${fCategory}${fLevel}${fType}${fMinPrice}${fMaxPrice}`);
 
     if (changeSearchParamsByClick) {
       changePageHandle(1);
@@ -148,8 +160,9 @@ function CatalogPage({
       setFromUrlFilterLevel(filterLevel);
       setFromUrlFilterType(filterType);
       setFromUrlFilterMinPrice(filterMinPrice);
+      setFromUrlFilterMaxPrice(filterMaxPrice);
     }
-  }, [filterCategory, filterLevel, filterType, filterMinPrice]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [filterCategory, filterLevel, filterType, filterMinPrice, filterMaxPrice]); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
     const search = queryString.parse(location.search);
@@ -261,6 +274,7 @@ function CatalogPage({
                       fromUrlLevels={fromUrlFilterLevel} changeFilterLevel={changeFilterLevel}
                       fromUrlTypes={fromUrlFilterType} changeFilterType={changeFilterType}
                       fromUrlMinPrice={fromUrlFilterMinPrice} changeFilterMinPrice={changeFilterMinPrice}
+                      fromUrlMaxPrice={fromUrlFilterMaxPrice} changeFilterMaxPrice={changeFilterMaxPrice}
                       resetFilterAll={resetFilterAll}
                       setNoProductsFound={setNoProductsFound}
                     />
