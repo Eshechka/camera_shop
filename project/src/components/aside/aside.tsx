@@ -47,10 +47,11 @@ function Aside({
   const [maxPriceToDebounce, setMaxPriceToDebounce] = useState<string>('');
   const [minPrice, setMinPrice] = useState<number|''|null>(null);
   const [maxPrice, setMaxPrice] = useState<number|''|null>(null);
+  const [minPlaceholderPrice, setMinPlaceholderPrice] = useState<number|''|null>(null);
+  const [maxPlaceholderPrice, setMaxPlaceholderPrice] = useState<number|''|null>(null);
   const [replacementMinPrice, setReplacementMinPrice] = useState({status: false, value: ''});
   const [replacementMaxPrice, setReplacementMaxPrice] = useState({status: false, value: ''});
   const [isResetClicked, setIsResetClicked] = useState(false);
-  const [changeFilterParamsByClick, setChangeFilterParamsByClick] = useState(false);
 
   const debouncedMinPrice = useDebounce(minPriceToDebounce, TIME_FOR_DEBOUNCE);
   const debouncedMaxPrice = useDebounce(maxPriceToDebounce, TIME_FOR_DEBOUNCE);
@@ -58,23 +59,21 @@ function Aside({
   useEffect(() => {
     if (fromUrlCategories && fromUrlCategories.length) {
       setCategories(fromUrlCategories);
-      if (!changeFilterParamsByClick) {setChangeFilterParamsByClick(true);}
     }
     if (fromUrlLevels && fromUrlLevels.length) {
       setLevels(fromUrlLevels);
-      if (!changeFilterParamsByClick) {setChangeFilterParamsByClick(true);}
     }
     if (fromUrlTypes && fromUrlTypes.length) {
       setTypes(fromUrlTypes);
-      if (!changeFilterParamsByClick) {setChangeFilterParamsByClick(true);}
     }
-    if (fromUrlMinPrice || fromUrlMinPrice === '') {
+    if (fromUrlMinPrice || fromUrlMinPrice === 0) {
       setMinPrice(fromUrlMinPrice);
+      // тоько зашли. Ставим в инпут то, что пришло из урл
       if (minPrice === null) {
         setMinPriceInput(`${fromUrlMinPrice}`);
       }
     }
-    if (fromUrlMaxPrice || fromUrlMaxPrice === '') {
+    if (fromUrlMaxPrice || fromUrlMaxPrice === 0) {
       setMaxPrice(fromUrlMaxPrice);
       if (maxPrice === null) {
         setMaxPriceInput(`${fromUrlMaxPrice}`);
@@ -84,7 +83,6 @@ function Aside({
 
   const changeCategory = (cameraCategory: string) => {
     setIsResetClicked(false);
-    if (!changeFilterParamsByClick) {setChangeFilterParamsByClick(true);}
     const copyCategories = [...categories];
     if (copyCategories.includes(cameraCategory)) {
       removeElemFromArray(copyCategories, cameraCategory);
@@ -96,7 +94,6 @@ function Aside({
   };
   const changeLevel = (cameraLevel: string) => {
     setIsResetClicked(false);
-    if (!changeFilterParamsByClick) {setChangeFilterParamsByClick(true);}
     const copyLevels = [...levels];
     if (copyLevels.includes(cameraLevel)) {
       removeElemFromArray(copyLevels, cameraLevel);
@@ -108,7 +105,6 @@ function Aside({
   };
   const changeType = (cameraType: string) => {
     setIsResetClicked(false);
-    if (!changeFilterParamsByClick) {setChangeFilterParamsByClick(true);}
     const copyTypes = [...types];
     if (copyTypes.includes(cameraType)) {
       removeElemFromArray(copyTypes, cameraType);
@@ -120,26 +116,18 @@ function Aside({
   };
 
   const changeMinPrice = (cameraMinPrice: string) => {
-    if (!changeFilterParamsByClick) {
-      setChangeFilterParamsByClick(true);
-      if (replacementMinPrice.status) {
-        setReplacementMinPrice({status: false, value: ''});
-      }
-    }
     setMinPriceInput(cameraMinPrice);
   };
   const changeMaxPrice = (cameraMaxPrice: string) => {
-    if (!changeFilterParamsByClick) {
-      setChangeFilterParamsByClick(true);
-      if (replacementMaxPrice.status) {
-        setReplacementMaxPrice({status: false, value: ''});
-      }
-    }
     setMaxPriceInput(cameraMaxPrice);
   };
 
   useEffect(() => {
     const normalizedPrice = debouncedMinPrice === '' ? '' : parseInt(debouncedMinPrice, 10);
+    // если дебаунс мин цена больше чем макс цена в инпуте - меняем макс цену на такую же debouncedMinPrice
+    if ((normalizedPrice || normalizedPrice === 0) && maxPriceInput && normalizedPrice > parseInt(maxPriceInput, 10)) {
+      setMaxPriceInput(`${normalizedPrice}`);
+    }
 
     if ((normalizedPrice || normalizedPrice === 0)) {
       setMinPriceInput(`${normalizedPrice}`);
@@ -152,14 +140,15 @@ function Aside({
   }, [debouncedMinPrice]); // eslint-disable-line react-hooks/exhaustive-deps
   useEffect(() => {
     const normalizedPrice = debouncedMaxPrice === '' ? '' : parseInt(debouncedMaxPrice, 10);
+    const changedPrice = (normalizedPrice || normalizedPrice === 0) && minPriceInput ? Math.max(normalizedPrice, parseInt(minPriceInput, 10)) : normalizedPrice;
 
-    if ((normalizedPrice || normalizedPrice === 0)) {
-      setMaxPriceInput(`${normalizedPrice}`);
-      setMaxPrice(normalizedPrice);
+    if ((changedPrice || changedPrice === 0)) {
+      setMaxPriceInput(`${changedPrice}`);
+      setMaxPrice(changedPrice);
       // Очищаем предыдущую ТЕКУЩУЮ мин.цену
       dispatch(clearProductsMaxPrice());
       // В запрос и в Url отправляем цену фильтра
-      changeFilterMaxPrice(normalizedPrice);
+      changeFilterMaxPrice(changedPrice);
     }
   }, [debouncedMaxPrice]); // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -180,24 +169,17 @@ function Aside({
           if (minPriceInput !== '') {
             setMinPriceInput('');
           }
-        } else {
-          // смена не по резету
-          // 1) перешли с другой страницы или только зашли перезагрузкой. НЕ КЛИКАЛИ
-          //    Пришла мин цена по всему каталогу. подсовываем setMinPriceInput('');
-          // 2) что-то вбили в инпут с минценой, дебаунс, запрос, пришла новая минцена. КЛИКАЛИ
-          //    Меняем setMinPrice(productsMinPrice); подсовываем setMinPriceInput(`${productsMinPrice}`);
-          if (changeFilterParamsByClick) {
-            setMinPrice(productsMinPrice);
-            setReplacementMinPrice({status: true, value: `${productsMinPrice}`});
-          } else {
-            setReplacementMinPrice({status: true, value: ''});
-          }
+        } else if ((minPriceInput || parseInt(minPriceInput, 10) === 0) && parseInt(minPriceInput, 10) < productsMinPrice) {
+          // Если в инпуте мин цены что-то есть (юзер вбил ручками) и эта цена меньше, чем ТЕКУЩАЯ минцена, то ставим эту цеу в setMinPrice(productsMinPrice); подсовываем setMinPriceInput(`${productsMinPrice}`);
+          setMinPrice(productsMinPrice);
+          setReplacementMinPrice({status: true, value: `${productsMinPrice}`});
         }
+        setMinPlaceholderPrice(productsMinPrice);
       }
     }
   }, [productsMinPrice]); // eslint-disable-line react-hooks/exhaustive-deps
   useEffect(() => {
-    // Изменилась ТЕКУЩАЯ мин.цена фильтрованных продуктов. Просто меняем мин.цену в инпуте
+    // Изменилась ТЕКУЩАЯ макс.цена фильтрованных продуктов. Просто меняем макс.цену в инпуте
     if (productsMaxPrice !== null) {
       if (productsMaxPrice === '') {
         // пришел пустой список камер. Нет продуктов под текущие параметры. Показываем уведомление "не найдено"
@@ -213,19 +195,12 @@ function Aside({
           if (maxPriceInput !== '') {
             setMaxPriceInput('');
           }
-        } else {
-          // смена не по резету
-          // 1) перешли с другой страницы или только зашли перезагрузкой. НЕ КЛИКАЛИ
-          //    Пришла мин цена по всему каталогу. подсовываем setMaxPriceInput('');
-          // 2) что-то вбили в инпут с минценой, дебаунс, запрос, пришла новая минцена. КЛИКАЛИ
-          //    Меняем setMaxPrice(productsMaxPrice); подсовываем setMaxPriceInput(`${productsMaxPrice}`);
-          if (changeFilterParamsByClick) {
-            setMaxPrice(productsMaxPrice);
-            setReplacementMaxPrice({status: true, value: `${productsMaxPrice}`});
-          } else {
-            setReplacementMaxPrice({status: true, value: ''});
-          }
+        } else if ((maxPriceInput || parseInt(maxPriceInput, 10) === 0) && parseInt(maxPriceInput, 10) < productsMaxPrice) {
+          // Если в инпуте макс цены что-то есть (юзер вбил ручками) и эта цена больше, чем ТЕКУЩАЯ максцена, то ставим эту цеу в setMaxPrice(productsMaxPrice); подсовываем setMaxPriceInput(`${productsMaxPrice}`);
+          setMaxPrice(productsMaxPrice);
+          setReplacementMaxPrice({status: true, value: `${productsMaxPrice}`});
         }
+        setMaxPlaceholderPrice(productsMaxPrice);
       }
     }
   }, [productsMaxPrice]); // eslint-disable-line react-hooks/exhaustive-deps
@@ -255,14 +230,6 @@ function Aside({
     }
   }, [maxPriceInput]); // eslint-disable-line react-hooks/exhaustive-deps
 
-
-  useEffect(() => {
-    if (changeFilterParamsByClick) {
-      dispatch(clearProductsMinPrice());
-      dispatch(clearProductsMaxPrice());
-    }
-  }, [changeFilterParamsByClick]); // eslint-disable-line react-hooks/exhaustive-deps
-
   useEffect(() => {
     if (replacementMinPrice.status === true) {
       setMinPriceInput(replacementMinPrice.value);
@@ -275,12 +242,12 @@ function Aside({
   }, [replacementMaxPrice]);
 
   const resetFilters = () => {
-    if (categories.length || levels.length || types.length || (minPrice || minPrice === 0) || maxPrice) {
+    if (categories.length || levels.length || types.length || minPrice || maxPrice) {
       setCategories([]);
       setLevels([]);
       setTypes([]);
       setIsResetClicked(true);
-      setReplacementMinPrice({status: true, value: ''});// вот тут вопросики - надо именно подменить цен при резете? ведь нет, надо сбросить все к херам
+      setReplacementMinPrice({status: true, value: ''});
       setReplacementMaxPrice({status: true, value: ''});
       dispatch(clearProductsMinPrice());
       dispatch(clearProductsMaxPrice());
@@ -300,7 +267,7 @@ function Aside({
                 <label>
                   <input
                     type="number" name="price"
-                    placeholder="от"
+                    placeholder={minPlaceholderPrice ? `${minPlaceholderPrice}` : 'от'}
                     value={minPriceInput}
                     onChange={(e) => changeMinPrice(e.target.value)}
                   />
@@ -310,7 +277,7 @@ function Aside({
                 <label>
                   <input
                     type="number" name="priceUp"
-                    placeholder="до"
+                    placeholder={maxPlaceholderPrice ? `${maxPlaceholderPrice}` : 'до'}
                     value={maxPriceInput}
                     onChange={(e) => changeMaxPrice(e.target.value)}
                   />

@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { NavLink } from 'react-router-dom';
+import { NavLink, useNavigate } from 'react-router-dom';
 import { AppRoute } from '../../const';
 import { useAppDispatch, useAppSelector } from '../../hooks';
 import useDebounce from '../../hooks/use-debounce/use-debounce';
@@ -9,15 +9,36 @@ import { getSearchingProducts } from '../../store/data-catalog/selectors';
 
 function FormSearch(): JSX.Element {
   const dispatch = useAppDispatch();
+  const navigate = useNavigate();
   const [searchInput, setSearchInput] = useState('');
   const [focused, setFocused] = useState(false);
   const [moused, setMoused] = useState(false);
+  const [tabbeed, setTabbed] = useState(false);
 
   const searchedProducts = useAppSelector(getSearchingProducts);
   const debouncedSearchStr = useDebounce(searchInput, 500);
 
   const clearSearchInput = () => {
     setSearchInput('');
+  };
+  const handleBlurList = (e: React.FocusEvent<HTMLUListElement>) => {
+    if (!e.relatedTarget?.classList.contains('form-search__select-item')) {
+      setTabbed(false);
+    }
+  };
+
+  const handleKeyDownInput = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Tab') {
+      setTabbed(true);
+    }
+  };
+  const handleKeyDownList = (e: React.KeyboardEvent<HTMLUListElement>) => {
+    if (e.key === 'Enter') {
+      const productId = (e.target as HTMLInputElement).children[0].attributes[2].nodeValue;
+      if (productId) {
+        navigate(`${productId}`);
+      }
+    }
   };
 
   useEffect(() => {
@@ -43,11 +64,12 @@ function FormSearch(): JSX.Element {
             placeholder="Поиск по сайту"
             value={searchInput}
             onChange={(e) => setSearchInput(e.currentTarget.value)}
+            onKeyDown={handleKeyDownInput}
             onFocus={() => setFocused(true)}
             onBlur={() => setFocused(false)}
           />
         </label>
-        {(focused || moused) && searchInput && searchedProducts &&
+        {(focused || moused || tabbeed) && searchInput && searchedProducts &&
         <ul
           className="form-search__select-list"
           style={{
@@ -56,6 +78,8 @@ function FormSearch(): JSX.Element {
           }}
           onMouseOver={() => setMoused(true)}
           onMouseLeave={() => setMoused(false)}
+          onKeyDown={handleKeyDownList} // eslint-disable-line
+          onBlur={handleBlurList}
         >
           {searchedProducts.length === 0 && <li className="form-search__select-item">Ничего не найдено</li>}
           {searchedProducts.map((product) => (
@@ -65,6 +89,7 @@ function FormSearch(): JSX.Element {
               tabIndex={0}
             >
               <NavLink
+                tabIndex={-1}
                 onClick={clearSearchInput}
                 to={`${AppRoute.Product}/${product.id}`}
                 style={{
