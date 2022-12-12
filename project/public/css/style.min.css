@@ -1306,13 +1306,14 @@ button {
   -o-transition: opacity .3s ease;
   transition: opacity .3s ease
 }
-
-.form-search .scroller::-webkit-scrollbar {
+.form-search__select-list::-webkit-scrollbar {
   width: 12px;
   border-radius: 8px
 }
-
-.form-search .scroller::-webkit-scrollbar-thumb {
+.form-search__select-list::-webkit-scrollbar-track {
+  background: transparent;        /* цвет зоны отслеживания */
+}
+.form-search__select-list::-webkit-scrollbar-thumb {
   background: #b4b4d7;
   background-clip: content-box;
   border: 4px solid transparent;
