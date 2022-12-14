@@ -283,6 +283,8 @@ function CatalogPage({
                       fromUrlMinPrice={fromUrlFilterMinPrice} changeFilterMinPrice={changeFilterMinPrice}
                       fromUrlMaxPrice={fromUrlFilterMaxPrice} changeFilterMaxPrice={changeFilterMaxPrice}
                       resetFilterAll={resetFilterAll}
+                      setClearFilterMinPrice={() => setFilterMinPrice('')}
+                      setClearFilterMaxPrice={() => setFilterMaxPrice('')}
                       setNoProductsFound={setNoProductsFound}
                     />
                     <div className="catalog__content">
