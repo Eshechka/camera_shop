@@ -17,6 +17,8 @@ type asidePageProps = {
   changeFilterMinPrice: (minPrice: number|'') => void;
   changeFilterMaxPrice: (maxPrice: number|'') => void;
   resetFilterAll: () => void;
+  setClearFilterMinPrice: () => void;
+  setClearFilterMaxPrice: () => void;
   setNoProductsFound: (val: boolean) => void;
 }
 
@@ -32,6 +34,8 @@ function Aside({
   changeFilterMinPrice,
   changeFilterMaxPrice,
   resetFilterAll,
+  setClearFilterMinPrice,
+  setClearFilterMaxPrice,
   setNoProductsFound,
 }: asidePageProps): JSX.Element {
   const dispatch = useAppDispatch();
@@ -195,7 +199,7 @@ function Aside({
           if (maxPriceInput !== '') {
             setMaxPriceInput('');
           }
-        } else if ((maxPriceInput || parseInt(maxPriceInput, 10) === 0) && parseInt(maxPriceInput, 10) < productsMaxPrice) {
+        } else if ((maxPriceInput || parseInt(maxPriceInput, 10) === 0) && parseInt(maxPriceInput, 10) > productsMaxPrice) {
           // Если в инпуте макс цены что-то есть (юзер вбил ручками) и эта цена больше, чем ТЕКУЩАЯ максцена, то ставим эту цеу в setMaxPrice(productsMaxPrice); подсовываем setMaxPriceInput(`${productsMaxPrice}`);
           setMaxPrice(productsMaxPrice);
           setReplacementMaxPrice({status: true, value: `${productsMaxPrice}`});
@@ -210,6 +214,8 @@ function Aside({
     if (replacementMinPrice.status === false) {
       if (minPriceInput === debouncedMinPrice && productsMinPrice && (parseInt(minPriceInput, 10) < productsMinPrice)) {
         setReplacementMinPrice({status: true, value: `${productsMinPrice}`});
+      } else if (minPriceInput === '') {
+        setClearFilterMinPrice();
       } else {
         setMinPriceToDebounce(minPriceInput);
       }
@@ -220,8 +226,10 @@ function Aside({
   useEffect(() => {
     // Изменилась MAX цена в инпуте. Тут решаем, надо ли дальше ее дебаунсить и запускать весь процесс ее обработки или мы просто принудительно ее сменили
     if (replacementMaxPrice.status === false) {
-      if (maxPriceInput === debouncedMaxPrice && productsMaxPrice && (parseInt(maxPriceInput, 10) < productsMaxPrice)) {
+      if (maxPriceInput === debouncedMaxPrice && productsMaxPrice && (parseInt(maxPriceInput, 10) > productsMaxPrice)) {
         setReplacementMaxPrice({status: true, value: `${productsMaxPrice}`});
+      } else if (maxPriceInput === '') {
+        setClearFilterMaxPrice();
       } else {
         setMaxPriceToDebounce(maxPriceInput);
       }
