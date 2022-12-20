@@ -21,6 +21,7 @@ export enum APIRoute {
 export enum NameSpace {
   Product = 'PRODUCT',
   Catalog = 'CATALOG',
+  Basket = 'BASKET',
 }
 
 export enum SortTypes {

@@ -13,7 +13,7 @@ type cardItemProps = {
   previewImgWebp: string;
   previewImgWebp2x: string;
   classname?: string;
-  onClickBuy: (() => void) | undefined;
+  onClickBuy: ((product: number) => void) | undefined;
 }
 
 function CardItem({
@@ -54,10 +54,11 @@ function CardItem({
         <button
           className="btn btn--purple product-card__btn"
           type="button"
-          onClick={onClickBuy ? onClickBuy : undefined}
+          onClick={onClickBuy ? () => onClickBuy(id) : undefined}
         >Купить
         </button>
         <NavLink className="btn btn--transparent" to={`${AppRoute.Product}/${id}`}>Подробнее</NavLink>
+        <button className="btn btn--purple-border">В корзине</button>
       </div>
     </div>
   );

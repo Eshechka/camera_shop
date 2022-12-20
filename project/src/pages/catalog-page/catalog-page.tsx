@@ -15,6 +15,8 @@ import { useAppDispatch, useAppSelector } from '../../hooks';
 import { fetchProductsAction, fetchPromoAction } from '../../store/api-actions';
 import { getLoadingDataStatus, getProducts, getPromo } from '../../store/data-catalog/selectors';
 import { Product } from '../../types/product';
+import { addProductToBasket } from '../../store/data-basket/data-basket';
+import { getBasketProducts } from '../../store/data-basket/selectors';
 
 
 type catalogPageProps = {
@@ -48,6 +50,7 @@ function CatalogPage({
   const fetchedProducts = useAppSelector(getProducts);
   const promo = useAppSelector(getPromo);
   const isDataLoading = useAppSelector(getLoadingDataStatus);
+  const basketProducts = useAppSelector(getBasketProducts);
 
   const [currentPage, setCurrentPage] = useState(1);
   const [noPage, setNoPage] = useState(false);
@@ -228,6 +231,10 @@ function CatalogPage({
   }, [fetchedProducts]); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
+    console.log('basketProducts: ', basketProducts); // eslint-disable-line
+  }, [basketProducts]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  useEffect(() => {
     dispatch(fetchPromoAction());
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -244,6 +251,12 @@ function CatalogPage({
       changePageHandle(1);
     }
   }, [sortType, sortOrder]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  const onClickBuyProduct = (productId: number) => {
+    setModalShow(true);
+    dispatch(addProductToBasket(productId));
+    console.log('productId', productId); // eslint-disable-line
+  };
 
   return (
     <React.Fragment>
@@ -354,7 +367,7 @@ function CatalogPage({
                             <CardList
                               classname='cards catalog__cards'
                               products={products}
-                              onClickBuy={() => setModalShow(true)}
+                              onClickBuy={onClickBuyProduct}
                             />}
                           {maxPages && maxPages > 1 &&
                             <Pagination

@@ -119,6 +119,12 @@ function ProductPage(): JSX.Element {
     setModalThanxAddReviewShow(false);
   };
 
+  const onClickBuyProduct = (productId: number) => {
+    setModalAddToBasketShow(true);
+    // dispatch(addProductToBasket(product));
+    console.log('productId', productId); // eslint-disable-line
+  };
+
   return (
     <React.Fragment>
       <div className="visually-hidden">
@@ -209,7 +215,7 @@ function ProductPage(): JSX.Element {
                           classname='product-similar__slider-list'
                           products={sliderSimilarProducts}
                           activeIds={activeIds}
-                          onClickBuy={() => setModalAddToBasketShow(true)}
+                          onClickBuy={onClickBuyProduct}
                         />
                         <button
                           className="slider-controls slider-controls--prev"

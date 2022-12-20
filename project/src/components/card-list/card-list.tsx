@@ -5,7 +5,7 @@ type cardListProps = {
   classname?: string;
   products: Product[];
   activeIds?: number[];
-  onClickBuy?: () => void;
+  onClickBuy?: (id: number) => void;
 }
 
 function CardList({
