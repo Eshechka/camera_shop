@@ -16,6 +16,7 @@ export type dataCatalog = {
 };
 export type dataBasket = {
   products: Basket[];
+  clickedProduct: Product | null;
 };
 export type dataProduct = {
   product: Product | null;

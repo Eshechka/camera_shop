@@ -1,7 +1,9 @@
 import React from 'react';
+import { NavLink } from 'react-router-dom';
 import Footer from '../../components/footer/footer';
 import Header from '../../components/header/header';
 import Svgs from '../../components/svgs/svgs';
+import { AppRoute } from '../../const';
 
 
 function BasketPage(): JSX.Element {
@@ -18,18 +20,18 @@ function BasketPage(): JSX.Element {
               <div className="container">
                 <ul className="breadcrumbs__list">
                   <li className="breadcrumbs__item">
-                    <a className="breadcrumbs__link" href="index.html">Главная
+                    <NavLink className="breadcrumbs__link" to={AppRoute.Root}>Главная
                       <svg width="5" height="8" aria-hidden="true">
                         <use xlinkHref="#icon-arrow-mini"></use>
                       </svg>
-                    </a>
+                    </NavLink>
                   </li>
                   <li className="breadcrumbs__item">
-                    <a className="breadcrumbs__link" href="catalog.html">Каталог
+                    <NavLink className="breadcrumbs__link" to={AppRoute.Root}>Каталог
                       <svg width="5" height="8" aria-hidden="true">
                         <use xlinkHref="#icon-arrow-mini"></use>
                       </svg>
-                    </a>
+                    </NavLink>
                   </li>
                   <li className="breadcrumbs__item"><span className="breadcrumbs__link breadcrumbs__link--active">Корзина</span>
                   </li>

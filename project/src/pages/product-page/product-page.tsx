@@ -17,6 +17,7 @@ import { getIsReviewAdded, getProduct, getProductReviews, getSimilarProducts } f
 import { Product } from '../../types/product';
 import { Review } from '../../types/review';
 import AddReviewForm from '../../components/add-review-form/add-review-form';
+import { addProductToBasket } from '../../store/data-basket/data-basket';
 
 
 function ProductPage(): JSX.Element {
@@ -41,6 +42,7 @@ function ProductPage(): JSX.Element {
   const [modalAddToBasketShow, setModalAddToBasketShow] = useState(false);
   const [modalAddReviewShow, setModalAddReviewShow] = useState(false);
   const [modalThanxAddReviewShow, setModalThanxAddReviewShow] = useState(false);
+  const [modalDoneAddToBasketShow, setModalDoneAddToBasketShow] = useState(false);
 
   const showMore = () => {
     const end = showedReviews.length + PLUS_REVIEW_ELEMS;
@@ -107,23 +109,24 @@ function ProductPage(): JSX.Element {
   }, [showedReviews]); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
-    if (modalAddToBasketShow || modalAddReviewShow || modalThanxAddReviewShow) {
+    if (modalAddToBasketShow || modalAddReviewShow || modalThanxAddReviewShow || modalDoneAddToBasketShow) {
       document.body.style.overflow = 'hidden';
     } else {
       document.body.style.overflow = 'unset';
     }
-  }, [modalAddToBasketShow, modalAddReviewShow, modalThanxAddReviewShow]);
+  }, [modalAddToBasketShow, modalAddReviewShow, modalThanxAddReviewShow, modalDoneAddToBasketShow]);
 
   const onCloseThanxAddReviev = () => {
     dispatch(clearIsReviewAdded());
     setModalThanxAddReviewShow(false);
   };
 
-  const onClickBuyProduct = (productId: number) => {
-    setModalAddToBasketShow(true);
-    // dispatch(addProductToBasket(product));
-    console.log('productId', productId); // eslint-disable-line
+  const onClickBuyProduct = () => {
+    setModalAddToBasketShow(false);
+    setModalDoneAddToBasketShow(true);
+    dispatch(addProductToBasket(id));
   };
+
 
   return (
     <React.Fragment>
@@ -176,10 +179,14 @@ function ProductPage(): JSX.Element {
                         <p className="rate__count"><span className="visually-hidden">Всего оценок:</span>{product.reviewCount}</p>
                       </div>
                       <p className="product__price"><span className="visually-hidden">Цена:</span>{product.price} ₽</p>
-                      <button className="btn btn--purple" type="button">
+                      <button className="btn btn--purple"
+                        type="button"
+                        onClick={() => setModalAddToBasketShow(true)}
+                      >
                         <svg width="24" height="16" aria-hidden="true">
                           <use xlinkHref="#icon-add-basket"></use>
-                        </svg>Добавить в корзину
+                        </svg>
+                        Добавить в корзину
                       </button>
                       <Tabs tabTitles={['Характеристики', 'Описание']}>
                         <ul className="product__tabs-list">
@@ -294,9 +301,47 @@ function ProductPage(): JSX.Element {
               </div>
             </div>}
 
-          {modalAddToBasketShow &&
+          {modalAddToBasketShow && product &&
             <Modal
               onClose={() => setModalAddToBasketShow(false)}
+            >
+              <p className="title title--h4">Добавить товар в корзину</p>
+              <div className="basket-item basket-item--short">
+                <div className="basket-item__img">
+                  <picture>
+                    <source type="image/webp" srcSet={`${product.previewImgWebp}, ${product.previewImgWebp2x} 2x`} />
+                    <img src={product.previewImg} srcSet={`${product.previewImg} 2x`} width="140" height="120" alt={product.name} />
+                  </picture>
+                </div>
+                <div className="basket-item__description">
+                  <p className="basket-item__title">{product.name}</p>
+                  <ul className="basket-item__list">
+                    <li className="basket-item__list-item">
+                      <span className="basket-item__article">Артикул:</span>
+                      <span className="basket-item__number">{product.vendorCode}</span>
+                    </li>
+                    <li className="basket-item__list-item">{product.type} {product.category === 'Фотоаппарат' ? 'фотокамера' : product.category.toLowerCase()}</li>
+                    <li className="basket-item__list-item">{product.level} уровень</li>
+                  </ul>
+                  <p className="basket-item__price"><span className="visually-hidden">Цена:</span>{product.price} ₽</p>
+                </div>
+              </div>
+              <div className="modal__buttons">
+                <button
+                  className="btn btn--purple modal__btn modal__btn--fit-width"
+                  type="button"
+                  onClick={onClickBuyProduct}
+                >
+                  <svg width="24" height="16" aria-hidden="true">
+                    <use xlinkHref="#icon-add-basket"></use>
+                  </svg>Добавить в корзину
+                </button>
+              </div>
+            </Modal>}
+
+          {modalDoneAddToBasketShow &&
+            <Modal
+              onClose={() => setModalDoneAddToBasketShow(false)}
               classname="modal--narrow"
             >
               <p className="title title--h4">Товар успешно добавлен в корзину</p>
@@ -304,11 +349,12 @@ function ProductPage(): JSX.Element {
                 <use xlinkHref="#icon-success"></use>
               </svg>
               <div className="modal__buttons">
-                <button
+                {/* <button
                   className="btn btn--transparent modal__btn"
-                  onClick={() => setModalAddToBasketShow(false)}
+                  onClick={() => setModalDoneAddToBasketShow(false)}
                 >Продолжить покупки
-                </button>
+                </button> */}
+                <NavLink className="btn btn btn--transparent modal__btn" to={AppRoute.Catalog}>Продолжить покупки</NavLink>
                 <NavLink className="btn btn--purple modal__btn modal__btn--fit-width" to={AppRoute.Basket}>Перейти в корзину</NavLink>
               </div>
             </Modal>}

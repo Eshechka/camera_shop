@@ -28,6 +28,7 @@ function CardList({
           previewImg2x={product.previewImg2x}
           previewImgWebp={product.previewImgWebp}
           previewImgWebp2x={product.previewImgWebp2x}
+          inBasket={product.inBasket !== undefined ? product.inBasket : false}
           classname={activeIds && activeIds.includes(product.id) ? 'is-active' : ''}
           onClickBuy={onClickBuy ? onClickBuy : undefined}
         />))}
