@@ -55,6 +55,18 @@ export const fetchProductByIdAction = createAsyncThunk<Product[], number, {
   },
 );
 
+export const fetchProductsByIdsAction = createAsyncThunk<Product[], string, {
+  dispatch: AppDispatch;
+  state: State;
+  extra: AxiosInstance;
+}>(
+  'basket/fetchProductsByIds',
+  async (ids, { dispatch, extra: api }) => {
+    const { data } = await api.get<Product[]>(`${APIRoute.Products}?${ids}`);
+    return data;
+  },
+);
+
 export const fetchPromoAction = createAsyncThunk<Promo, undefined, {
   dispatch: AppDispatch;
   state: State;

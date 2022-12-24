@@ -1,12 +1,20 @@
 import { createSlice } from '@reduxjs/toolkit';
 import { NameSpace } from '../../const';
 import { dataBasket } from '../../types/state';
-import { fetchProductByIdAction } from '../api-actions';
+import { fetchProductByIdAction, fetchProductsByIdsAction } from '../api-actions';
 
+
+type changePayloadType = {
+  payload: {
+    productId: number;
+    newAmount: number;
+  };
+}
 
 const initialState: dataBasket = {
-  products: [],
+  productIdsWAmount: [],
   clickedProduct: null,
+  basketProducts: [],
 };
 
 export const Basket = createSlice({
@@ -14,15 +22,25 @@ export const Basket = createSlice({
   initialState,
   reducers: {
     addProductToBasket: (state, action) => {
-      const foundProductIndex = state.products.findIndex((productObj) => productObj.id === +action.payload);
+      const foundProductIndex = state.productIdsWAmount.findIndex((productObj) => productObj.id === +action.payload);
       if (foundProductIndex !== -1) {
-        state.products[foundProductIndex].amount++;
+        state.productIdsWAmount[foundProductIndex].amount++;
       } else {
-        state.products.push({id: +action.payload, amount: 1});
+        state.productIdsWAmount.push({id: +action.payload, amount: 1});
       }
+    },
+    changeProductAmountInBasket: (state, { payload }: changePayloadType) => {
+      const foundProductIndex = state.productIdsWAmount.findIndex((productObj) => productObj.id === payload.productId);
+      state.productIdsWAmount[foundProductIndex].amount = payload.newAmount;
+    },
+    removeProductFromBasket: (state, action) => {
+      state.productIdsWAmount = state.productIdsWAmount.filter((product) => product.id !== +action.payload);
     },
     clearClickedProduct: (state) => {
       state.clickedProduct = null;
+    },
+    clearProductIdsWAmount: (state) => {
+      state.basketProducts = [];
     },
   },
   extraReducers(builder) {
@@ -37,8 +55,14 @@ export const Basket = createSlice({
       .addCase(fetchProductByIdAction.rejected, (state) => {
         state.clickedProduct = null;
         // state.isDataLoading = false;
+      })
+      .addCase(fetchProductsByIdsAction.fulfilled, (state, { payload }) => {
+        state.basketProducts = payload;
+      })
+      .addCase(fetchProductsByIdsAction.rejected, (state) => {
+        state.basketProducts = [];
       });
   }
 });
 
-export const { addProductToBasket, clearClickedProduct } = Basket.actions;
+export const { addProductToBasket, clearClickedProduct, clearProductIdsWAmount, removeProductFromBasket, changeProductAmountInBasket } = Basket.actions;

@@ -14,5 +14,6 @@ export type Product = {
   previewImgWebp2x: string;
   reviewCount: number;
   inBasket?: boolean;
+  amount?: number;
 };
 

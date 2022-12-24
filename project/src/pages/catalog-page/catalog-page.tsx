@@ -16,7 +16,7 @@ import { fetchProductByIdAction, fetchProductsAction, fetchPromoAction } from '.
 import { getLoadingDataStatus, getProducts, getPromo } from '../../store/data-catalog/selectors';
 import { Product } from '../../types/product';
 import { addProductToBasket, clearClickedProduct } from '../../store/data-basket/data-basket';
-import { getBasketProducts, getProductById } from '../../store/data-basket/selectors';
+import { getBasketProductIdsWAmount, getProductById } from '../../store/data-basket/selectors';
 
 
 type catalogPageProps = {
@@ -52,7 +52,7 @@ function CatalogPage({
   const fetchedProducts = useAppSelector(getProducts);
   const promo = useAppSelector(getPromo);
   const isDataLoading = useAppSelector(getLoadingDataStatus);
-  const basketProducts = useAppSelector(getBasketProducts);
+  const basketProducts = useAppSelector(getBasketProductIdsWAmount);
   const clickedProduct = useAppSelector(getProductById);
 
   const [currentPage, setCurrentPage] = useState(1);

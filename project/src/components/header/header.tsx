@@ -2,11 +2,11 @@ import { useEffect, useState } from 'react';
 import { NavLink } from 'react-router-dom';
 import { AppRoute } from '../../const';
 import { useAppSelector } from '../../hooks';
-import { getBasketProducts } from '../../store/data-basket/selectors';
+import { getBasketProductIdsWAmount } from '../../store/data-basket/selectors';
 import FormSearch from '../form-search/form-search';
 
 function Header(): JSX.Element {
-  const basketProducts = useAppSelector(getBasketProducts);
+  const basketProducts = useAppSelector(getBasketProductIdsWAmount);
   const [basketProductsAmount, setBasketProductsAmount] = useState(0);
 
   useEffect(() => {
