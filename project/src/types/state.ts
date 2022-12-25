@@ -18,6 +18,7 @@ export type dataBasket = {
   productIdsWAmount: Basket[];
   clickedProduct: Product | null;
   basketProducts: Product[];
+  isOrderMade: boolean | null;
 };
 export type dataProduct = {
   product: Product | null;

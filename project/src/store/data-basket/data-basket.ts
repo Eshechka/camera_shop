@@ -1,7 +1,7 @@
 import { createSlice } from '@reduxjs/toolkit';
 import { NameSpace } from '../../const';
 import { dataBasket } from '../../types/state';
-import { fetchProductByIdAction, fetchProductsByIdsAction } from '../api-actions';
+import { fetchProductByIdAction, fetchProductsByIdsAction, makeOrderAction } from '../api-actions';
 
 
 type changePayloadType = {
@@ -15,6 +15,7 @@ const initialState: dataBasket = {
   productIdsWAmount: [],
   clickedProduct: null,
   basketProducts: [],
+  isOrderMade: null,
 };
 
 export const Basket = createSlice({
@@ -40,21 +41,28 @@ export const Basket = createSlice({
       state.clickedProduct = null;
     },
     clearProductIdsWAmount: (state) => {
+      state.productIdsWAmount = [];
+    },
+    clearBasketProducts: (state) => {
       state.basketProducts = [];
+    },
+    clearIsOrderMade: (state) => {
+      state.isOrderMade = null;
     },
   },
   extraReducers(builder) {
     builder
-    //   .addCase(fetchProductsAction.pending, (state) => {
-    //     state.isDataLoading = true;
-    //   })
+      .addCase(makeOrderAction.fulfilled, (state, {payload}) => {
+        state.isOrderMade = true;
+      })
+      .addCase(makeOrderAction.rejected, (state) => {
+        state.isOrderMade = false;
+      })
       .addCase(fetchProductByIdAction.fulfilled, (state, { payload }) => {
         state.clickedProduct = payload[0];
-        // state.isDataLoading = false;
       })
       .addCase(fetchProductByIdAction.rejected, (state) => {
         state.clickedProduct = null;
-        // state.isDataLoading = false;
       })
       .addCase(fetchProductsByIdsAction.fulfilled, (state, { payload }) => {
         state.basketProducts = payload;
@@ -65,4 +73,4 @@ export const Basket = createSlice({
   }
 });
 
-export const { addProductToBasket, clearClickedProduct, clearProductIdsWAmount, removeProductFromBasket, changeProductAmountInBasket } = Basket.actions;
+export const { addProductToBasket, clearClickedProduct, clearProductIdsWAmount, clearBasketProducts, removeProductFromBasket, changeProductAmountInBasket, clearIsOrderMade } = Basket.actions;
