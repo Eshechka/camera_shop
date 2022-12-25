@@ -16,11 +16,13 @@ export enum APIRoute {
   Reviews = '/reviews',
   Similar = '/similar',
   Promo = '/promo',
+  Orders = '/orders',
 }
 
 export enum NameSpace {
   Product = 'PRODUCT',
   Catalog = 'CATALOG',
+  Basket = 'BASKET',
 }
 
 export enum SortTypes {
@@ -32,6 +34,12 @@ export enum SortOrders {
   Asc = 'asc',
   Desc = 'desc',
 }
+
+export const PromoCodes = [
+  {name: 'camera-333', discount: 3},
+  {name: 'camera-444', discount: 4},
+  {name: 'camera-555', discount: 5},
+];
 
 export const MAX_SLIDER_ELEMS = 3;
 export const PLUS_REVIEW_ELEMS = 3;

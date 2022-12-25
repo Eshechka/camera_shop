@@ -12,8 +12,9 @@ type cardItemProps = {
   previewImg2x: string;
   previewImgWebp: string;
   previewImgWebp2x: string;
+  inBasket: boolean;
   classname?: string;
-  onClickBuy: (() => void) | undefined;
+  onClickBuy: ((product: number) => void) | undefined;
 }
 
 function CardItem({
@@ -26,6 +27,7 @@ function CardItem({
   previewImg2x,
   previewImgWebp,
   previewImgWebp2x,
+  inBasket,
   classname,
   onClickBuy,
 }: cardItemProps): JSX.Element {
@@ -51,12 +53,15 @@ function CardItem({
         <p className="product-card__price"><span className="visually-hidden">Цена:</span>{price} ₽</p>
       </div>
       <div className="product-card__buttons">
-        <button
-          className="btn btn--purple product-card__btn"
-          type="button"
-          onClick={onClickBuy ? onClickBuy : undefined}
-        >Купить
-        </button>
+        {!inBasket &&
+          <button
+            className="btn btn--purple product-card__btn"
+            type="button"
+            onClick={onClickBuy ? () => onClickBuy(id) : undefined}
+          >
+            Купить
+          </button>}
+        {inBasket && <button className="btn btn--purple-border">В корзине</button>}
         <NavLink className="btn btn--transparent" to={`${AppRoute.Product}/${id}`}>Подробнее</NavLink>
       </div>
     </div>

@@ -6,6 +6,7 @@ import { Product } from '../types/product';
 import { Promo } from '../types/promo.js';
 import { Review } from '../types/review.js';
 import { ReviewFormData } from '../types/reviewFormData.js';
+import { OrderFormData } from '../types/orderFormData.js';
 
 export const fetchProductsMetaInfoAction = createAsyncThunk<Product[], string | undefined, {
   dispatch: AppDispatch;
@@ -39,6 +40,30 @@ export const fetchSearchingProductsAction = createAsyncThunk<Product[], string |
   'catalog/fetchSearchingProducts',
   async (params, { dispatch, extra: api }) => {
     const { data } = await api.get<Product[]>(`${APIRoute.Products}${params ? `?${params}` : ''}`);
+    return data;
+  },
+);
+
+export const fetchProductByIdAction = createAsyncThunk<Product[], number, {
+  dispatch: AppDispatch;
+  state: State;
+  extra: AxiosInstance;
+}>(
+  'basket/fetchProductById',
+  async (id, { dispatch, extra: api }) => {
+    const { data } = await api.get<Product[]>(`${APIRoute.Products}${`?id=${id}`}`);
+    return data;
+  },
+);
+
+export const fetchProductsByIdsAction = createAsyncThunk<Product[], string, {
+  dispatch: AppDispatch;
+  state: State;
+  extra: AxiosInstance;
+}>(
+  'basket/fetchProductsByIds',
+  async (ids, { dispatch, extra: api }) => {
+    const { data } = await api.get<Product[]>(`${APIRoute.Products}?${ids}`);
     return data;
   },
 );
@@ -99,6 +124,18 @@ export const addProductReviewAction = createAsyncThunk<Review, ReviewFormData, {
   'product/addReview',
   async (formData, { dispatch, extra: api }) => {
     const { data } = await api.post<Review>(APIRoute.Reviews, formData);
+    return data;
+  },
+);
+
+export const makeOrderAction = createAsyncThunk<string, OrderFormData, {
+  dispatch: AppDispatch;
+  state: State;
+  extra: AxiosInstance;
+}>(
+  'product/makeOrder',
+  async (formData, { dispatch, extra: api }) => {
+    const { data } = await api.post<string>(APIRoute.Orders, formData);
     return data;
   },
 );

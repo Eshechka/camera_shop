@@ -1,4 +1,5 @@
 import { store } from '../store/index.js';
+import { Basket } from './basket.js';
 
 import { Product } from './product.js';
 import { Promo } from './promo.js';
@@ -12,6 +13,12 @@ export type dataCatalog = {
   productsMaxPrice: number | '' | null;
   isDataLoading: boolean;
   promo: Promo | null;
+};
+export type dataBasket = {
+  productIdsWAmount: Basket[];
+  clickedProduct: Product | null;
+  basketProducts: Product[];
+  isOrderMade: boolean | null;
 };
 export type dataProduct = {
   product: Product | null;

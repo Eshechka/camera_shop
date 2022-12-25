@@ -26,6 +26,12 @@ const store = mockStore({
     isDataLoading: false,
     promo: null,
   },
+  BASKET: {
+    productIdsWAmount: [],
+    clickedProduct: null,
+    basketProducts: [],
+    isOrderMade: null,
+  },
 });
 
 describe('Component: BasketPage', () => {

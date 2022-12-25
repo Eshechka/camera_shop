@@ -12,9 +12,11 @@ import Spinner from '../../components/spinner/spinner';
 import Svgs from '../../components/svgs/svgs';
 import { AppRoute, filterCategoryText, filterLevelText, filterMaxPriceText, filterMinPriceText, filterTypeText, MAX_PAGINATION_ELEMS, pageUrlText, SortOrders, sortOrderUrlText, SortTypes, sortTypeUrlText } from '../../const';
 import { useAppDispatch, useAppSelector } from '../../hooks';
-import { fetchProductsAction, fetchPromoAction } from '../../store/api-actions';
+import { fetchProductByIdAction, fetchProductsAction, fetchPromoAction } from '../../store/api-actions';
 import { getLoadingDataStatus, getProducts, getPromo } from '../../store/data-catalog/selectors';
 import { Product } from '../../types/product';
+import { addProductToBasket, clearClickedProduct } from '../../store/data-basket/data-basket';
+import { getBasketProductIdsWAmount, getProductById } from '../../store/data-basket/selectors';
 
 
 type catalogPageProps = {
@@ -30,7 +32,9 @@ function CatalogPage({
   const location = useLocation();
   const navigate = useNavigate();
 
-  const [modalShow, setModalShow] = useState(false);
+  const [modalAddToBasketShow, setModalAddToBasketShow] = useState(false);
+  const [modalDoneAddToBasketShow, setModalDoneAddToBasketShow] = useState(false);
+  const [clickedProductId, setClickedProductId] = useState<number|null>(null);
   const [sortType, setSortType] = useState<string>('');
   const [sortOrder, setSortOrder] = useState<string>('');
   const [filterCategory, setFilterCategory] = useState<string[]>([]);
@@ -48,6 +52,8 @@ function CatalogPage({
   const fetchedProducts = useAppSelector(getProducts);
   const promo = useAppSelector(getPromo);
   const isDataLoading = useAppSelector(getLoadingDataStatus);
+  const basketProducts = useAppSelector(getBasketProductIdsWAmount);
+  const clickedProduct = useAppSelector(getProductById);
 
   const [currentPage, setCurrentPage] = useState(1);
   const [noPage, setNoPage] = useState(false);
@@ -142,6 +148,18 @@ function CatalogPage({
     }
   };
 
+  const onClickBuyProduct = () => {
+    setModalAddToBasketShow(false);
+    setModalDoneAddToBasketShow(true);
+    dispatch(addProductToBasket(clickedProductId));
+    dispatch(clearClickedProduct());
+  };
+
+  const onClickBuyHandle = (productId: number) => {
+    setClickedProductId(productId);
+    dispatch(fetchProductByIdAction(productId));
+  };
+
 
   useEffect(() => {
     // устанавливаем новые параметры запроса для получения общего количества продуктов (length)
@@ -223,27 +241,38 @@ function CatalogPage({
 
   useEffect(() => {
     if (fetchedProducts) {
-      setProducts(fetchedProducts);
+      setProducts(fetchedProducts.map((prodFetched) => ({...prodFetched, inBasket: !!basketProducts.find((prodBasket) => prodFetched.id === prodBasket.id)})));
     }
   }, [fetchedProducts]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  useEffect(() => {
+    setProducts(products.map((prod) => ({...prod, inBasket: !!basketProducts.find((prodBasket) => prod.id === prodBasket.id)})));
+  }, [basketProducts]); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
     dispatch(fetchPromoAction());
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
-    if (modalShow) {
+    if (clickedProduct) {
+      setModalAddToBasketShow(true);
+    }
+  }, [clickedProduct]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  useEffect(() => {
+    if (modalAddToBasketShow || modalDoneAddToBasketShow) {
       document.body.style.overflow = 'hidden';
     } else {
       document.body.style.overflow = 'unset';
     }
-  }, [modalShow]);
+  }, [modalAddToBasketShow, modalDoneAddToBasketShow]);
 
   useEffect(() => {
     if (changeSearchParamsByClick) {
       changePageHandle(1);
     }
   }, [sortType, sortOrder]); // eslint-disable-line react-hooks/exhaustive-deps
+
 
   return (
     <React.Fragment>
@@ -354,7 +383,7 @@ function CatalogPage({
                             <CardList
                               classname='cards catalog__cards'
                               products={products}
-                              onClickBuy={() => setModalShow(true)}
+                              onClickBuy={onClickBuyHandle}
                             />}
                           {maxPages && maxPages > 1 &&
                             <Pagination
@@ -374,8 +403,49 @@ function CatalogPage({
                 </div>
               </section>}
           </div>
-          {modalShow &&
-            <Modal onClose={() => setModalShow(false)}>
+          {modalAddToBasketShow && clickedProduct &&
+            <Modal
+              onClose={() => setModalAddToBasketShow(false)}
+            >
+              <p className="title title--h4">Добавить товар в корзину</p>
+              <div className="basket-item basket-item--short">
+                <div className="basket-item__img">
+                  <picture>
+                    <source type="image/webp" srcSet={`${clickedProduct.previewImgWebp}, ${clickedProduct.previewImgWebp2x} 2x`} />
+                    <img src={clickedProduct.previewImg} srcSet={`${clickedProduct.previewImg} 2x`} width="140" height="120" alt={clickedProduct.name} />
+                  </picture>
+                </div>
+                <div className="basket-item__description">
+                  <p className="basket-item__title">{clickedProduct.name}</p>
+                  <ul className="basket-item__list">
+                    <li className="basket-item__list-item">
+                      <span className="basket-item__article">Артикул:</span>
+                      <span className="basket-item__number">{clickedProduct.vendorCode}</span>
+                    </li>
+                    <li className="basket-item__list-item">{clickedProduct.type} {clickedProduct.category === 'Фотоаппарат' ? 'фотокамера' : clickedProduct.category.toLowerCase()}</li>
+                    <li className="basket-item__list-item">{clickedProduct.level} уровень</li>
+                  </ul>
+                  <p className="basket-item__price"><span className="visually-hidden">Цена:</span>{clickedProduct.price} ₽</p>
+                </div>
+              </div>
+              <div className="modal__buttons">
+                <button
+                  className="btn btn--purple modal__btn modal__btn--fit-width"
+                  type="button"
+                  onClick={onClickBuyProduct}
+                >
+                  <svg width="24" height="16" aria-hidden="true">
+                    <use xlinkHref="#icon-add-basket"></use>
+                  </svg>Добавить в корзину
+                </button>
+              </div>
+            </Modal>}
+
+          {modalDoneAddToBasketShow &&
+            <Modal
+              onClose={() => setModalDoneAddToBasketShow(false)}
+              classname="modal--narrow"
+            >
               <p className="title title--h4">Товар успешно добавлен в корзину</p>
               <svg className="modal__icon" width="86" height="80" aria-hidden="true">
                 <use xlinkHref="#icon-success"></use>
@@ -383,7 +453,7 @@ function CatalogPage({
               <div className="modal__buttons">
                 <button
                   className="btn btn--transparent modal__btn"
-                  onClick={() => setModalShow(false)}
+                  onClick={() => setModalDoneAddToBasketShow(false)}
                 >Продолжить покупки
                 </button>
                 <NavLink className="btn btn--purple modal__btn modal__btn--fit-width" to={AppRoute.Basket}>Перейти в корзину</NavLink>

@@ -1,10 +1,126 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
+import { NavLink } from 'react-router-dom';
+import { toast } from 'react-toastify';
+import BasketItem from '../../components/basket-item/basket-item';
 import Footer from '../../components/footer/footer';
 import Header from '../../components/header/header';
+import Modal from '../../components/modal/modal';
 import Svgs from '../../components/svgs/svgs';
+import { AppRoute, PromoCodes } from '../../const';
+import { useAppDispatch, useAppSelector } from '../../hooks';
+import { fetchProductsByIdsAction, makeOrderAction } from '../../store/api-actions';
+import { clearProductIdsWAmount, changeProductAmountInBasket, removeProductFromBasket, clearBasketProducts, clearIsOrderMade } from '../../store/data-basket/data-basket';
+import { getBasketProductIdsWAmount, getBasketProducts, getIsOrderMade } from '../../store/data-basket/selectors';
+import { Product } from '../../types/product';
 
 
 function BasketPage(): JSX.Element {
+  const dispatch = useAppDispatch();
+
+  const [productsToBasket, setProductsToBasket] = useState<Product[]>([]);
+  const [productsSum, setProductsSum] = useState<number | null>(null);
+  const [productsDiscountSum, setProductsDiscountSum] = useState<number | null>(null);
+  const [productsTotalSum, setProductsTotalSum] = useState<number | null>(null);
+  const [promocode, setPromocode] = useState('');
+  const [activatedDiscount, setActivatedDiscount] = useState<{ name: string; discount: number } | null>(null);
+  const [isPCodeValid, setIsPCodeValid] = useState<boolean | null>(null);
+  const [modalMadeOrderShow, setModalMadeOrderShow] = useState(false);
+
+  const basketProducts = useAppSelector(getBasketProducts);
+  const basketProductsStore = useAppSelector(getBasketProductIdsWAmount);
+  const isOrderMade = useAppSelector(getIsOrderMade);
+
+
+  useEffect(() => {
+    const searchUrl = basketProductsStore.reduce((acc, prodStore) => `${acc}id=${prodStore.id}&`, '');
+
+    searchUrl.slice(-1);
+    if (searchUrl !== '') {
+      // есть айдишники товаров в корзине
+      dispatch(fetchProductsByIdsAction(searchUrl));
+    } else {
+      // нет айдишников товаров в корзине. Очищаем данные айди-количество в сторе
+      dispatch(clearBasketProducts());
+    }
+
+  }, [basketProductsStore]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  useEffect(() => {
+    const newBasketProducts = basketProducts.map((prod) => {
+      let amount = 1;
+      const index = basketProductsStore.findIndex((prodStore) => prodStore.id === prod.id);
+      if (index !== -1) {
+        amount = basketProductsStore[index].amount;
+        return {...prod, amount: amount};
+      } else {
+        return {...prod, amount: amount};
+      }
+    });
+
+    const newProductsSum = newBasketProducts.reduce((sum, prod) => sum + (prod.amount * prod.price), 0);
+
+    setProductsToBasket(newBasketProducts);
+    setProductsSum(newProductsSum);
+
+    if (activatedDiscount) {
+      const newProductsTotalSum = Math.round(newProductsSum / 100 * (100 - activatedDiscount.discount));
+      setProductsDiscountSum(newProductsSum - newProductsTotalSum);
+      setProductsTotalSum(newProductsTotalSum);
+    } else {
+      setProductsTotalSum(newProductsSum);
+    }
+  }, [basketProducts]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  useEffect(() => {
+    if (isOrderMade === true) {
+      setModalMadeOrderShow(true);
+      setActivatedDiscount(null);
+      setPromocode('');
+      setIsPCodeValid(null);
+      dispatch(clearProductIdsWAmount());
+      dispatch(clearIsOrderMade());
+    }
+    if (isOrderMade === false) {
+      toast.warn('Не удалось отправить заказ. Повторите попытку.');
+    }
+  }, [isOrderMade]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  const onClickRemoveProduct = (productId: number) => {
+    dispatch(removeProductFromBasket(productId));
+  };
+  const onChangeProductAmount = (productId: number, newAmount: number) => {
+    if (newAmount < 1) {
+      newAmount = 1;
+    }
+    if (newAmount > 99) {
+      newAmount = 99;
+    }
+    dispatch(changeProductAmountInBasket({productId, newAmount}));
+  };
+  const onSubmitOrderForm = () => {
+    if (activatedDiscount) {
+      dispatch(makeOrderAction({camerasIds: basketProductsStore.map((prod) => prod.id), coupon: activatedDiscount.name}));
+    } else {
+      toast.warn('Для заказа нужны товары в корзине и применённый промокод');
+    }
+  };
+  const onClickSetPromocode = () => {
+    const activeCode = PromoCodes.find((pcode) => pcode.name === promocode);
+    if (activeCode && productsSum) {
+      setActivatedDiscount(activeCode);
+      const newProductsSum = Math.round(productsSum / 100 * (100 - activeCode.discount));
+      setProductsDiscountSum(productsSum - newProductsSum);
+      setProductsTotalSum(newProductsSum);
+      setIsPCodeValid(true);
+    } else {
+      setIsPCodeValid(false);
+    }
+  };
+  const onChangePromocode = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setPromocode(e.target.value);
+    setIsPCodeValid(null);
+  };
+
   return (
     <React.Fragment>
       <div className="visually-hidden">
@@ -18,18 +134,18 @@ function BasketPage(): JSX.Element {
               <div className="container">
                 <ul className="breadcrumbs__list">
                   <li className="breadcrumbs__item">
-                    <a className="breadcrumbs__link" href="index.html">Главная
+                    <NavLink className="breadcrumbs__link" to={AppRoute.Root}>Главная
                       <svg width="5" height="8" aria-hidden="true">
                         <use xlinkHref="#icon-arrow-mini"></use>
                       </svg>
-                    </a>
+                    </NavLink>
                   </li>
                   <li className="breadcrumbs__item">
-                    <a className="breadcrumbs__link" href="catalog.html">Каталог
+                    <NavLink className="breadcrumbs__link" to={AppRoute.Root}>Каталог
                       <svg width="5" height="8" aria-hidden="true">
                         <use xlinkHref="#icon-arrow-mini"></use>
                       </svg>
-                    </a>
+                    </NavLink>
                   </li>
                   <li className="breadcrumbs__item"><span className="breadcrumbs__link breadcrumbs__link--active">Корзина</span>
                   </li>
@@ -40,119 +156,73 @@ function BasketPage(): JSX.Element {
               <div className="container">
                 <h1 className="title title--h2">Корзина</h1>
                 <ul className="basket__list">
-                  <li className="basket-item">
-                    <div className="basket-item__img">
-                      <picture>
-                        <source type="image/webp" srcSet="img/content/img9.webp, img/content/img9@2x.webp 2x" />
-                        <img src="img/content/img9.jpg" srcSet="img/content/img9@2x.jpg 2x" width="140" height="120" alt="Фотоаппарат «Орлёнок»" />
-                      </picture>
-                    </div>
-                    <div className="basket-item__description">
-                      <p className="basket-item__title">Фотоаппарат «Орлёнок»</p>
-                      <ul className="basket-item__list">
-                        <li className="basket-item__list-item"><span className="basket-item__article">Артикул:</span> <span className="basket-item__number">O78DFGSD832</span>
-                        </li>
-                        <li className="basket-item__list-item">Плёночная фотокамера</li>
-                        <li className="basket-item__list-item">Любительский уровень</li>
-                      </ul>
-                    </div>
-                    <p className="basket-item__price"><span className="visually-hidden">Цена:</span>18 970 ₽</p>
-                    <div className="quantity">
-                      <button className="btn-icon btn-icon--prev" aria-label="уменьшить количество товара">
-                        <svg width="7" height="12" aria-hidden="true">
-                          <use xlinkHref="#icon-arrow"></use>
-                        </svg>
-                      </button>
-                      <label className="visually-hidden" htmlFor="counter1"></label>
-                      <input
-                        type="number" id="counter1"
-                        // value="2"
-                        min="1" max="99"
-                        aria-label="количество товара"
-                      />
-                      <button className="btn-icon btn-icon--next" aria-label="увеличить количество товара">
-                        <svg width="7" height="12" aria-hidden="true">
-                          <use xlinkHref="#icon-arrow"></use>
-                        </svg>
-                      </button>
-                    </div>
-                    <div className="basket-item__total-price"><span className="visually-hidden">Общая цена:</span>37 940 ₽</div>
-                    <button className="cross-btn" type="button" aria-label="Удалить товар">
-                      <svg width="10" height="10" aria-hidden="true">
-                        <use xlinkHref="#icon-close"></use>
-                      </svg>
-                    </button>
-                  </li>
-                  <li className="basket-item">
-                    <div className="basket-item__img">
-                      <picture>
-                        <source type="image/webp" srcSet="img/content/img1.webp, img/content/img1@2x.webp 2x" />
-                        <img src="img/content/img1.jpg" srcSet="img/content/img1@2x.jpg 2x" width="140" height="120" alt="Ретрокамера «Das Auge IV»" />
-                      </picture>
-                    </div>
-                    <div className="basket-item__description">
-                      <p className="basket-item__title">Ретрокамера «Das Auge IV»</p>
-                      <ul className="basket-item__list">
-                        <li className="basket-item__list-item"><span className="basket-item__article">Артикул:</span> <span className="basket-item__number">DA4IU67AD5</span>
-                        </li>
-                        <li className="basket-item__list-item">Коллекционная видеокамера</li>
-                        <li className="basket-item__list-item">Любительский уровень</li>
-                      </ul>
-                    </div>
-                    <p className="basket-item__price"><span className="visually-hidden">Цена:</span>73 450 ₽</p>
-                    <div className="quantity">
-                      <button className="btn-icon btn-icon--prev" disabled aria-label="уменьшить количество товара">
-                        <svg width="7" height="12" aria-hidden="true">
-                          <use xlinkHref="#icon-arrow"></use>
-                        </svg>
-                      </button>
-                      <label className="visually-hidden" htmlFor="counter2"></label>
-                      <input
-                        type="number"
-                        id="counter2"
-                        // value="1"
-                        min="1" max="99"
-                        aria-label="количество товара"
-                      />
-                      <button className="btn-icon btn-icon--next" aria-label="увеличить количество товара">
-                        <svg width="7" height="12" aria-hidden="true">
-                          <use xlinkHref="#icon-arrow"></use>
-                        </svg>
-                      </button>
-                    </div>
-                    <div className="basket-item__total-price">
-                      <span className="visually-hidden">Общая цена:</span>
-                      73 450 ₽
-                    </div>
-                    <button className="cross-btn" type="button" aria-label="Удалить товар">
-                      <svg width="10" height="10" aria-hidden="true">
-                        <use xlinkHref="#icon-close"></use>
-                      </svg>
-                    </button>
-                  </li>
+                  {productsToBasket.map((product) => (
+                    <BasketItem
+                      key={product.id}
+                      id={product.id}
+                      name={product.name}
+                      price={product.price}
+                      type={product.type}
+                      category={product.category}
+                      vendorCode={product.vendorCode}
+                      level={product.level}
+                      previewImg={product.previewImg}
+                      previewImg2x={product.previewImg2x}
+                      previewImgWebp={product.previewImgWebp}
+                      previewImgWebp2x={product.previewImgWebp2x}
+                      amount={product.amount}
+                      onClickRemoveProduct={onClickRemoveProduct}
+                      onChangeProductAmount={onChangeProductAmount}
+                    />)
+                  )}
+
                 </ul>
                 <div className="basket__summary">
                   <div className="basket__promo">
                     <p className="title title--h4">Если у вас есть промокод на скидку, примените его в этом поле</p>
                     <div className="basket-form">
-                      <form action="#">
-                        <div className="custom-input">
+                      <form action='#'>
+                        <div className={['custom-input', isPCodeValid === false ? 'is-invalid' : '', isPCodeValid === true ? 'is-valid' : ''].join(' ')}>
                           <label><span className="custom-input__label">Промокод</span>
-                            <input type="text" name="promo" placeholder="Введите промокод" />
+                            <input
+                              type="text" name="promo"
+                              placeholder="Введите промокод"
+                              onChange={onChangePromocode}
+                              value={promocode}
+                            />
                           </label>
-                          <p className="custom-input__error">Промокод неверный</p>
-                          <p className="custom-input__success">Промокод принят!</p>
+                          {isPCodeValid === false && <p className="custom-input__error">Промокод неверный</p>}
+                          {isPCodeValid && <p className="custom-input__success">Промокод принят!</p>}
                         </div>
-                        <button className="btn" type="submit">Применить
+                        <button
+                          className="btn"
+                          type="button"
+                          onClick={onClickSetPromocode}
+                        >
+                          Применить
                         </button>
                       </form>
                     </div>
                   </div>
                   <div className="basket__summary-order">
-                    <p className="basket__summary-item"><span className="basket__summary-text">Всего:</span><span className="basket__summary-value">111 390 ₽</span></p>
-                    <p className="basket__summary-item"><span className="basket__summary-text">Скидка:</span><span className="basket__summary-value basket__summary-value--bonus">0 ₽</span></p>
-                    <p className="basket__summary-item"><span className="basket__summary-text basket__summary-text--total">К оплате:</span><span className="basket__summary-value basket__summary-value--total">111 390 ₽</span></p>
-                    <button className="btn btn--purple" type="submit">Оформить заказ
+                    <p className="basket__summary-item"><span className="basket__summary-text">Всего:</span>
+                      <span className="basket__summary-value">{productsSum ? productsSum : 0} ₽</span>
+                    </p>
+                    <p className="basket__summary-item">
+                      <span className="basket__summary-text">Скидка:</span>
+                      <span className={['basket__summary-value', productsDiscountSum ? 'basket__summary-value--bonus' : ''].join(' ')}>
+                        {productsDiscountSum ? productsDiscountSum : 0} ₽
+                      </span>
+                    </p>
+                    <p className="basket__summary-item"><span className="basket__summary-text basket__summary-text--total">К оплате:</span>
+                      <span className="basket__summary-value basket__summary-value--total">{productsTotalSum ? productsTotalSum : 0} ₽</span>
+                    </p>
+                    <button
+                      className="btn btn--purple"
+                      type="submit"
+                      onClick={onSubmitOrderForm}
+                    >
+                      Оформить заказ
                     </button>
                   </div>
                 </div>
@@ -162,6 +232,26 @@ function BasketPage(): JSX.Element {
         </main>
         <Footer />
       </div>
+      {modalMadeOrderShow &&
+            <Modal
+              onClose={() => setModalMadeOrderShow(false)}
+              classname="modal--narrow"
+            >
+              <p className="title title--h4">Спасибо за покупку</p>
+              <svg className="modal__icon" width="80" height="78" aria-hidden="true">
+                <use xlinkHref="#icon-review-success"></use>
+              </svg>
+              <div className="modal__buttons">
+                <NavLink
+                  className="btn btn--purple modal__btn modal__btn--fit-width"
+                  to={AppRoute.Catalog}
+                  type="button"
+                >
+                  Вернуться к покупкам
+                </NavLink>
+              </div>
+            </Modal>}
+
     </React.Fragment>
   );
 }
