@@ -19,6 +19,8 @@ export type dataBasket = {
   clickedProduct: Product | null;
   basketProducts: Product[];
   isOrderMade: boolean | null;
+  discount: number | null;
+  isDiscountApproved: boolean | null;
 };
 export type dataProduct = {
   product: Product | null;

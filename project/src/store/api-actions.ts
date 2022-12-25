@@ -44,6 +44,43 @@ export const fetchSearchingProductsAction = createAsyncThunk<Product[], string |
   },
 );
 
+export const fetchPromoAction = createAsyncThunk<Promo, undefined, {
+  dispatch: AppDispatch;
+  state: State;
+  extra: AxiosInstance;
+}>(
+  'catalog/fetchPromo',
+  async (_arg, { dispatch, extra: api }) => {
+    const { data } = await api.get<Promo>(APIRoute.Promo);
+    return data;
+  },
+);
+
+
+export const makeOrderAction = createAsyncThunk<string, OrderFormData, {
+  dispatch: AppDispatch;
+  state: State;
+  extra: AxiosInstance;
+}>(
+  'basket/makeOrder',
+  async (formData, { dispatch, extra: api }) => {
+    const { data } = await api.post<string>(APIRoute.Orders, formData);
+    return data;
+  },
+);
+
+export const fetchPromoDiscountAction = createAsyncThunk<string, {coupon: string}, {
+  dispatch: AppDispatch;
+  state: State;
+  extra: AxiosInstance;
+}>(
+  'basket/fetchPromoDiscount',
+  async (pCodeData, { dispatch, extra: api }) => {
+    const { data } = await api.post<string>(APIRoute.Coupons, pCodeData);
+    return data;
+  },
+);
+
 export const fetchProductByIdAction = createAsyncThunk<Product[], number, {
   dispatch: AppDispatch;
   state: State;
@@ -68,17 +105,6 @@ export const fetchProductsByIdsAction = createAsyncThunk<Product[], string, {
   },
 );
 
-export const fetchPromoAction = createAsyncThunk<Promo, undefined, {
-  dispatch: AppDispatch;
-  state: State;
-  extra: AxiosInstance;
-}>(
-  'catalog/fetchPromo',
-  async (_arg, { dispatch, extra: api }) => {
-    const { data } = await api.get<Promo>(APIRoute.Promo);
-    return data;
-  },
-);
 
 export const fetchProductAction = createAsyncThunk<Product, string, {
   dispatch: AppDispatch;
@@ -124,18 +150,6 @@ export const addProductReviewAction = createAsyncThunk<Review, ReviewFormData, {
   'product/addReview',
   async (formData, { dispatch, extra: api }) => {
     const { data } = await api.post<Review>(APIRoute.Reviews, formData);
-    return data;
-  },
-);
-
-export const makeOrderAction = createAsyncThunk<string, OrderFormData, {
-  dispatch: AppDispatch;
-  state: State;
-  extra: AxiosInstance;
-}>(
-  'product/makeOrder',
-  async (formData, { dispatch, extra: api }) => {
-    const { data } = await api.post<string>(APIRoute.Orders, formData);
     return data;
   },
 );
