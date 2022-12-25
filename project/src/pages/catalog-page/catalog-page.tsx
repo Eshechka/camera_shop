@@ -250,6 +250,9 @@ function CatalogPage({
   }, [basketProducts]); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
+    if (clickedProduct) {
+      dispatch(clearClickedProduct());
+    }
     dispatch(fetchPromoAction());
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 

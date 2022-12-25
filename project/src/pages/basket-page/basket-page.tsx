@@ -6,11 +6,11 @@ import Footer from '../../components/footer/footer';
 import Header from '../../components/header/header';
 import Modal from '../../components/modal/modal';
 import Svgs from '../../components/svgs/svgs';
-import { AppRoute, PromoCodes } from '../../const';
+import { AppRoute } from '../../const';
 import { useAppDispatch, useAppSelector } from '../../hooks';
-import { fetchProductsByIdsAction, makeOrderAction } from '../../store/api-actions';
-import { clearProductIdsWAmount, changeProductAmountInBasket, removeProductFromBasket, clearBasketProducts, clearIsOrderMade } from '../../store/data-basket/data-basket';
-import { getBasketProductIdsWAmount, getBasketProducts, getIsOrderMade } from '../../store/data-basket/selectors';
+import { fetchProductsByIdsAction, fetchPromoDiscountAction, makeOrderAction } from '../../store/api-actions';
+import { clearProductIdsWAmount, changeProductAmountInBasket, removeProductFromBasket, clearBasketProducts, clearIsOrderMade, clearDiscountInfo, clearDiscountIsApproved } from '../../store/data-basket/data-basket';
+import { getBasketProductIdsWAmount, getBasketProducts, getDiscount, getIsDiscountApproved, getIsOrderMade } from '../../store/data-basket/selectors';
 import { Product } from '../../types/product';
 
 
@@ -22,13 +22,13 @@ function BasketPage(): JSX.Element {
   const [productsDiscountSum, setProductsDiscountSum] = useState<number | null>(null);
   const [productsTotalSum, setProductsTotalSum] = useState<number | null>(null);
   const [promocode, setPromocode] = useState('');
-  const [activatedDiscount, setActivatedDiscount] = useState<{ name: string; discount: number } | null>(null);
-  const [isPCodeValid, setIsPCodeValid] = useState<boolean | null>(null);
   const [modalMadeOrderShow, setModalMadeOrderShow] = useState(false);
 
   const basketProducts = useAppSelector(getBasketProducts);
   const basketProductsStore = useAppSelector(getBasketProductIdsWAmount);
   const isOrderMade = useAppSelector(getIsOrderMade);
+  const discount = useAppSelector(getDiscount);
+  const isDiscountApproved = useAppSelector(getIsDiscountApproved);
 
 
   useEffect(() => {
@@ -62,21 +62,21 @@ function BasketPage(): JSX.Element {
     setProductsToBasket(newBasketProducts);
     setProductsSum(newProductsSum);
 
-    if (activatedDiscount) {
-      const newProductsTotalSum = Math.round(newProductsSum / 100 * (100 - activatedDiscount.discount));
+    if (discount) {
+      const newProductsTotalSum = Math.round(newProductsSum / 100 * (100 - +discount));
       setProductsDiscountSum(newProductsSum - newProductsTotalSum);
       setProductsTotalSum(newProductsTotalSum);
     } else {
       setProductsTotalSum(newProductsSum);
+      setProductsDiscountSum(null);
     }
   }, [basketProducts]); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
     if (isOrderMade === true) {
       setModalMadeOrderShow(true);
-      setActivatedDiscount(null);
       setPromocode('');
-      setIsPCodeValid(null);
+      dispatch(clearDiscountInfo());
       dispatch(clearProductIdsWAmount());
       dispatch(clearIsOrderMade());
     }
@@ -84,6 +84,20 @@ function BasketPage(): JSX.Element {
       toast.warn('Не удалось отправить заказ. Повторите попытку.');
     }
   }, [isOrderMade]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  useEffect(() => {
+    if (discount && productsSum) {
+      const newProductsSum = Math.round(productsSum / 100 * (100 - +discount));
+      setProductsDiscountSum(productsSum - newProductsSum);
+      setProductsTotalSum(newProductsSum);
+    }
+  }, [discount]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  useEffect(() => {
+    if (isDiscountApproved !== null) {
+      dispatch(clearDiscountIsApproved());
+    }
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   const onClickRemoveProduct = (productId: number) => {
     dispatch(removeProductFromBasket(productId));
@@ -98,27 +112,19 @@ function BasketPage(): JSX.Element {
     dispatch(changeProductAmountInBasket({productId, newAmount}));
   };
   const onSubmitOrderForm = () => {
-    if (activatedDiscount) {
-      dispatch(makeOrderAction({camerasIds: basketProductsStore.map((prod) => prod.id), coupon: activatedDiscount.name}));
+    if (discount && promocode) {
+      dispatch(makeOrderAction({camerasIds: basketProductsStore.map((prod) => prod.id), coupon: promocode}));
     } else {
       toast.warn('Для заказа нужны товары в корзине и применённый промокод');
     }
   };
-  const onClickSetPromocode = () => {
-    const activeCode = PromoCodes.find((pcode) => pcode.name === promocode);
-    if (activeCode && productsSum) {
-      setActivatedDiscount(activeCode);
-      const newProductsSum = Math.round(productsSum / 100 * (100 - activeCode.discount));
-      setProductsDiscountSum(productsSum - newProductsSum);
-      setProductsTotalSum(newProductsSum);
-      setIsPCodeValid(true);
-    } else {
-      setIsPCodeValid(false);
-    }
+  const onSubmitSetPromocode = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    dispatch(fetchPromoDiscountAction({coupon: promocode}));
   };
   const onChangePromocode = (e: React.ChangeEvent<HTMLInputElement>) => {
     setPromocode(e.target.value);
-    setIsPCodeValid(null);
+    dispatch(clearDiscountIsApproved());
   };
 
   return (
@@ -181,8 +187,11 @@ function BasketPage(): JSX.Element {
                   <div className="basket__promo">
                     <p className="title title--h4">Если у вас есть промокод на скидку, примените его в этом поле</p>
                     <div className="basket-form">
-                      <form action='#'>
-                        <div className={['custom-input', isPCodeValid === false ? 'is-invalid' : '', isPCodeValid === true ? 'is-valid' : ''].join(' ')}>
+                      <form
+                        action='#'
+                        onSubmit={onSubmitSetPromocode}
+                      >
+                        <div className={['custom-input', isDiscountApproved === false ? 'is-invalid' : '', isDiscountApproved === true ? 'is-valid' : ''].join(' ')}>
                           <label><span className="custom-input__label">Промокод</span>
                             <input
                               type="text" name="promo"
@@ -191,13 +200,13 @@ function BasketPage(): JSX.Element {
                               value={promocode}
                             />
                           </label>
-                          {isPCodeValid === false && <p className="custom-input__error">Промокод неверный</p>}
-                          {isPCodeValid && <p className="custom-input__success">Промокод принят!</p>}
+                          {isDiscountApproved === false && <p className="custom-input__error">Промокод неверный</p>}
+                          {isDiscountApproved && <p className="custom-input__success">Промокод принят!</p>}
                         </div>
                         <button
                           className="btn"
-                          type="button"
-                          onClick={onClickSetPromocode}
+                          type="submit"
+                          disabled={!promocode || !promocode.length}
                         >
                           Применить
                         </button>
@@ -233,24 +242,24 @@ function BasketPage(): JSX.Element {
         <Footer />
       </div>
       {modalMadeOrderShow &&
-            <Modal
-              onClose={() => setModalMadeOrderShow(false)}
-              classname="modal--narrow"
+        <Modal
+          onClose={() => setModalMadeOrderShow(false)}
+          classname="modal--narrow"
+        >
+          <p className="title title--h4">Спасибо за покупку</p>
+          <svg className="modal__icon" width="80" height="78" aria-hidden="true">
+            <use xlinkHref="#icon-review-success"></use>
+          </svg>
+          <div className="modal__buttons">
+            <NavLink
+              className="btn btn--purple modal__btn modal__btn--fit-width"
+              to={AppRoute.Catalog}
+              type="button"
             >
-              <p className="title title--h4">Спасибо за покупку</p>
-              <svg className="modal__icon" width="80" height="78" aria-hidden="true">
-                <use xlinkHref="#icon-review-success"></use>
-              </svg>
-              <div className="modal__buttons">
-                <NavLink
-                  className="btn btn--purple modal__btn modal__btn--fit-width"
-                  to={AppRoute.Catalog}
-                  type="button"
-                >
-                  Вернуться к покупкам
-                </NavLink>
-              </div>
-            </Modal>}
+              Вернуться к покупкам
+            </NavLink>
+          </div>
+        </Modal>}
 
     </React.Fragment>
   );

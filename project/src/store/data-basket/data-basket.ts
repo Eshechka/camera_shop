@@ -1,7 +1,7 @@
 import { createSlice } from '@reduxjs/toolkit';
 import { NameSpace } from '../../const';
 import { dataBasket } from '../../types/state';
-import { fetchProductByIdAction, fetchProductsByIdsAction, makeOrderAction } from '../api-actions';
+import { fetchProductByIdAction, fetchProductsByIdsAction, fetchPromoDiscountAction, makeOrderAction } from '../api-actions';
 
 
 type changePayloadType = {
@@ -16,6 +16,8 @@ const initialState: dataBasket = {
   clickedProduct: null,
   basketProducts: [],
   isOrderMade: null,
+  discount: null,
+  isDiscountApproved: null,
 };
 
 export const Basket = createSlice({
@@ -49,6 +51,13 @@ export const Basket = createSlice({
     clearIsOrderMade: (state) => {
       state.isOrderMade = null;
     },
+    clearDiscountInfo: (state) => {
+      state.discount = null;
+      state.isDiscountApproved = null;
+    },
+    clearDiscountIsApproved: (state) => {
+      state.isDiscountApproved = null;
+    },
   },
   extraReducers(builder) {
     builder
@@ -69,8 +78,25 @@ export const Basket = createSlice({
       })
       .addCase(fetchProductsByIdsAction.rejected, (state) => {
         state.basketProducts = [];
+      })
+      .addCase(fetchPromoDiscountAction.fulfilled, (state, { payload }) => {
+        state.discount = +payload;
+        state.isDiscountApproved = true;
+      })
+      .addCase(fetchPromoDiscountAction.rejected, (state) => {
+        state.isDiscountApproved = false;
       });
   }
 });
 
-export const { addProductToBasket, clearClickedProduct, clearProductIdsWAmount, clearBasketProducts, removeProductFromBasket, changeProductAmountInBasket, clearIsOrderMade } = Basket.actions;
+export const {
+  addProductToBasket,
+  clearClickedProduct,
+  clearProductIdsWAmount,
+  clearBasketProducts,
+  removeProductFromBasket,
+  changeProductAmountInBasket,
+  clearIsOrderMade,
+  clearDiscountInfo,
+  clearDiscountIsApproved
+} = Basket.actions;
