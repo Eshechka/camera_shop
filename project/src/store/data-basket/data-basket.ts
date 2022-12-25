@@ -52,7 +52,7 @@ export const Basket = createSlice({
   },
   extraReducers(builder) {
     builder
-      .addCase(makeOrderAction.fulfilled, (state, {payload}) => {
+      .addCase(makeOrderAction.fulfilled, (state) => {
         state.isOrderMade = true;
       })
       .addCase(makeOrderAction.rejected, (state) => {

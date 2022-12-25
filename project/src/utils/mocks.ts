@@ -1,32 +1,43 @@
 import {image, name, random, datatype} from 'faker';
+import { Basket } from '../types/basket';
 import { Product } from '../types/product';
 import { Promo } from '../types/promo';
 import { Review } from '../types/review';
 import { ReviewFormData } from '../types/reviewFormData';
 
 
-export const makeFakeProduct = (): Product => (
-    {
-      id: datatype.number(1000),
-      name: name.title(),
-      vendorCode: random.word(),
-      type: random.word(),
-      category: random.word(),
-      description: random.words(5),
-      level: random.word(),
-      rating: datatype.number({min: 1, max: 5, precision: 1}),
-      price: datatype.float({min: 100, max: 100000, precision: .1}),
-      previewImg: image.imageUrl(),
-      previewImg2x: image.imageUrl(),
-      previewImgWebp: image.imageUrl(),
-      previewImgWebp2x: image.imageUrl(),
-      reviewCount: datatype.number(20),
-    } as Product);
+export const makeFakeProduct = (): Product => ({
+  id: datatype.number(1000),
+  name: name.title(),
+  vendorCode: random.word(),
+  type: random.word(),
+  category: 'some_cat',
+  description: random.words(5),
+  level: random.word(),
+  rating: datatype.number({min: 1, max: 5, precision: 1}),
+  price: datatype.float({min: 100, max: 100000, precision: .1}),
+  previewImg: image.imageUrl(),
+  previewImg2x: image.imageUrl(),
+  previewImgWebp: image.imageUrl(),
+  previewImgWebp2x: image.imageUrl(),
+  reviewCount: datatype.number(20),
+} as Product);
 
 export const makeFakeProducts = (amount?: number): Product[] => {
   const productAmount = amount ? amount : 5;
   return new Array(productAmount).fill(null).map(() => makeFakeProduct());
 };
+
+export const makeFakeProductBasket = (): Basket => (
+  {
+    id: datatype.number(1000),
+    amount: datatype.number(10),
+  } as Basket);
+export const makeFakeProductsBasket = (amount?: number): Basket[] => {
+  const productBasketAmount = amount ? amount : 5;
+  return new Array(productBasketAmount).fill(null).map(() => makeFakeProductBasket());
+};
+
 
 export const makeFakePromo = (): Promo => (
   {
