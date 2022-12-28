@@ -80,7 +80,12 @@ function BasketItem({
                 setAmountEmpty(false);
               }
             }}
-            // min="1" max="99"
+            onBlur={(e) => {
+              if (amountEmpty) {
+                setAmountEmpty(false);
+              }
+            }}
+            min="1" max="99"
             aria-label="количество товара"
           />
           <button
