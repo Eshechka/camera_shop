@@ -15,7 +15,7 @@ type basketItemProps = {
   previewImgWebp2x: string;
   amount: number | undefined;
   onClickRemoveProduct: (product: number) => void;
-  onChangeProductAmount: (productId: number, newAmount: number) => void;
+  onChangeProductAmount: (productId: number, newAmount: string) => void;
 }
 
 function BasketItem({
@@ -35,6 +35,7 @@ function BasketItem({
   onChangeProductAmount,
 }: basketItemProps): JSX.Element {
   const [modalRemoveFromBasketShow, setModalRemoveFromBasketShow] = useState(false);
+  const [amountEmpty, setAmountEmpty] = useState(false);
 
   return (
     <>
@@ -58,9 +59,9 @@ function BasketItem({
         <div className="quantity">
           <button
             className="btn-icon btn-icon--prev"
-            disabled={amount === 1}
+            disabled={!amount || amount < 2}
             aria-label="уменьшить количество товара"
-            onClick={(e) => onChangeProductAmount(id, (amount && +amount > 1 ? amount - 1 : 1))}
+            onClick={() => onChangeProductAmount(id, (amount && +amount > 1 ? `${amount - 1}` : '1'))}
           >
             <svg width="7" height="12" aria-hidden="true">
               <use xlinkHref="#icon-arrow"></use>
@@ -70,16 +71,23 @@ function BasketItem({
           <input
             type="number"
             id="counter2"
-            value={amount}
-            onChange={(e) => onChangeProductAmount(id, +e.target.value)}
-            min="1" max="99"
+            value={amountEmpty ? '' : amount}
+            onChange={(e) => {
+              if (e.target.value === '') {
+                setAmountEmpty(true);
+              } else {
+                onChangeProductAmount(id, e.target.value);
+                setAmountEmpty(false);
+              }
+            }}
+            // min="1" max="99"
             aria-label="количество товара"
           />
           <button
             className="btn-icon btn-icon--next"
-            disabled={amount === 99}
+            disabled={!amount || amount > 98}
             aria-label="увеличить количество товара"
-            onClick={(e) => onChangeProductAmount(id, (amount && +amount < 99 ? amount + 1 : 99))}
+            onClick={() => onChangeProductAmount(id, (amount && +amount < 99 ? `${amount + 1}` : '99'))}
           >
             <svg width="7" height="12" aria-hidden="true">
               <use xlinkHref="#icon-arrow"></use>

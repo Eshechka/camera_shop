@@ -11,7 +11,8 @@ function Header(): JSX.Element {
 
   useEffect(() => {
     if (basketProducts) {
-      setBasketProductsAmount(basketProducts.length);
+      const total = basketProducts.reduce((sum, prodStore) => sum + prodStore.amount, 0);
+      setBasketProductsAmount(total);
     }
   }, [basketProducts]); // eslint-disable-line react-hooks/exhaustive-deps
 
