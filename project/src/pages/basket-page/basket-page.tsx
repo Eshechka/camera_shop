@@ -117,7 +117,7 @@ function BasketPage(): JSX.Element {
   };
   const onSubmitOrderForm = () => {
     if (basketProductsStore && basketProductsStore.length) {
-      const codeOrFake = promocode ? promocode : 'camera-333';
+      const codeOrFake = promocode ? promocode : null;
       dispatch(makeOrderAction({camerasIds: basketProductsStore.map((prod) => prod.id), coupon: codeOrFake}));
     } else {
       toast.warn('Для заказа нужны товары в корзине');
