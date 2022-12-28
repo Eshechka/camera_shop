@@ -116,10 +116,11 @@ function BasketPage(): JSX.Element {
     }
   };
   const onSubmitOrderForm = () => {
-    if (discount && promocode) {
-      dispatch(makeOrderAction({camerasIds: basketProductsStore.map((prod) => prod.id), coupon: promocode}));
+    if (basketProductsStore && basketProductsStore.length) {
+      const codeOrFake = promocode ? promocode : 'camera-333';
+      dispatch(makeOrderAction({camerasIds: basketProductsStore.map((prod) => prod.id), coupon: codeOrFake}));
     } else {
-      toast.warn('Для заказа нужны товары в корзине и применённый промокод');
+      toast.warn('Для заказа нужны товары в корзине');
     }
   };
   const onSubmitSetPromocode = (e: React.FormEvent<HTMLFormElement>) => {
