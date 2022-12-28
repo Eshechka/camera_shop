@@ -97,19 +97,23 @@ function BasketPage(): JSX.Element {
     if (isDiscountApproved !== null) {
       dispatch(clearDiscountIsApproved());
     }
+    document.body.style.overflow = 'unset';
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   const onClickRemoveProduct = (productId: number) => {
     dispatch(removeProductFromBasket(productId));
   };
-  const onChangeProductAmount = (productId: number, newAmount: number) => {
-    if (newAmount < 1) {
-      newAmount = 1;
+  const onChangeProductAmount = (productId: number, newAmount: string) => {
+    if (newAmount !== '') {
+      let parsedAmount = parseInt(newAmount, 10);
+      if (parsedAmount < 1) {
+        parsedAmount = 1;
+      }
+      if (parsedAmount > 99) {
+        parsedAmount = 99;
+      }
+      dispatch(changeProductAmountInBasket({productId, newAmount: parsedAmount}));
     }
-    if (newAmount > 99) {
-      newAmount = 99;
-    }
-    dispatch(changeProductAmountInBasket({productId, newAmount}));
   };
   const onSubmitOrderForm = () => {
     if (discount && promocode) {
